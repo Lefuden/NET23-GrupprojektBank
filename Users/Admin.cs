@@ -1,6 +1,26 @@
-﻿namespace NET23_GrupprojektBank.Users
+﻿using NET23_GrupprojektBank.Currency;
+
+namespace NET23_GrupprojektBank.Users
 {
-    internal class Admin
+    internal class Admin : User
     {
+        public Admin(string userName, string password) : base(userName, password)
+        {
+            UserType = Type.Admin;
+        }
+
+        public static Customer CreateUserAccount()
+        {
+            //console input/output to enter username/firstname/lastname/password etc
+            //call method, or add here?
+
+            return new Customer("", "");
+        }
+
+        public static CurrencyType UpdateCurrencyExchangeRate()
+        {
+            //call menu, choose currency type, take input, return value
+            return CurrencyType.SEK;
+        }
     }
 }
