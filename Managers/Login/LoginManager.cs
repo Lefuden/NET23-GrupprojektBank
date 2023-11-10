@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NET23_GrupprojektBank
+namespace NET23_GrupprojektBank.Managers.Login
 {
-    internal class PersonInformation
+    internal class LoginManager
     {
     }
 }

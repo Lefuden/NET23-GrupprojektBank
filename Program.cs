@@ -1,10 +1,12 @@
-﻿namespace NET23_GrupprojektBank
+﻿using NET23_GrupprojektBank.Application;
+namespace NET23_GrupprojektBank
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            App HyperHedgehogsBank = new();
+            HyperHedgehogsBank.Run();
         }
     }
 }
