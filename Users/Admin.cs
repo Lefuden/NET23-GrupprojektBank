@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.Currency;
+using NET23_GrupprojektBank.Users.UserInformation;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -6,7 +7,7 @@ namespace NET23_GrupprojektBank.Users
     {
         public Admin(string userName, string password) : base(userName, password)
         {
-            UserType = Type.Admin;
+            UserType = UserType.Admin;
         }
 
         public static Customer CreateUserAccount()
@@ -14,7 +15,7 @@ namespace NET23_GrupprojektBank.Users
             //console input/output to enter username/firstname/lastname/password etc
             //call method, or add here?
 
-            return new Customer("", "");
+            return new Customer("", "", new PersonInformation());
         }
 
         public static CurrencyType UpdateCurrencyExchangeRate()
