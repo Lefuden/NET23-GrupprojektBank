@@ -31,6 +31,8 @@
         PhoneFailed,
         ContactInformationSuccess,
         ContactInformationFailed,
-        InvalidInput
+        InvalidInput,
+        TransactionManagerAddedToQueueSuccess,
+        TransactionManagerAddedToQueueFailed
     }
 }
