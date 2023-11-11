@@ -1,6 +1,23 @@
-﻿namespace NET23_GrupprojektBank.BankAccounts
+﻿using NET23_GrupprojektBank.Currency;
+using System.Transactions;
+
+namespace NET23_GrupprojektBank.BankAccounts
 {
-    internal class Savings
+    internal class Savings : BankAccount
     {
+        private double Interest { get; set; }
+        public Savings(string bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0, double interest = 0)
+        {
+            BankAccountNumber = bankAccountNumber;
+            BankAccountName = bankAccountName;
+            BankAccountType = BankAccountType.Checking;
+            CurrencyType = currencyType;
+            Balance = balance;
+            Interest = interest;
+        }
+        public override void MakeTransaction(Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

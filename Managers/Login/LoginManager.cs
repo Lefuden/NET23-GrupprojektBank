@@ -1,5 +1,7 @@
 ﻿using NET23_GrupprojektBank.Users;
+using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
+using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 
 namespace NET23_GrupprojektBank.Managers.Login
 {
@@ -14,12 +16,12 @@ namespace NET23_GrupprojektBank.Managers.Login
 
         public LoginManager()
         {
-            var emptyTest = new PersonInformation();
+
             Users = new()
                 {
-                    new Customer("Tobias", "password",emptyTest),
-                    new Customer("Daniel", "password",emptyTest),
-                    new Customer("Wille", "password",emptyTest)
+                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog", "123",new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", "234",new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                    new Customer("Wille", "password",new PersonInformation("Wille", "Skog", "345",new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com"))))
                 };
         }
 
