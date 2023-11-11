@@ -31,12 +31,12 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Undeclared;
         }
 
-        internal bool GetUserName(string userName)
+        internal bool CompareUserName(string userName)
         {
             return userName == UserName;
         }
 
-        internal bool GetUserPassword(string userPassword)
+        internal bool CompareUserPassword(string userPassword)
         {
             return BCrypt.Net.BCrypt.Verify(userPassword + Salt, HashedPassword);
         }

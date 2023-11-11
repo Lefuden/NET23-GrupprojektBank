@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.Currency;
+using NET23_GrupprojektBank.Users.UserInformation;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -14,7 +15,7 @@ namespace NET23_GrupprojektBank.Users
             //console input/output to enter username/firstname/lastname/password etc
             //call method, or add here?
 
-            return new Customer("", "");
+            return new Customer("", "", new PersonInformation());
         }
 
         public static CurrencyType UpdateCurrencyExchangeRate()
