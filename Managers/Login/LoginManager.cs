@@ -7,21 +7,18 @@ namespace NET23_GrupprojektBank.Managers.Login
         private List<User> Users { get; set; }
         private int LoginAttempts { get; set; } = 3;
         private bool IsLocked { get; set; } = false;
-        private EventStatus EventStatus { get; set; }
-
         public LoginManager()
         {
             Users = new();
         }
-
         public (User User, EventStatus EventStatus) Login(string userName, string password)
         {
-            var userLogin = (default, EventStatus.Failed);
+            var userLogin = ((User)default, EventStatus.LoginFailed);
 
             if (LoginAttempts <= 0 && !IsLocked)
             {
                 IsLocked = true;
-                userLogin = (default, EventStatus.Locked);
+                userLogin = ((User)default, EventStatus.LoginLocked);
                 return userLogin;
             }
 
@@ -31,9 +28,9 @@ namespace NET23_GrupprojektBank.Managers.Login
             {
                 if (user.CompareUserName(userName))
                 {
-                    if (user.ComparePassword(password))
+                    if (user.CompareUserPassword(password))
                     {
-                        userLogin = (user, EventStatus.Success);
+                        userLogin = (user, EventStatus.LoginSuccess);
                     }
                 }
             });
