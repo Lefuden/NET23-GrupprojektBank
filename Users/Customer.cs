@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Users.UserInformation;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -6,9 +7,9 @@ namespace NET23_GrupprojektBank.Users
     {
         protected List<BankAccount> BankAccounts { get; set; }
 
-        public Customer(string userName, string password) : base(userName, password)
+        public Customer(string userName, string password, PersonInformation person) : base(userName, password, person)
         {
-            UserType = Type.Customer;
+            UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
 

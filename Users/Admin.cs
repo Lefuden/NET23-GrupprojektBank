@@ -6,7 +6,7 @@ namespace NET23_GrupprojektBank.Users
     {
         public Admin(string userName, string password) : base(userName, password)
         {
-            UserType = Type.Admin;
+            UserType = UserType.Admin;
         }
 
         public static Customer CreateUserAccount()
