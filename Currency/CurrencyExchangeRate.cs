@@ -1,4 +1,6 @@
 ﻿using NET23_GrupprojektBank.Currency.DTO;
+using NET23_GrupprojektBank.Managers;
+using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
 using Newtonsoft.Json;
 using System.Reflection;
@@ -20,16 +22,39 @@ namespace NET23_GrupprojektBank.Currency
         public static DTOForCurrencyExchangeRateAPI SEKCurrencyRate { get; set; } = new();
         public static DTOForCurrencyExchangeRateAPI USDCurrencyRate { get; set; } = new();
         public static DTOForCurrencyExchangeRateAPI EURCurrencyRate { get; set; } = new();
-        public static async Task UpdateCurrencyExchangeRate(UserType userType)
+        public static async Task<EventStatus> UpdateCurrencyExchangeRateAsync(UserType userType)
         {
             if (userType is not UserType.Admin)
             {
-                return;
+                return EventStatus.NonAdminUser;
             }
-            SEKCurrencyRate = SEKCurrencyRate is null ? new DTOForCurrencyExchangeRateAPI() : SEKCurrencyRate;
-            USDCurrencyRate = USDCurrencyRate is null ? new DTOForCurrencyExchangeRateAPI() : USDCurrencyRate;
-            EURCurrencyRate = EURCurrencyRate is null ? new DTOForCurrencyExchangeRateAPI() : EURCurrencyRate;
+            SEKCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
+            USDCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
+            EURCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
 
+
+            int choice = HowToUpdateCurrency.AdminUpdateCurrencyOption();
+            switch (choice)
+            {
+                case 0:
+                    return await UpdateCurrencyExchangeRateAsync(userType);
+                case 1:
+                    UpdateFromFile();
+                    UpdateDictionaries();
+                    return EventStatus.AdminUpdatedCurrencyFromFile;
+                case 2:
+                    await UpdateFromTheWeb();
+                    UpdateDictionaries();
+                    return EventStatus.AdminUpdatedCurrencyFromWebApi;
+                default:
+                    return EventStatus.AdminInvalidInput;
+            }
+
+
+
+        }
+        private static async Task UpdateFromTheWeb()
+        {
             Console.Write("Enter your api key: ");
             string apiKey = Console.ReadLine();
             string baseApiUrl = "https://v6.exchangerate-api.com/v6";
@@ -50,6 +75,8 @@ namespace NET23_GrupprojektBank.Currency
 
                         string responseBody = await response.Content.ReadAsStringAsync();
                         File.WriteAllText(filePaths[i], responseBody);
+                        Console.WriteLine($"({i + 1}/{filePaths.Length}) Got the latest currency exchange rates from the API and saved it to file: {filePaths[i]}");
+
                     }
                     catch (HttpRequestException ex)
                     {
@@ -57,10 +84,8 @@ namespace NET23_GrupprojektBank.Currency
                     }
                 }
             }
-
-            UpdateDictionaries();
         }
-        public static void UpdateFromFile()
+        private static void UpdateFromFile()
         {
             Console.WriteLine($"{SEKCurrencyRate is null} - {USDCurrencyRate is null} - {EURCurrencyRate is null}");
             SEKCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
@@ -71,6 +96,7 @@ namespace NET23_GrupprojektBank.Currency
         }
         private static void UpdateDictionaries()
         {
+            Console.WriteLine("Updating the dictionaries...");
             bool SEKUpdatedFromFile = false, USDUpdatedFromFile = false, EURUpdatedFromFile = false;
             string[] filePaths = SupportedCurrencyFilePaths.Split(',');
             string SEKPath = filePaths[0];

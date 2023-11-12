@@ -33,6 +33,10 @@
         ContactInformationFailed,
         InvalidInput,
         TransactionManagerAddedToQueueSuccess,
-        TransactionManagerAddedToQueueFailed
+        TransactionManagerAddedToQueueFailed,
+        NonAdminUser,
+        AdminUpdatedCurrencyFromFile,
+        AdminUpdatedCurrencyFromWebApi,
+        AdminInvalidInput
     }
 }
