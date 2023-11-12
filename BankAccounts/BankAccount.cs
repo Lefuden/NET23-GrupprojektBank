@@ -24,7 +24,7 @@ namespace NET23_GrupprojektBank.BankAccounts
         }
         protected virtual decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
         {
-            var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate();
+            var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(currencyType);
 
             return (decimal)convertRate[currencyType] * sum;
         }
