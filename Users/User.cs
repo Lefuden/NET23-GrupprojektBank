@@ -25,7 +25,7 @@ namespace NET23_GrupprojektBank.Users
         public User(string userName, string password, PersonInformation person)
         {
             UserName = userName;
-            Person = new PersonInformation();
+            Person = person;
             UserId = Guid.NewGuid();
             Salt = BCrypt.Net.BCrypt.GenerateSalt();
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(password + Salt);
@@ -45,7 +45,7 @@ namespace NET23_GrupprojektBank.Users
 
         internal void Addlog(EventStatus eventStatus)
         {
-            Logs.Add(new Log(DateTime.Now, UserName, GetLogMessage(eventStatus)));
+            Logs.Add(new Log(DateTime.Now, this, GetLogMessage(eventStatus)));
 
         }
         public void ShowLog(List<Log> list)
