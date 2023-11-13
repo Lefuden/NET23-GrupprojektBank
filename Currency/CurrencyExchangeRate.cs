@@ -12,7 +12,6 @@ namespace NET23_GrupprojektBank.Currency
         private static Dictionary<CurrencyType, double> CurrentExchangeRatesSEK { get; set; } = new();
         private static Dictionary<CurrencyType, double> CurrentExchangeRatesUSD { get; set; } = new();
         private static Dictionary<CurrencyType, double> CurrentExchangeRatesEUR { get; set; } = new();
-        private const int AmountOfSupportedCurrencyTypes = 3;
         private const string SupportedCurrencyTypes = "SEK,USD,EUR";
         private const string SupportedCurrencyFilePaths = "SEKResponse.txt,USDResponse.txt,EURResponse.txt";
 
@@ -32,7 +31,6 @@ namespace NET23_GrupprojektBank.Currency
             USDCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
             EURCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
 
-
             int choice = HowToUpdateCurrency.AdminUpdateCurrencyOption();
             switch (choice)
             {
@@ -49,9 +47,6 @@ namespace NET23_GrupprojektBank.Currency
                 default:
                     return EventStatus.AdminInvalidInput;
             }
-
-
-
         }
         private static async Task UpdateFromTheWeb()
         {
@@ -63,7 +58,7 @@ namespace NET23_GrupprojektBank.Currency
             // Converting Enum Value ToString().ToUpper() since the API request requires all caps
             string[] currencyTypes = SupportedCurrencyTypes.Split(',');
             string[] filePaths = SupportedCurrencyFilePaths.Split(',');
-            for (int i = 0; i < AmountOfSupportedCurrencyTypes; i++)
+            for (int i = 0; i < currencyTypes.Length; i++)
             {
 
                 using (HttpClient client = new HttpClient())
@@ -87,7 +82,6 @@ namespace NET23_GrupprojektBank.Currency
         }
         private static void UpdateFromFile()
         {
-            Console.WriteLine($"{SEKCurrencyRate is null} - {USDCurrencyRate is null} - {EURCurrencyRate is null}");
             SEKCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
             USDCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
             EURCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();

@@ -25,6 +25,16 @@ namespace NET23_GrupprojektBank.Managers.Transactions
             DateAndTime = dateAndTime;
             Sum = sum;
         }
-
+        public Transaction(User sourceUser, User destinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, decimal sum)
+        {
+            SourceUser = sourceUser;
+            DestinationUser = destinationUser;
+            SourceBankAccount = sourceBankAccount;
+            DestinationBankAccount = destinationBankAccount;
+            SourceCurrencyType = sourceCurrencyType;
+            DestinationCurrencyType = destinationCurrencyType;
+            DateAndTime = DateTime.UtcNow;
+            Sum = sum;
+        }
     }
 }

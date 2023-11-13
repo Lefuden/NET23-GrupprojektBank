@@ -5,11 +5,6 @@ namespace NET23_GrupprojektBank.BankAccounts
 {
     internal class Checking : BankAccount
     {
-        //protected string BankAccountNumber { get; set; }
-        //protected string BankAccountName { get; set; }
-        //protected BankAccountType BankAccountType { get; set; }
-        //protected CurrencyType CurrencyType { get; set; }
-        //protected decimal Balance { get; set; }
         public Checking(string bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0)
         {
             BankAccountNumber = bankAccountNumber;
