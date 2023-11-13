@@ -1,4 +1,6 @@
 ﻿using Spectre.Console;
+using System.Net.Http.Headers;
+
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal class UserCommunications
@@ -63,11 +65,18 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             return AnsiConsole.Prompt(
                 new TextPrompt<string>(prompt)
                     .PromptStyle("green")
-                    .ValidationErrorMessage("[red]Value is required[/]")
-                    
+                    .Validate(textUser => ValidateUsername(textUser))
 
+                    );
+        }
+        static ValidationResult ValidateUsername(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input) || input.Length < 3 || input.Contains(" "))
+            {
+                return ValidationResult.Error("[red]Invalid input! Please enter at least 3 letters and make sure to not use spaces.[/]");
+            }
 
-            );
+            return ValidationResult.Success();
         }
 
 
@@ -77,9 +86,18 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 new TextPrompt<string>(prompt)
                     .PromptStyle("green")
                     .Secret()
-                    .ValidationErrorMessage("[red]Value is required[/]")
+                    .Validate(textPassword => ValidatePassword(textPassword))
 
             );
+        }
+        static ValidationResult ValidatePassword(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input) || input.Length < 5 || input.Contains(" "))
+            {
+                return ValidationResult.Error("[red]Invalid input! Please enter at least 5 letters and make sure to not use spaces.[/]");
+            }
+
+            return ValidationResult.Success();
         }
 
 
