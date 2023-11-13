@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
-using NET23_GrupprojektBank.Managers;
-using NET23_GrupprojektBank.Users.UserInformation;
+﻿using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Logs;
+using NET23_GrupprojektBank.Users.UserInformation;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -18,14 +17,14 @@ namespace NET23_GrupprojektBank.Users
         protected Guid UserId { get; set; }
         protected string Salt { get; set; }
         protected string HashedPassword { get; set; }
-        protected PersonInformation Person { get; set; }
+        protected PersonInformation PersonInformation { get; set; }
         protected UserType UserType { get; set; }
         protected List<Log> Logs { get; set; }
-        
-        public User(string userName, string password, PersonInformation person)
+
+        public User(string userName, string password, PersonInformation personInformation)
         {
             UserName = userName;
-            Person = person;
+            PersonInformation = personInformation;
             UserId = Guid.NewGuid();
             Salt = BCrypt.Net.BCrypt.GenerateSalt();
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(password + Salt);
