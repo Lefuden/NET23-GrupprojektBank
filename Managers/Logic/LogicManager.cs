@@ -16,5 +16,10 @@ namespace NET23_GrupprojektBank.Managers.Logic
             TransactionsManager = new();
             UserCommunication = new();
         }
+
+        public void GetUserChoice()
+        {
+
+        }
     }
 }

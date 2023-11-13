@@ -13,7 +13,7 @@ namespace NET23_GrupprojektBank.Application
 
         public void Run()
         {
-
+            LogicManager.GetUserChoice();
         }
     }
 }
