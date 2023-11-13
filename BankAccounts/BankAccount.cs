@@ -18,10 +18,7 @@ namespace NET23_GrupprojektBank.BankAccounts
         protected decimal Balance { get; set; }
 
         public abstract void MakeTransaction(Transaction transaction);
-        public virtual decimal GetBalance()
-        {
-            return Balance;
-        }
+        public virtual decimal GetBalance() => Balance;
         protected virtual decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
         {
             var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(currencyType);
