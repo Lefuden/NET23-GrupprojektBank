@@ -25,7 +25,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     new SelectionPrompt<SelectionItem>()
                         .Title("Starting Menu")
                         .PageSize(3)
-
                         .AddChoices(choices)
                 );
 
@@ -35,11 +34,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
         static void DoLogin()
         {
-            var userName = Prompt("Username: ");
-            var passWord = PromptSecret("Password: ");
+            var userName = Prompt("[orange]Username: [/]");
+            var password = PromptSecret("[orange]Password: [/]");
 
 
-            if (Authenticate(userName, passWord))
+            if (Authenticate(userName, password))
             {
                 AnsiConsole.MarkupLine("[green]Login successful![/]");
 
@@ -53,10 +52,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
 
 
-        static bool Authenticate(string userName, string passWord)
+        static bool Authenticate(string userName, string password)
         {
 
-            return userName == "user" && passWord == "pass";
+            return userName == "user" && password == "pass";
         }
 
 
