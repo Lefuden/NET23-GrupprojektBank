@@ -5,22 +5,29 @@ namespace NET23_GrupprojektBank.Users
 {
     internal class Admin : User
     {
-        public Admin(string userName, string password) : base(userName, password)
+        public Admin(string userName, string password, PersonInformation person) : base(userName, password, person)
         {
             UserType = UserType.Admin;
         }
-
-        public static Customer CreateUserAccount()
+        public Customer CreateUserAccount()
         {
             //console input/output to enter username/firstname/lastname/password etc
             //call method, or add here?
+            //Console.WriteLine("userName, password, firstName, lastName, socialSecurityNumber, dateOfBirth");
+            //string userName = Console.ReadLine();
+            //string password = Console.ReadLine();
+            //string firstName = Console.ReadLine();
+            //string lastName = Console.ReadLine();
+            //string socialSecurityNumber = Console.ReadLine();
+            //DateTime dateOfBirth = DateTime.Now;
 
-            return new Customer("", "", new PersonInformation());
+            //return new Customer(userName, password, new PersonInformation(firstName, lastName, socialSecurityNumber, dateOfBirth));
         }
-
-        public static CurrencyType UpdateCurrencyExchangeRate()
+        public CurrencyType UpdateCurrencyExchangeRate(CurrencyType updateCurrencyType)
         {
+            //UpdateCurrencyExchangeRateAsync();
             //call menu, choose currency type, take input, return value
+            //CurrencyType currency = UpdateCurrencyExchange(updateCurrencyType);
             return CurrencyType.SEK;
         }
     }

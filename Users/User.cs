@@ -1,4 +1,6 @@
-﻿using NET23_GrupprojektBank.Users.UserInformation;
+﻿using System.Diagnostics;
+using NET23_GrupprojektBank.Managers;
+using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Managers.Logs;
 
 namespace NET23_GrupprojektBank.Users
@@ -41,17 +43,57 @@ namespace NET23_GrupprojektBank.Users
             return BCrypt.Net.BCrypt.Verify(userPassword + Salt, HashedPassword);
         }
 
-        //work in progress - direction/help might be wanted
-        //internal void Addlog(string userName, Log log)
-        //{
-        //    if (!Logs.Contains(userName))
-        //    {
-        //        //create new log?
-        //    }
-        //    else
-        //    {
-        //        Logs.Add(userName);
-        //    }
-        //}
+        internal void Addlog(EventStatus eventStatus)
+        {
+            Logs.Add(new Log(DateTime.Now, UserName, GetLogMessage(eventStatus)));
+
+        }
+        public void ShowLog(List<Log> list)
+        {
+            foreach (var o in list)
+            {
+                Console.WriteLine(o);
+            }
+        }
+
+        private string GetLogMessage(EventStatus eventStatus)
+        {
+            {
+                return eventStatus switch
+                {
+                    EventStatus.AccountCreationFailed => $"{UserName} failed to create account",
+                    EventStatus.AccountCreationSuccess => $"{UserName} successfully created an account",
+                    EventStatus.AdressFailed => $"{UserName} failed to add address",
+                    EventStatus.AdressSuccess => $"{UserName} has added an address",
+                    EventStatus.CheckingCreationFailed => $"{UserName} checking account creation failed",
+                    EventStatus.CheckingCreationSuccess => $"{UserName} checking account creation is a great success",
+                    EventStatus.ContactInformationFailed => $"{UserName} ContactInformationFailed",
+                    EventStatus.ContactInformationSuccess => $"{UserName} ContactInformationSuccess",
+                    EventStatus.CurrencyExchangeRateUpdateFailed => $"{UserName} CurrencyExchangeRateUpdateFailed",
+                    EventStatus.CurrencyExchangeRateUpdateSuccess => $"{UserName} CurrencyExchangeRateUpdateSuccess",
+                    EventStatus.DepositFailed => $"{UserName} DepositFailed",
+                    EventStatus.DepositSuccess => $"{UserName} DepositSuccess",
+                    EventStatus.EmailFailed => $"{UserName} EmailFailed",
+                    EventStatus.EmailSuccess => $"{UserName} EmailSuccess",
+                    EventStatus.InvalidInput => $"{UserName} InvalidInput",
+                    EventStatus.LoanFailed => $"{UserName} LoanFailed",
+                    EventStatus.LoanSuccess => $"{UserName} LoanSuccess",
+                    EventStatus.LoginFailed => $"{UserName} LoginFailed",
+                    EventStatus.LoginSuccess => $"{UserName} LoginSuccess",
+                    EventStatus.LoginLocked => $"{UserName} LoginLocked",
+                    EventStatus.PhoneFailed => $"{UserName}PhoneFailed",
+                    EventStatus.PhoneSuccess => $"{UserName}PhoneSuccess",
+                    EventStatus.SavingCreationFailed => $"{UserName}SavingCreationFailed",
+                    EventStatus.SavingsCreationSuccess => $"{UserName} SavingsCreationSuccess",
+                    EventStatus.TransactionFailed => $"{UserName} TransactionFailed",
+                    EventStatus.TransactionSuccess => $"{UserName} TransactionSuccess",
+                    EventStatus.TransferFailed => $"{UserName} TransferFailed",
+                    EventStatus.TransferSuccess => $"{UserName} TransferSuccess",
+                    EventStatus.WithdrawalFailed => $"{UserName} WithdrawalFailed",
+                    EventStatus.WithdrawalSuccess => $"{UserName} WithdrawalSuccess",
+                    _ => $"{UserName} something has gone terribly wrong"
+                };
+            }
+        }
     }
 }
