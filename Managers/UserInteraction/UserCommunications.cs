@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using NET23_GrupprojektBank.Managers.Logic;
+using Spectre.Console;
 using System.Net.Http.Headers;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
@@ -13,8 +14,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 var choices = new[]
                 {
-                new SelectionItem("LogIn", DoLogin),
-                new SelectionItem("Exit", () =>
+                new SelectionItem("[purple]LogIn[/]", DoLogin),
+                new SelectionItem("[red]Exit[/]", () =>
                 {
                     AnsiConsole.MarkupLine("[yellow]Exiting the application:Press any key to close window[/]");
                     Environment.Exit(0);
@@ -23,7 +24,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 var selectedOption = AnsiConsole.Prompt(
                     new SelectionPrompt<SelectionItem>()
-                        .Title("Starting Menu")
+                        .Title("[purple]Starting Menu")
                         .PageSize(3)
                         .AddChoices(choices)
                 );
@@ -41,7 +42,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             if (Authenticate(userName, password))
             {
                 AnsiConsole.MarkupLine("[green]Login successful![/]");
-
+                Thread.Sleep(1000);
+                Console.Clear();
+                //implement a logo method
+                MainMenu();
             }
             else
             {
@@ -55,10 +59,50 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         static bool Authenticate(string userName, string password)
         {
 
-            return userName == "user" && password == "pass";
+            return userName == "läggtillfunktion" && password == "läggtillfuktion";
+        }
+        static void MainMenu()
+        {
+            while (true)
+            {
+                AnsiConsole.Render(new Spectre.Console.Rule("Bank Menu"));
+
+                var choices = new[]
+                {
+                new SelectionItem("View Account Balance", () => ViewAccountBalance()),
+                new SelectionItem("Deposit", () => Deposit()),
+                new SelectionItem("Withdraw", () => Withdraw()),
+                new SelectionItem("Logout", () => { Console.Clear(); AnsiConsole.MarkupLine("[lime]Logged out successfully![/]");Thread.Sleep(3000); Console.Clear(); MakeMenu(); }),
+            };
+
+                var selectedOption = AnsiConsole.Prompt(
+                    new SelectionPrompt<SelectionItem>()
+                        .Title("[purple]Welcome Select an option:[/]")
+                        .PageSize(10)
+                        .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
+                        .AddChoices(choices)
+                );
+
+                selectedOption.Action.Invoke();
+            }
+        }
+        static void ViewAccountBalance()
+        {
+            AnsiConsole.Render(new Spectre.Console.Rule("[gold1]Account Balance[/]"));
+
         }
 
+        static void Deposit()
+        {
+            AnsiConsole.Render(new Spectre.Console.Rule("[gold1]Deposit[/]"));
 
+        }
+
+        static void Withdraw()
+        {
+            AnsiConsole.Render(new Spectre.Console.Rule("[gold1]Withdraw[/]"));
+
+        }
         static string Prompt(string prompt)
         {
             return AnsiConsole.Prompt(
