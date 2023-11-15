@@ -36,11 +36,16 @@ namespace NET23_GrupprojektBank.Users
         internal bool CompareUserPassword(string userPassword) => BCrypt.Net.BCrypt.Verify(userPassword + Salt, HashedPassword);
         internal void Addlog(EventStatus eventStatus) => Logs.Add(new Log(DateTime.Now, this, GetLogMessage(eventStatus)));
         
-        public void ShowLog(List<Log> list)
+        public void ShowLogs()
         {
-            foreach (var o in list)
+            if(Logs.Count <= 0)
+                Console.WriteLine("No activity has been logged.");
+            else
             {
-                Console.WriteLine(o);
+                foreach (var log in Logs)
+                {
+                    Console.WriteLine(log);
+                }
             }
         }
 

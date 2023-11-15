@@ -3,6 +3,7 @@ using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -14,31 +15,27 @@ namespace NET23_GrupprojektBank.Users
         }
         public Customer CreateUserAccount()
         {
-            //console input/output to enter username/firstname/lastname/password etc
-            //call method, or add here?
-            
-            //date of birth and social security number is the same thing though..
-            //DateTime dateOfBirth = DateTime.Now;
-            //Console.WriteLine("Enter date of birth: ");
+            //give option to create customer or admin
+
 
             while (true)
             {
-                Console.WriteLine("Enter a new user name: ");
-                string userName = Console.ReadLine(); //make method to check if user already exists
-                Console.WriteLine("Enter password: ");
-                string password = Console.ReadLine();
-                Console.WriteLine("Enter first name: ");
-                string firstName = Console.ReadLine();
-                Console.WriteLine("Enter last name: ");
-                string lastName = Console.ReadLine();
-                Console.WriteLine("Enter social security number: ");
-                string socialSecurityNumber = Console.ReadLine(); //make method to check if at least 6 or 8 digits (yy/mm/dd or yyyy/mm/dd)
-                Console.WriteLine("Enter email: ");
-                string email = Console.ReadLine(); //use IsEmailValid(string email) from email.cs to validate?
+                Console.WriteLine("Enter user details.");
+                var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); //make method to check if user already exists
+                //var password = AnsiConsole.Ask<string>("Password: ");
+                var password = AnsiConsole.Prompt(
+                    new TextPrompt<string>("[green]Password[/]:")
+                        .PromptStyle("red")
+                        .Secret());
 
+                var firstName = AnsiConsole.Ask<string>("First name: ");
+                var lastName = AnsiConsole.Ask<string>("Last name: ");
+                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth: "); //make method to check if at least 6 or 8 digits and correct order (yy/mm/dd or yyyy/mm/dd)
+                var email = AnsiConsole.Ask<string>("Email: "); //use IsEmailValid(string email) from email.cs to validate?
+                
                 Console.Clear();
                 Console.WriteLine($"User name: {userName}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}" +
-                                  $"\nSocial security number: {socialSecurityNumber}\nemail: {email}\n\nis this information correct?\n1. yes\n2. no");
+                                  $"\nBirth date: {dateofBirth}\nemail: {email}\n\nis this information correct?\n1. yes\n2. no");
                 var answer = Console.ReadLine().ToLower();
                 switch (answer)
                 {
@@ -64,17 +61,36 @@ namespace NET23_GrupprojektBank.Users
                                 Console.WriteLine("Enter postal number / zip code: ");
                                 string postalnumber = Console.ReadLine();
 
+                                Console.Clear();
+                                Console.WriteLine($"Phone area code: {areacode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
+                                                  $"\nStreet name: {street}\nPostal code: {postalnumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
+                                answer = Console.ReadLine().ToLower();
+                                switch (answer)
+                                {
+                                    case "yes":
+                                    case "1":
+                                        Console.WriteLine($"User {userName} has been created");
+                                        Addlog(EventStatus.AccountCreationSuccess);
+                                        return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areacode), new Address(country, city, street, postalnumber))));
+                                        break;
+
+                                    case "no":
+                                    case "2":
+                                        //loop again
+                                        break;
+                                }
                                 break;
                             case "no":
                             case "2":
                                 Console.WriteLine($"User {userName} has been created");
                                 Addlog(EventStatus.AccountCreationSuccess);
-                                return new Customer(userName, password, new PersonInformation(firstName, lastName, socialSecurityNumber, DateTime.Now, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
+                                return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
                         }
 
                         break;
                     case "no":
                     case "2":
+                        //loop again
                         break;
                 }
             }
