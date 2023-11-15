@@ -13,7 +13,7 @@ namespace NET23_GrupprojektBank.Users
 
     internal abstract class User
     {
-        protected string UserName { get; set; }
+        protected string Username { get; set; }
         protected Guid UserId { get; set; }
         protected string Salt { get; set; }
         protected string HashedPassword { get; set; }
@@ -23,7 +23,7 @@ namespace NET23_GrupprojektBank.Users
 
         public User(string userName, string password, PersonInformation personInformation)
         {
-            UserName = userName;
+            Username = userName;
             PersonInformation = personInformation;
             UserId = Guid.NewGuid();
             Salt = BCrypt.Net.BCrypt.GenerateSalt();
@@ -32,8 +32,30 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Undeclared;
         }
 
-        internal bool CompareUserName(string userName) => userName == UserName;
-        internal bool CompareUserPassword(string userPassword) => BCrypt.Net.BCrypt.Verify(userPassword + Salt, HashedPassword);
+        internal bool CompareUserName(string userName)
+        {
+            if (userName == Username)
+            {
+                //Addlog(eventStatus.ValidUserName);
+                return true;
+            }
+            //Addlog(eventStatus.InvalidUserName);
+            return false;
+        }
+
+        internal string GetUsername() => Username;
+
+        internal bool CompareUserPassword(string userPassword)
+        {
+            if (BCrypt.Net.BCrypt.Verify(userPassword + Salt, HashedPassword))
+            {
+                //Addlog(eventStatus.ValidPassword);
+                return true;
+            }
+            //Addlog(eventStatus.InvalidPassword);
+            return false;
+        }
+
         internal void Addlog(EventStatus eventStatus) => Logs.Add(new Log(DateTime.Now, this, GetLogMessage(eventStatus)));
         
         public void ShowLogs()
@@ -49,42 +71,43 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
+        //make better log messages, humans need to read it
         private string GetLogMessage(EventStatus eventStatus)
         {
             {
                 return eventStatus switch
                 {
-                    EventStatus.AccountCreationFailed => $"{UserName} failed to create account",
-                    EventStatus.AccountCreationSuccess => $"{UserName} successfully created an account",
-                    EventStatus.AdressFailed => $"{UserName} failed to add address",
-                    EventStatus.AdressSuccess => $"{UserName} has added an address",
-                    EventStatus.CheckingCreationFailed => $"{UserName} checking account creation failed",
-                    EventStatus.CheckingCreationSuccess => $"{UserName} successfully created a checking account",
-                    EventStatus.ContactInformationFailed => $"{UserName} failed to add contact information",
-                    EventStatus.ContactInformationSuccess => $"{UserName} successfully added contact information",
-                    EventStatus.CurrencyExchangeRateUpdateFailed => $"{UserName} currency exchange rate update failed",
-                    EventStatus.CurrencyExchangeRateUpdateSuccess => $"{UserName} currency exchange rate update success",
-                    EventStatus.DepositFailed => $"{UserName} deposit failed",
-                    EventStatus.DepositSuccess => $"{UserName} deposit success",
-                    EventStatus.EmailFailed => $"{UserName} failed to add email",
-                    EventStatus.EmailSuccess => $"{UserName} email has been added",
-                    EventStatus.InvalidInput => $"{UserName} invalid input",
-                    EventStatus.LoanFailed => $"{UserName} bank loan failed",
-                    EventStatus.LoanSuccess => $"{UserName} bank loan success",
-                    EventStatus.LoginFailed => $"{UserName} login failed",
-                    EventStatus.LoginSuccess => $"{UserName} successfully logged in",
-                    EventStatus.LoginLocked => $"{UserName} login locked",
-                    EventStatus.PhoneFailed => $"{UserName} failed to add phone number",
-                    EventStatus.PhoneSuccess => $"{UserName} phone number has been added",
-                    EventStatus.SavingCreationFailed => $"{UserName} savings account creation failed",
-                    EventStatus.SavingsCreationSuccess => $"{UserName} savings account creation success",
-                    EventStatus.TransactionFailed => $"{UserName} transaction failed",
-                    EventStatus.TransactionSuccess => $"{UserName} transaction success",
-                    EventStatus.TransferFailed => $"{UserName} transfer failed",
-                    EventStatus.TransferSuccess => $"{UserName} transfer success",
-                    EventStatus.WithdrawalFailed => $"{UserName} withdrawal failed, outside of balance bounds",
-                    EventStatus.WithdrawalSuccess => $"{UserName} withdrawal approved",
-                    _ => $"{UserName} something has gone terribly wrong"
+                    EventStatus.AccountCreationFailed => $"{Username} failed to create account",
+                    EventStatus.AccountCreationSuccess => $"{Username} successfully created an account",
+                    EventStatus.AdressFailed => $"{Username} failed to add address",
+                    EventStatus.AdressSuccess => $"{Username} has added an address",
+                    EventStatus.CheckingCreationFailed => $"{Username} checking account creation failed",
+                    EventStatus.CheckingCreationSuccess => $"{Username} successfully created a checking account",
+                    EventStatus.ContactInformationFailed => $"{Username} failed to add contact information",
+                    EventStatus.ContactInformationSuccess => $"{Username} successfully added contact information",
+                    EventStatus.CurrencyExchangeRateUpdateFailed => $"{Username} currency exchange rate update failed",
+                    EventStatus.CurrencyExchangeRateUpdateSuccess => $"{Username} currency exchange rate update success",
+                    EventStatus.DepositFailed => $"{Username} deposit failed",
+                    EventStatus.DepositSuccess => $"{Username} deposit success",
+                    EventStatus.EmailFailed => $"{Username} failed to add email",
+                    EventStatus.EmailSuccess => $"{Username} email has been added",
+                    EventStatus.InvalidInput => $"{Username} invalid input",
+                    EventStatus.LoanFailed => $"{Username} bank loan failed",
+                    EventStatus.LoanSuccess => $"{Username} bank loan success",
+                    EventStatus.LoginFailed => $"{Username} login failed",
+                    EventStatus.LoginSuccess => $"{Username} successfully logged in",
+                    EventStatus.LoginLocked => $"{Username} login locked",
+                    EventStatus.PhoneFailed => $"{Username} failed to add phone number",
+                    EventStatus.PhoneSuccess => $"{Username} phone number has been added",
+                    EventStatus.SavingCreationFailed => $"{Username} savings account creation failed",
+                    EventStatus.SavingsCreationSuccess => $"{Username} savings account creation success",
+                    EventStatus.TransactionFailed => $"{Username} transaction failed",
+                    EventStatus.TransactionSuccess => $"{Username} transaction success",
+                    EventStatus.TransferFailed => $"{Username} transfer failed",
+                    EventStatus.TransferSuccess => $"{Username} transfer success",
+                    EventStatus.WithdrawalFailed => $"{Username} withdrawal failed, outside of balance bounds",
+                    EventStatus.WithdrawalSuccess => $"{Username} withdrawal approved",
+                    _ => $"{Username} something has gone terribly wrong"
                 };
             }
         }
