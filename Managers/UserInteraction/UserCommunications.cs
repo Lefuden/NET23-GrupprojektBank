@@ -10,14 +10,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             while (true)
             {
-                AnsiConsole.MarkupLine("[yellow]Welcome to Hyper HedgHoges Bank[/]");
+                AnsiConsole.MarkupLine("[gold1]Welcome to Hyper HedgHoges Bank[/]");
 
                 var choices = new[]
                 {
-                new SelectionItem("[purple]LogIn[/]", DoLogin),
-                new SelectionItem("[red]Exit[/]", () =>
+                new SelectionItem("[gold1]LogIn[/]", DoLogin),
+                new SelectionItem("[gold1]Exit[/]", () =>
                 {
-                    AnsiConsole.MarkupLine("[yellow]Exiting the application:Press any key to close window[/]");
+                    AnsiConsole.MarkupLine("[gold1]Exiting the application:Press any key to close window[/]");
                     Environment.Exit(0);
                 }),
             };
@@ -35,8 +35,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
         static void DoLogin()
         {
-            var userName = Prompt("[orange]Username: [/]");
-            var password = PromptSecret("[orange]Password: [/]");
+            var userName = Prompt("[gold1]Username: [/]");
+            var password = PromptSecret("[gold1]Password: [/]");
 
 
             if (Authenticate(userName, password))
@@ -59,7 +59,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         static bool Authenticate(string userName, string password)
         {
 
-            return userName == "läggtillfunktion" && password == "läggtillfuktion";
+            return userName == "namn" && password == "lösenord";
         }
         static void MainMenu()
         {
@@ -69,10 +69,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 var choices = new[]
                 {
-                new SelectionItem("View Account Balance", () => ViewAccountBalance()),
-                new SelectionItem("Deposit", () => Deposit()),
-                new SelectionItem("Withdraw", () => Withdraw()),
-                new SelectionItem("Logout", () => { Console.Clear(); AnsiConsole.MarkupLine("[lime]Logged out successfully![/]");Thread.Sleep(3000); Console.Clear(); MakeMenu(); }),
+                new SelectionItem("[gold1]View Account Balance[/]", () => ViewAccountBalance()),
+                new SelectionItem("[gold1]Deposit[/]", () => Deposit()),
+                new SelectionItem("[gold1]Withdraw[/]", () => Withdraw()),
+                new SelectionItem("[gold1]Logout[/]", () => { Console.Clear(); AnsiConsole.MarkupLine("[lime]Logged out successfully![/]");Thread.Sleep(3000); Console.Clear(); MakeMenu(); }),
             };
 
                 var selectedOption = AnsiConsole.Prompt(
