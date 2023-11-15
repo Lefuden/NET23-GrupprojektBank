@@ -1,39 +1,23 @@
 ﻿using NET23_GrupprojektBank.Users;
-using NET23_GrupprojektBank.Users.UserContactInformation;
-using NET23_GrupprojektBank.Users.UserInformation;
-using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 
 namespace NET23_GrupprojektBank.Managers.Login
 {
     internal class LoginManager
     {
-        private List<User> Users { get; set; }
+        private List<User> CurrentExistingUsers { get; set; }
         private int RemainingLoginAttempts { get; set; } = 3;
         private bool IsLocked { get; set; } = false;
         private const int LockoutDuration = 60;
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
 
 
-        public LoginManager(bool usingDatabase = false)
+        public LoginManager(List<User> listOfUsers)
         {
-            if (usingDatabase)
-            {
-                // Users = GetAllUsersFromDb
-            }
-            else
-            {
-                Users = new()
-                {
-                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog", "123",new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
-                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", "234",new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                    new Customer("Wille", "password",new PersonInformation("Wille", "Skog", "345",new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
-                    new Customer("Efrem", "password",new PersonInformation("Efrem", "Ghebre", "345",new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
-                };
-            }
+            CurrentExistingUsers = listOfUsers;
         }
 
 
-        public (User? User, EventStatus EventStatus) Login(string userName, string password)
+        public (User? User, EventStatus EventStatus) Login(string Username, string password)
         {
             if (IsLocked)
             {
@@ -52,9 +36,9 @@ namespace NET23_GrupprojektBank.Managers.Login
                 return (default, EventStatus.LoginLocked);
             }
 
-            User? userLogin = Users.Find(user =>
+            User? userLogin = CurrentExistingUsers.Find(user =>
             {
-                if (user.CompareUserName(userName))
+                if (user.CompareUsername(Username))
                 {
                     if (user.CompareUserPassword(password))
                     {
@@ -73,13 +57,7 @@ namespace NET23_GrupprojektBank.Managers.Login
 
             return (default, EventStatus.LoginFailed);
         }
-        public void AddNewUser(User user)
-        {
-            if (Users is not null && user is not null)
-            {
-                Users.Add(user);
-            }
-        }
+
         private void DisplayLockoutScreen()
         {
             while (DateTime.UtcNow.Subtract(LockoutTimeStart).TotalSeconds < LockoutDuration)
@@ -93,6 +71,19 @@ namespace NET23_GrupprojektBank.Managers.Login
             IsLocked = false;
             RemainingLoginAttempts = 3;
         }
+        public bool IsUsernameAlreadyTaken(string Username)
+        {
+            foreach (var user in CurrentExistingUsers)
+            {
+                if (user.CompareUsername(Username))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         //public int GetRemainingAttempts()
         //{
         //    return RemainingLoginAttempts;

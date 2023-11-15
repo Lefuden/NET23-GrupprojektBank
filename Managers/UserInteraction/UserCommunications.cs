@@ -1,6 +1,5 @@
 ﻿using NET23_GrupprojektBank.Managers.Logic;
 using Spectre.Console;
-using System.Net.Http.Headers;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
@@ -70,13 +69,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
         public static (string Username, string Password) GetLoginInfo()
         {
-            var username = AnsiConsole.Prompt(
+            var Username = AnsiConsole.Prompt(
          new TextPrompt<string>("[orange1]Username: [/]")
                     .PromptStyle("green")
-                    .Validate(username =>
-                        string.IsNullOrWhiteSpace(username)
-                        ? ValidationResult.Error("[red]Invalid username[/]")
-                        : username.Length < 5
+                    .Validate(Username =>
+                        string.IsNullOrWhiteSpace(Username)
+                        ? ValidationResult.Error("[red]Invalid Username[/]")
+                        : Username.Length < 5
                         ? ValidationResult.Error("[red]Username must be atleast 5 characters long[/]")
                         : ValidationResult.Success()
                      ));
@@ -92,7 +91,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                         : ValidationResult.Success()
                     ));
 
-            return (username, password);
+            return (Username, password);
         }
 
 

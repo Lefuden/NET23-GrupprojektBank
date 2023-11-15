@@ -4,6 +4,7 @@
     {
         Login,
         Back,
+        Logout,
         Exit,
         MakeWithdrawal,
         MakeTransfer,

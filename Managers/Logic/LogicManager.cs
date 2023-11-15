@@ -2,12 +2,17 @@
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
+using NET23_GrupprojektBank.Users.UserContactInformation;
+using NET23_GrupprojektBank.Users.UserInformation;
+using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Logic
 {
     internal class LogicManager
     {
-        private LoginManager LoginManager { get; set; }
+        private List<User> Users { get; set; }
+        private LoginManager? LoginManager { get; set; }
         private Customer? CurrentCustomer { get; set; }
         private Admin? CurrentAdmin { get; set; }
         private TransactionsManager TransactionsManager { get; set; }
@@ -15,15 +20,31 @@ namespace NET23_GrupprojektBank.Managers.Logic
         private UserChoice PreviousChoice { get; set; }
         private bool KeepRunning { get; set; }
 
-        public LogicManager()
+        public LogicManager(bool usingDatabase = false)
         {
-            LoginManager = new();
+
             TransactionsManager = new();
             Choice = UserChoice.ViewWelcomeMenu;
             PreviousChoice = UserChoice.ViewWelcomeMenu;
             KeepRunning = true;
             CurrentCustomer = default;
             CurrentAdmin = default;
+
+            if (usingDatabase)
+            {
+                // CurrentExisingUsers = GetAllUsersFromDb
+            }
+            else
+            {
+                Users = new()
+                {
+                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog", "123",new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", "234",new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                    new Customer("Wille", "password",new PersonInformation("Wille", "Skog", "345",new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                    new Customer("Efrem", "password",new PersonInformation("Efrem", "Ghebre", "345",new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
+                };
+            }
+            LoginManager = new(Users);
         }
 
         public void GetUserChoice()
@@ -38,6 +59,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         break;
 
                     case UserChoice.Login:
+
                         var loginInfo = UserCommunications.GetLoginInfo();
                         var info = LoginManager.Login(loginInfo.Username, loginInfo.Password);
 
@@ -83,6 +105,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
                     case UserChoice.Back:
                         Choice = PreviousChoice;
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
+                        break;
+
+                    case UserChoice.Logout:
+                        PreviousChoice = UserChoice.ViewWelcomeMenu;
+                        Choice = UserChoice.ViewWelcomeMenu;
+                        LoginManager = new(Users);
                         break;
 
                     case UserChoice.Exit:
@@ -243,10 +271,10 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewAdminMenu;
                             Choice = UserChoice.ViewAdminMenu;
-                            Customer newCustomer = CurrentAdmin.CreateCustomerAccount();
+                            Customer newCustomer = CurrentAdmin.CreateCustomerAccount(GetAllUsernames());
                             if (newCustomer is not null)
                             {
-                                LoginManager.AddNewUser(newCustomer);
+                                AddNewUser(newCustomer);
                             }
                         }
                         else
@@ -261,10 +289,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewAdminMenu;
                             Choice = UserChoice.ViewAdminMenu;
-                            Admin newAdmin = CurrentAdmin.CreateAdminAccount();
+                            Admin newAdmin = CurrentAdmin.CreateAdminAccount(GetAllUsernames());
+
                             if (newAdmin is not null)
                             {
-                                LoginManager.AddNewUser(newAdmin);
+                                AddNewUser(newAdmin);
                             }
                         }
                         else
@@ -309,6 +338,23 @@ namespace NET23_GrupprojektBank.Managers.Logic
             }
 
         }
+
+        private void AddNewUser(User user)
+        {
+            if (Users is not null && user is not null)
+            {
+                Users.Add(user);
+            }
+        }
+        private List<string> GetAllUsernames()
+        {
+            var UsernameList = new List<string>();
+
+            UsernameList.AddRange(Users.ForEach(user => user.GetUsername()));
+            return UsernameList;
+
+        }
+
 
         private void Exit()
         {
@@ -423,37 +469,37 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
 
 
-//            EventStatus.AccountCreationFailed => $"{UserName} failed to create account",
-//            EventStatus.AccountCreationSuccess => $"{UserName} successfully created an account",
-//            EventStatus.AdressFailed => $"{UserName} failed to add address",
-//            EventStatus.AdressSuccess => $"{UserName} has added an address",
-//            EventStatus.CheckingCreationFailed => $"{UserName} checking account creation failed",
-//            EventStatus.CheckingCreationSuccess => $"{UserName} checking account creation is a great success",
-//            EventStatus.ContactInformationFailed => $"{UserName} ContactInformationFailed",
-//            EventStatus.ContactInformationSuccess => $"{UserName} ContactInformationSuccess",
-//            EventStatus.CurrencyExchangeRateUpdateFailed => $"{UserName} CurrencyExchangeRateUpdateFailed",
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => $"{UserName} CurrencyExchangeRateUpdateSuccess",
-//            EventStatus.DepositFailed => $"{UserName} DepositFailed",
-//            EventStatus.DepositSuccess => $"{UserName} DepositSuccess",
-//            EventStatus.EmailFailed => $"{UserName} EmailFailed",
-//            EventStatus.EmailSuccess => $"{UserName} EmailSuccess",
-//            EventStatus.InvalidInput => $"{UserName} InvalidInput",
-//            EventStatus.LoanFailed => $"{UserName} LoanFailed",
-//            EventStatus.LoanSuccess => $"{UserName} LoanSuccess",
-//            EventStatus.LoginFailed => $"{UserName} LoginFailed",
-//            EventStatus.LoginSuccess => $"{UserName} LoginSuccess",
-//            EventStatus.LoginLocked => $"{UserName} LoginLocked",
-//            EventStatus.PhoneFailed => $"{UserName}PhoneFailed",
-//            EventStatus.PhoneSuccess => $"{UserName}PhoneSuccess",
-//            EventStatus.SavingCreationFailed => $"{UserName}SavingCreationFailed",
-//            EventStatus.SavingsCreationSuccess => $"{UserName} SavingsCreationSuccess",
-//            EventStatus.TransactionFailed => $"{UserName} TransactionFailed",
-//            EventStatus.TransactionSuccess => $"{UserName} TransactionSuccess",
-//            EventStatus.TransferFailed => $"{UserName} TransferFailed",
-//            EventStatus.TransferSuccess => $"{UserName} TransferSuccess",
-//            EventStatus.WithdrawalFailed => $"{UserName} WithdrawalFailed",
-//            EventStatus.WithdrawalSuccess => $"{UserName} WithdrawalSuccess",
-//            _ => $"{UserName} something has gone terribly wrong"
+//            EventStatus.AccountCreationFailed => $"{Username} failed to create account",
+//            EventStatus.AccountCreationSuccess => $"{Username} successfully created an account",
+//            EventStatus.AdressFailed => $"{Username} failed to add address",
+//            EventStatus.AdressSuccess => $"{Username} has added an address",
+//            EventStatus.CheckingCreationFailed => $"{Username} checking account creation failed",
+//            EventStatus.CheckingCreationSuccess => $"{Username} checking account creation is a great success",
+//            EventStatus.ContactInformationFailed => $"{Username} ContactInformationFailed",
+//            EventStatus.ContactInformationSuccess => $"{Username} ContactInformationSuccess",
+//            EventStatus.CurrencyExchangeRateUpdateFailed => $"{Username} CurrencyExchangeRateUpdateFailed",
+//            EventStatus.CurrencyExchangeRateUpdateSuccess => $"{Username} CurrencyExchangeRateUpdateSuccess",
+//            EventStatus.DepositFailed => $"{Username} DepositFailed",
+//            EventStatus.DepositSuccess => $"{Username} DepositSuccess",
+//            EventStatus.EmailFailed => $"{Username} EmailFailed",
+//            EventStatus.EmailSuccess => $"{Username} EmailSuccess",
+//            EventStatus.InvalidInput => $"{Username} InvalidInput",
+//            EventStatus.LoanFailed => $"{Username} LoanFailed",
+//            EventStatus.LoanSuccess => $"{Username} LoanSuccess",
+//            EventStatus.LoginFailed => $"{Username} LoginFailed",
+//            EventStatus.LoginSuccess => $"{Username} LoginSuccess",
+//            EventStatus.LoginLocked => $"{Username} LoginLocked",
+//            EventStatus.PhoneFailed => $"{Username}PhoneFailed",
+//            EventStatus.PhoneSuccess => $"{Username}PhoneSuccess",
+//            EventStatus.SavingCreationFailed => $"{Username}SavingCreationFailed",
+//            EventStatus.SavingsCreationSuccess => $"{Username} SavingsCreationSuccess",
+//            EventStatus.TransactionFailed => $"{Username} TransactionFailed",
+//            EventStatus.TransactionSuccess => $"{Username} TransactionSuccess",
+//            EventStatus.TransferFailed => $"{Username} TransferFailed",
+//            EventStatus.TransferSuccess => $"{Username} TransferSuccess",
+//            EventStatus.WithdrawalFailed => $"{Username} WithdrawalFailed",
+//            EventStatus.WithdrawalSuccess => $"{Username} WithdrawalSuccess",
+//            _ => $"{Username} something has gone terribly wrong"
 //        };
 //    }
 //}
