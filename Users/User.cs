@@ -32,7 +32,7 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Undeclared;
         }
 
-        internal bool CompareUserName(string userName)
+        internal bool CompareUsername(string userName)
         {
             if (userName == Username)
             {
@@ -57,10 +57,10 @@ namespace NET23_GrupprojektBank.Users
         }
 
         internal void Addlog(EventStatus eventStatus) => Logs.Add(new Log(DateTime.Now, this, GetLogMessage(eventStatus)));
-        
+
         public void ShowLogs()
         {
-            if(Logs.Count <= 0)
+            if (Logs.Count <= 0)
                 Console.WriteLine("No activity has been logged.");
             else
             {
