@@ -1,4 +1,6 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Managers;
+using NET23_GrupprojektBank.Managers.Logic;
 using NET23_GrupprojektBank.Users.UserInformation;
 
 namespace NET23_GrupprojektBank.Users
@@ -45,25 +47,60 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-        public void CreateBankAccount(string bankAccountName, Enum bankAccountType, decimal balance, Enum currencyType)
+        public UserChoice CreateBankAccount()
         {
+            return UserChoice.CreateChecking;
+            return UserChoice.CreateSavings;
+            return UserChoice.Back;
+
+            //wanna make checking or savings or go back?
 
             //BankAccount.cs
             //string BankAccountNumber, BankAccountName
             //Enum BankAccountType, CurrencyType
         }
-        
-        public void CreateTransaction() //: Transaction
+
+        public EventStatus CreateCheckingAccount()
         {
-            //Transaction.cs
-            //User SourceUser, User DestinationUser, BankAccount SourceBankAccount
-            //BankAccount DestinationBankAccoun, decimal Sum, Enum SourceCurrencyType
-            //Enum DestinationCurrencyType, DateTime DateAndTime
+            //logic to create account goes here
         }
 
-        public void MakeLoan(User user, decimal loanAmount)
+        public EventStatus CreateSavingsAccount()
+        {
+            //logic to create account goes here
+        }
+
+        private void CreateTransaction() //: Transaction input parameters for various transactions/loans/withdrawals
+        {
+            //take input from various Make-methods to then create the transaction of corresponding type
+        }
+
+        public void MakeLoan()
         {
             //BankAccount.GetBalance();
+            //logic to create a loan
+            //send to createtransaction for completion
+        }
+
+        public void MakeWithdrawal()
+        {
+            //BankAccount.GetBalance();
+            //logic to create a withdrawal
+            //send to createtransaction for completion
+        }
+
+        public void MakeDeposit()
+        {
+            //BankAccount.GetBalance();
+            //logic to create a deposit
+            //send to createtransaction for completion
+        }
+
+        public void MakeTransfer()
+        {
+            //BankAccount.GetBalance();
+            //logic to create a transfer
+            //send to createtransaction for completion
         }
     }
 }

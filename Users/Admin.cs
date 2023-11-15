@@ -1,5 +1,6 @@
 ﻿using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
+using NET23_GrupprojektBank.Managers.Logic;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
@@ -9,22 +10,45 @@ namespace NET23_GrupprojektBank.Users
 {
     internal class Admin : User
     {
-        public Admin(string userName, string password, PersonInformation person) : base(userName, password, person)
+        public Admin(string username, string password, PersonInformation person) : base(username, password, person)
         {
             UserType = UserType.Admin;
         }
-        public Customer CreateUserAccount()
-        {
-            //give option to create customer or admin
 
+        public UserChoice CreateUserAccount()
+        {
+            //give option to create customer or admin -> return userchoice.customer or userchoice.admin
+            //UserChoice.CreateCustomer;
+            //UserChoice.CreateAdmin;
+            return UserChoice.Back;
+        }
+         
+        public Admin CreateAdminAccount(List<string> existingUserNames)
+        {
+            //call method from usercommunication
+            //return new Admin();
+        }
+
+        public Customer CreateCustomerAccount(List<string> existingUserNames)
+        {
+            //return new Customer();
+            //give the choice to cancel everything at some point. eg "-1"
+            //use input list to check if username already exists
+            //after finishing user creation method, move it to usercommunication and then call method here
 
             while (true)
             {
                 Console.WriteLine("Enter user details.");
-                var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); //make method to check if user already exists
-                //var password = AnsiConsole.Ask<string>("Password: ");
-                var password = AnsiConsole.Prompt(
-                    new TextPrompt<string>("[green]Password[/]:")
+                var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); //call method IsUserNameAlreadyTaken(username) from logic manager
+         //       var exisingusernames = GetAllUsernames();
+         //       var username = AnsiConsole.Ask<string>("Enter username: ");
+         //       if(exisingusernames.Contains(username))
+         //       {
+         //           // Användarnamnet finns, försök igen... (while loop kanske?
+         //       }
+         ////Användarnmnet är godkänt, fortsätt...
+
+                var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
                         .PromptStyle("red")
                         .Secret());
 
@@ -48,22 +72,16 @@ namespace NET23_GrupprojektBank.Users
                         {
                             case "yes":
                             case "1":
-                                Console.WriteLine("Enter phone area code: ");
-                                string areacode = Console.ReadLine();
-                                Console.WriteLine("Enter phone number: ");
-                                string phone = Console.ReadLine();
-                                Console.WriteLine("Enter country: ");
-                                string country = Console.ReadLine();
-                                Console.WriteLine("Enter city: ");
-                                string city = Console.ReadLine();
-                                Console.WriteLine("Enter street name: ");
-                                string street = Console.ReadLine();
-                                Console.WriteLine("Enter postal number / zip code: ");
-                                string postalnumber = Console.ReadLine();
-
+                                var areaCode = AnsiConsole.Ask<string>("First name: ");
+                                var phone = AnsiConsole.Ask<string>("First name: ");
+                                var country = AnsiConsole.Ask<string>("First name: ");
+                                var city = AnsiConsole.Ask<string>("First name: ");
+                                var street = AnsiConsole.Ask<string>("First name: ");
+                                var postalNumber = AnsiConsole.Ask<string>("First name: ");
+                                
                                 Console.Clear();
-                                Console.WriteLine($"Phone area code: {areacode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
-                                                  $"\nStreet name: {street}\nPostal code: {postalnumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
+                                Console.WriteLine($"Phone area code: {areaCode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
+                                                  $"\nStreet name: {street}\nPostal code: {postalNumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
                                 answer = Console.ReadLine().ToLower();
                                 switch (answer)
                                 {
@@ -72,7 +90,6 @@ namespace NET23_GrupprojektBank.Users
                                         Console.WriteLine($"User {userName} has been created");
                                         Addlog(EventStatus.AccountCreationSuccess);
                                         return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areacode), new Address(country, city, street, postalnumber))));
-                                        break;
 
                                     case "no":
                                     case "2":
@@ -94,18 +111,20 @@ namespace NET23_GrupprojektBank.Users
                         break;
                 }
             }
-            
-
-            //return new Customer("", "", new PersonInformation("", "", "", DateTime.Now, 
-            //    new ContactInformation(new Email(""), new Phone("",""), new Address("","","",""))));
         }
+
+        
         public void UpdateCurrencyExchangeRate()
         {
-            // call UpdateCurrencyExchangeRateAsync(); ?
+            Task<EventStatus> taskUpdateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
+            //EventStatus eventStatus = taskUpdateStatus.Result;
+            Addlog(taskUpdateStatus.Result);
 
-
-            //call menu, choose currency type, take input, return value
-            //CurrencyType currency = UpdateCurrencyExchange(updateCurrencyType);
+            //var updateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
+            //while (updateStatus.IsCompleted is not true)
+            //{
+            // fake async waiting inside a console application...
+            //}
         }
     }
 }
