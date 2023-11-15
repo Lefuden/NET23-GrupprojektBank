@@ -73,6 +73,13 @@ namespace NET23_GrupprojektBank.Managers.Login
 
             return (default, EventStatus.LoginFailed);
         }
+        public void AddNewUser(User user)
+        {
+            if (Users is not null && user is not null)
+            {
+                Users.Add(user);
+            }
+        }
         private void DisplayLockoutScreen()
         {
             while (DateTime.UtcNow.Subtract(LockoutTimeStart).TotalSeconds < LockoutDuration)

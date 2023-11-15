@@ -1,14 +1,15 @@
 ﻿using NET23_GrupprojektBank.Managers.Login;
 using NET23_GrupprojektBank.Managers.Transactions;
+using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
-using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Logic
 {
     internal class LogicManager
     {
         private LoginManager LoginManager { get; set; }
-        private User? CurrentUser { get; set; }
+        private Customer? CurrentCustomer { get; set; }
+        private Admin? CurrentAdmin { get; set; }
         private TransactionsManager TransactionsManager { get; set; }
         private UserChoice Choice { get; set; }
         private UserChoice PreviousChoice { get; set; }
@@ -21,23 +22,23 @@ namespace NET23_GrupprojektBank.Managers.Logic
             Choice = UserChoice.ViewWelcomeMenu;
             PreviousChoice = UserChoice.ViewWelcomeMenu;
             KeepRunning = true;
-            CurrentUser = default;
+            CurrentCustomer = default;
+            CurrentAdmin = default;
         }
 
         public void GetUserChoice()
         {
             EventStatus eventStatus;
-
             while (KeepRunning)
             {
                 switch (Choice)
                 {
                     case UserChoice.ViewWelcomeMenu:
-                        Choice = MainMenu();
+                        Choice = UserCommunications.MainMenu();
                         break;
 
                     case UserChoice.Login:
-                        var loginInfo = GetLoginInfo();
+                        var loginInfo = UserCommunications.GetLoginInfo();
                         var info = LoginManager.Login(loginInfo.Username, loginInfo.Password);
 
                         switch (info.EventStatus)
@@ -45,16 +46,17 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             case EventStatus.LoginSuccess:
                                 if (info.User != null)
                                 {
-                                    CurrentUser = info.User;
-                                    CurrentUser.Addlog(info.EventStatus);
-                                    if (CurrentUser is Customer)
+                                    if (info.User is Customer customer)
                                     {
+                                        CurrentCustomer = customer;
+                                        CurrentCustomer.Addlog(info.EventStatus);
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
-                                    else if (CurrentUser is Admin)
+                                    if (info.User is Admin admin)
                                     {
+                                        CurrentAdmin = admin;
+                                        CurrentAdmin.Addlog(info.EventStatus);
                                         Choice = UserChoice.ViewAdminMenu;
-                                        // AdminMenu();
                                     }
                                     else
                                     {
@@ -89,94 +91,219 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                     case UserChoice.ViewAdminMenu:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
-                        //Choice = AdminMenu();
+                        Choice = UserCommunications.AdminMenu();
                         break;
 
                     case UserChoice.ViewCustomerMenu:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
-                        Choice = CustomerMenu();
-                        break;
-
-                    case UserChoice.CreateTransaction:
-                        PreviousChoice = UserChoice.ViewCustomerMenu;
-                        // Handle CreateTransaction case
-                        break;
-
-                    case UserChoice.MakeWithdrawal:
-                        PreviousChoice = UserChoice.CreateTransaction;
-                        // Handle MakeWithdrawal case
+                        Choice = UserCommunications.CustomerMenu();
                         break;
 
                     case UserChoice.MakeTransfer:
-                        PreviousChoice = UserChoice.CreateTransaction;
-                        // Handle MakeTransfer case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.MakeTransfer();
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
+                        break;
+
+                    case UserChoice.MakeDeposit:
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.MakeDeposit();
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
+                        break;
+
+                    case UserChoice.MakeWithdrawal:
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.MakeWithdrawal();
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.MakeLoan:
-                        PreviousChoice = UserChoice.CreateTransaction;
-                        // Handle MakeLoan case
-                        break;
-
-                    case UserChoice.GetAccounts:
-                        PreviousChoice = UserChoice.ViewCustomerMenu;
-                        // Handle GetAccounts case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.MakeLoan();
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.ViewLogs:
-                        PreviousChoice = UserChoice.ViewCustomerMenu;
-                        // Handle ViewLogs case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.ShowLogs();
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
+                        if (CurrentAdmin is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            CurrentAdmin.ShowLogs();
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.ViewBalance:
-                        PreviousChoice = UserChoice.ViewCustomerMenu;
-                        // Handle ViewBalance case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.ViewBankAccount();
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.CreateBankAccount:
-                        PreviousChoice = UserChoice.ViewCustomerMenu;
-                        // Handle CreateBankAccount case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = CurrentCustomer.CreateBankAccount();
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.CreateChecking:
-                        PreviousChoice = UserChoice.CreateBankAccount;
-                        // Handle CreateChecking case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.CreateChecking();
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.CreateSavings:
-                        PreviousChoice = UserChoice.CreateBankAccount;
-                        // Handle CreateSavings case
+                        if (CurrentCustomer is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                            CurrentCustomer.CreateSavings();
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
                         break;
 
                     case UserChoice.CreateUser:
-                        PreviousChoice = UserChoice.ViewCustomerMenu;
-                        // Handle CreateUser case
+                        if (CurrentAdmin is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = CurrentAdmin.CreateUserAccount();
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
                         break;
 
                     case UserChoice.CreateCustomer:
-                        PreviousChoice = UserChoice.CreateUser;
-                        // Handle CreateCustomer case
+                        if (CurrentAdmin is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                            Customer newCustomer = CurrentAdmin.CreateCustomerAccount();
+                            if (newCustomer is not null)
+                            {
+                                LoginManager.AddNewUser(newCustomer);
+                            }
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
                         break;
 
                     case UserChoice.CreateAdmin:
-                        PreviousChoice = UserChoice.CreateUser;
-                        // Handle CreateAdmin case
+                        if (CurrentAdmin is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                            Admin newAdmin = CurrentAdmin.CreateAdminAccount();
+                            if (newAdmin is not null)
+                            {
+                                LoginManager.AddNewUser(newAdmin);
+                            }
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
                         break;
 
                     case UserChoice.UpdateCurrencyExchange:
-                        PreviousChoice = UserChoice.ViewAdminMenu;
-                        // Handle UpdateCurrencyExchange case
+                        if (CurrentAdmin is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                            CurrentAdmin.UpdateCurrencyExchangeRate();
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
                         break;
 
                     case UserChoice.Invalid:
-                        PreviousChoice = UserChoice.ViewWelcomeMenu;
-                        // Handle Invalid case
+                        if (CurrentAdmin is not null)
+                        {
+                            PreviousChoice = UserChoice.ViewAdminMenu;
+                            Choice = UserChoice.ViewAdminMenu;
+                        }
+                        else
+                        {
+                            PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Choice = UserChoice.ViewCustomerMenu;
+                        }
                         break;
-
-                    // Add cases for other UserChoice values as needed
 
                     default:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
-                        // Handle default case
+                        Choice = UserChoice.ViewCustomerMenu;
                         break;
                 }
             }
@@ -190,91 +317,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
         }
 
         // DETTA SKA BORT! GÖR BARA LITE TESTER HÄR!
-        public static UserChoice MainMenu()
-        {
-            string stringChoice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[purple]Welcome Menu[/]")
-                    .PageSize(3)
-                    .AddChoices(new[]
-                    {
-                        "Login",
-                        "Exit"
-                    }
-                ));
 
-            return ConvertStringToUserChoice(stringChoice);
-        }
-        public static UserChoice CustomerMenu()
-        {
-            DrawRuler($"Bank Menu");
-
-            string stringChoice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[purple]What would you like to do today?[/]")
-                    .PageSize(5)
-                    .AddChoices(new[]
-                    {
-                        "View Account Balance",
-                        "Deposit",
-                        "Withdraw",
-                        "Logout",
-                        "Exit"
-                    }
-                ));
-
-            return ConvertStringToUserChoice(stringChoice);
-        }
-        private static void DrawRuler(string content, string markup)
-        {
-            AnsiConsole.Write(new Rule($"{markup}{content}[/]"));
-        }
-        private static void DrawRuler(string content)
-        {
-            AnsiConsole.Write(new Rule(content));
-        }
-        private static UserChoice ConvertStringToUserChoice(string input)
-        {
-            return input switch
-            {
-
-                "Login" => UserChoice.Login,
-                "Exit" => UserChoice.Exit,
-                "View Account Balance" => UserChoice.ViewBalance,
-                "Deposit" => UserChoice.ViewBalance,
-                "Withdraw" => UserChoice.ViewBalance,
-                "Back" => UserChoice.ViewBalance,
-                "Logout" => UserChoice.ViewBalance,
-                _ => UserChoice.Invalid
-
-            };
-        }
-
-
-        public static (string Username, string Password) GetLoginInfo()
-        {
-            var username = AnsiConsole.Prompt(
-         new TextPrompt<string>("[orange1]Username: [/]")
-                    .PromptStyle("green")
-        .Validate(username =>
-                        string.IsNullOrWhiteSpace(username)
-                        ? ValidationResult.Error("[red]Invalid username[/]")
-                        : username.Length < 5 ? ValidationResult.Error("[red]Username must be atleast 5 characters long[/]")
-                        : ValidationResult.Success()
-                     ));
-
-            var password = AnsiConsole.Prompt(
-                new TextPrompt<string>("[orange1]Password: [/]")
-                    .PromptStyle("green")
-                    .Secret()
-                    .Validate(password =>
-                        string.IsNullOrEmpty(password) ? ValidationResult.Error("[red]Invalid password[/")
-                        : password.Length < 2 ? ValidationResult.Error("[red]Password must be atleast 2 characters long[/]")
-                        : ValidationResult.Success()
-                    ));
-
-            return (username, password);
-        }
     }
 }
 

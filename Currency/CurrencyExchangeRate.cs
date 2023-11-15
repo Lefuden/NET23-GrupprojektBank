@@ -3,6 +3,7 @@ using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
 using Newtonsoft.Json;
+using Spectre.Console;
 using System.Reflection;
 
 namespace NET23_GrupprojektBank.Currency
@@ -50,8 +51,7 @@ namespace NET23_GrupprojektBank.Currency
         }
         private static async Task UpdateFromTheWeb()
         {
-            Console.Write("Enter your api key: ");
-            string apiKey = Console.ReadLine();
+            string apiKey = AnsiConsole.Ask<string>("Enter your api key: ");
             string baseApiUrl = "https://v6.exchangerate-api.com/v6";
 
             // Option for the admin to choose what the main currency exchange rate is based on our CurrencyType Enum > 
