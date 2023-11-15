@@ -14,16 +14,22 @@ namespace NET23_GrupprojektBank.Managers.Login
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
 
 
-        public LoginManager()
+        public LoginManager(bool usingDatabase = false)
         {
-
-            Users = new()
+            if (usingDatabase)
+            {
+                // Users = GetAllUsersFromDb
+            }
+            else
+            {
+                Users = new()
                 {
                     new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog", "123",new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
                     new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", "234",new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
                     new Customer("Wille", "password",new PersonInformation("Wille", "Skog", "345",new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
                     new Customer("Efrem", "password",new PersonInformation("Efrem", "Ghebre", "345",new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
                 };
+            }
         }
 
 
