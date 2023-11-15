@@ -63,11 +63,13 @@ namespace NET23_GrupprojektBank.Users
         public EventStatus CreateCheckingAccount()
         {
             //logic to create account goes here
+            throw new NotImplementedException();
         }
 
         public EventStatus CreateSavingsAccount()
         {
             //logic to create account goes here
+            throw new NotImplementedException();
         }
 
         private void CreateTransaction() //: Transaction input parameters for various transactions/loans/withdrawals

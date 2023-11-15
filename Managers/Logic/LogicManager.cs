@@ -5,7 +5,6 @@ using NET23_GrupprojektBank.Users;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
-using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Logic
 {
@@ -38,10 +37,10 @@ namespace NET23_GrupprojektBank.Managers.Logic
             {
                 Users = new()
                 {
-                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog", "123",new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
-                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", "234",new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                    new Customer("Wille", "password",new PersonInformation("Wille", "Skog", "345",new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
-                    new Customer("Efrem", "password",new PersonInformation("Efrem", "Ghebre", "345",new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
+                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Skog",    new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
                 };
             }
             LoginManager = new(Users);
@@ -230,7 +229,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.CreateChecking();
+                            CurrentCustomer.CreateCheckingAccount();
                         }
                         else
                         {
@@ -244,7 +243,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.CreateSavings();
+                            CurrentCustomer.CreateSavingsAccount();
                         }
                         else
                         {
@@ -348,11 +347,13 @@ namespace NET23_GrupprojektBank.Managers.Logic
         }
         private List<string> GetAllUsernames()
         {
-            var UsernameList = new List<string>();
+            var usernameList = new List<string>();
+            foreach (var user in Users)
+            {
+                usernameList.Add(user.GetUsername());
+            }
 
-            UsernameList.AddRange(Users.ForEach(user => user.GetUsername()));
-            return UsernameList;
-
+            return usernameList;
         }
 
 

@@ -22,11 +22,12 @@ namespace NET23_GrupprojektBank.Users
             //UserChoice.CreateAdmin;
             return UserChoice.Back;
         }
-         
+
         public Admin CreateAdminAccount(List<string> existingUserNames)
         {
             //call method from usercommunication
             //return new Admin();
+            throw new NotImplementedException();
         }
 
         public Customer CreateCustomerAccount(List<string> existingUserNames)
@@ -40,13 +41,13 @@ namespace NET23_GrupprojektBank.Users
             {
                 Console.WriteLine("Enter user details.");
                 var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); //call method IsUserNameAlreadyTaken(username) from logic manager
-         //       var exisingusernames = GetAllUsernames();
-         //       var username = AnsiConsole.Ask<string>("Enter username: ");
-         //       if(exisingusernames.Contains(username))
-         //       {
-         //           // Användarnamnet finns, försök igen... (while loop kanske?
-         //       }
-         ////Användarnmnet är godkänt, fortsätt...
+                                                                                //       var exisingusernames = GetAllUsernames();
+                                                                                //       var username = AnsiConsole.Ask<string>("Enter username: ");
+                                                                                //       if(exisingusernames.Contains(username))
+                                                                                //       {
+                                                                                //           // Användarnamnet finns, försök igen... (while loop kanske?
+                                                                                //       }
+                                                                                ////Användarnmnet är godkänt, fortsätt...
 
                 var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
                         .PromptStyle("red")
@@ -56,7 +57,7 @@ namespace NET23_GrupprojektBank.Users
                 var lastName = AnsiConsole.Ask<string>("Last name: ");
                 var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth: "); //make method to check if at least 6 or 8 digits and correct order (yy/mm/dd or yyyy/mm/dd)
                 var email = AnsiConsole.Ask<string>("Email: "); //use IsEmailValid(string email) from email.cs to validate?
-                
+
                 Console.Clear();
                 Console.WriteLine($"User name: {userName}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}" +
                                   $"\nBirth date: {dateofBirth}\nemail: {email}\n\nis this information correct?\n1. yes\n2. no");
@@ -78,7 +79,7 @@ namespace NET23_GrupprojektBank.Users
                                 var city = AnsiConsole.Ask<string>("First name: ");
                                 var street = AnsiConsole.Ask<string>("First name: ");
                                 var postalNumber = AnsiConsole.Ask<string>("First name: ");
-                                
+
                                 Console.Clear();
                                 Console.WriteLine($"Phone area code: {areaCode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
                                                   $"\nStreet name: {street}\nPostal code: {postalNumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
@@ -89,7 +90,7 @@ namespace NET23_GrupprojektBank.Users
                                     case "1":
                                         Console.WriteLine($"User {userName} has been created");
                                         Addlog(EventStatus.AccountCreationSuccess);
-                                        return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areacode), new Address(country, city, street, postalnumber))));
+                                        return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
 
                                     case "no":
                                     case "2":
@@ -113,7 +114,7 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-        
+
         public void UpdateCurrencyExchangeRate()
         {
             Task<EventStatus> taskUpdateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
