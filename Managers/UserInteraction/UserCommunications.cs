@@ -6,156 +6,93 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal class UserCommunications
     {
-        public static void MakeMenu()
+        public static UserChoice MainMenu()
         {
-            while (true)
-            {
-                AnsiConsole.MarkupLine("[gold1]Welcome to Hyper HedgHoges Bank[/]");
+            DrawRuler("Hyper Hedgehogs Fundings", "navajowhite3");
+            string stringChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[purple]Welcome Menu[/]")
+                    .PageSize(3)
+                    .AddChoices(new[]
+                    {
+                 "Login",
+                 "Exit"
+                    }
+                ));
 
-                var choices = new[]
-                {
-                new SelectionItem("[gold1]LogIn[/]", DoLogin),
-                new SelectionItem("[gold1]Exit[/]", () =>
-                {
-                    AnsiConsole.MarkupLine("[gold1]Exiting the application:Press any key to close window[/]");
-                    Environment.Exit(0);
-                }),
+            return ConvertStringToUserChoice(stringChoice);
+        }
+        public static UserChoice CustomerMenu()
+        {
+            DrawRuler($"Bank Menu");
+
+            string stringChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[purple]What would you like to do today?[/]")
+                    .PageSize(5)
+                    .AddChoices(new[]
+                    {
+                 "View Account Balance",
+                 "Deposit",
+                 "Withdraw",
+                 "Logout",
+                 "Exit"
+                    }
+                ));
+
+            return ConvertStringToUserChoice(stringChoice);
+        }
+        private static void DrawRuler(string content, string colorName)
+        {
+            AnsiConsole.Write(new Rule($"[{colorName}]{content}[/]"));
+        }
+        private static void DrawRuler(string content)
+        {
+            AnsiConsole.Write(new Rule(content));
+        }
+        private static UserChoice ConvertStringToUserChoice(string input)
+        {
+            return input switch
+            {
+
+                "Login" => UserChoice.Login,
+                "Exit" => UserChoice.Exit,
+                "View Account Balance" => UserChoice.ViewBalance,
+                "Deposit" => UserChoice.ViewBalance,
+                "Withdraw" => UserChoice.ViewBalance,
+                "Back" => UserChoice.ViewBalance,
+                "Logout" => UserChoice.ViewBalance,
+                _ => UserChoice.Invalid
+
             };
-
-                var selectedOption = AnsiConsole.Prompt(
-                    new SelectionPrompt<SelectionItem>()
-                        .Title("[purple]Starting Menu")
-                        .PageSize(3)
-                        .AddChoices(choices)
-                );
-
-                selectedOption.Action.Invoke();
-            }
-        }
-
-        static void DoLogin()
-        {
-            var userName = Prompt("[gold1]Username: [/]");
-            var password = PromptSecret("[gold1]Password: [/]");
-
-
-            if (Authenticate(userName, password))
-            {
-                AnsiConsole.MarkupLine("[green]Login successful![/]");
-                Thread.Sleep(1000);
-                Console.Clear();
-                //implement a logo method
-                MainMenu();
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[red]Login failed. Please check your credentials.[/]");
-            }
-
-            Console.ReadLine();
         }
 
 
-        static bool Authenticate(string userName, string password)
+        public static (string Username, string Password) GetLoginInfo()
         {
-
-            return userName == "namn" && password == "lösenord";
-        }
-        static void MainMenu()
-        {
-            while (true)
-            {
-                AnsiConsole.Render(new Spectre.Console.Rule("Bank Menu"));
-
-                var choices = new[]
-                {
-                new SelectionItem("[gold1]View Account Balance[/]", () => ViewAccountBalance()),
-                new SelectionItem("[gold1]Deposit[/]", () => Deposit()),
-                new SelectionItem("[gold1]Withdraw[/]", () => Withdraw()),
-                new SelectionItem("[gold1]Logout[/]", () => { Console.Clear(); AnsiConsole.MarkupLine("[lime]Logged out successfully![/]");Thread.Sleep(3000); Console.Clear(); MakeMenu(); }),
-            };
-
-                var selectedOption = AnsiConsole.Prompt(
-                    new SelectionPrompt<SelectionItem>()
-                        .Title("[purple]Welcome Select an option:[/]")
-                        .PageSize(10)
-                        .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
-                        .AddChoices(choices)
-                );
-
-                selectedOption.Action.Invoke();
-            }
-        }
-        static void ViewAccountBalance()
-        {
-            AnsiConsole.Render(new Spectre.Console.Rule("[gold1]Account Balance[/]"));
-
-        }
-
-        static void Deposit()
-        {
-            AnsiConsole.Render(new Spectre.Console.Rule("[gold1]Deposit[/]"));
-
-        }
-
-        static void Withdraw()
-        {
-            AnsiConsole.Render(new Spectre.Console.Rule("[gold1]Withdraw[/]"));
-
-        }
-        static string Prompt(string prompt)
-        {
-            return AnsiConsole.Prompt(
-                new TextPrompt<string>(prompt)
+            var username = AnsiConsole.Prompt(
+         new TextPrompt<string>("[orange1]Username: [/]")
                     .PromptStyle("green")
-                    .Validate(textUser => ValidateUsername(textUser))
+                    .Validate(username =>
+                        string.IsNullOrWhiteSpace(username)
+                        ? ValidationResult.Error("[red]Invalid username[/]")
+                        : username.Length < 5
+                        ? ValidationResult.Error("[red]Username must be atleast 5 characters long[/]")
+                        : ValidationResult.Success()
+                     ));
 
-                    );
-        }
-        static ValidationResult ValidateUsername(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input) || input.Length < 3 || input.Contains(" "))
-            {
-                return ValidationResult.Error("[red]Invalid input! Please enter at least 3 letters and make sure to not use spaces.[/]");
-            }
-
-            return ValidationResult.Success();
-        }
-
-
-        static string PromptSecret(string prompt)
-        {
-            return AnsiConsole.Prompt(
-                new TextPrompt<string>(prompt)
+            var password = AnsiConsole.Prompt(
+                new TextPrompt<string>("[orange1]Password: [/]")
                     .PromptStyle("green")
                     .Secret()
-                    .Validate(textPassword => ValidatePassword(textPassword))
+                    .Validate(password =>
+                        string.IsNullOrEmpty(password)
+                        ? ValidationResult.Error("[red]Invalid password[/")
+                        : password.Length < 2 ? ValidationResult.Error("[red]Password must be atleast 2 characters long[/]")
+                        : ValidationResult.Success()
+                    ));
 
-            );
-        }
-        static ValidationResult ValidatePassword(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input) || input.Length < 5 || input.Contains(" "))
-            {
-                return ValidationResult.Error("[red]Invalid input! Please enter at least 5 letters and make sure to not use spaces.[/]");
-            }
-
-            return ValidationResult.Success();
-        }
-
-
-        class SelectionItem
-        {
-            public string Text { get; }
-            public Action Action { get; }
-
-            public SelectionItem(string text, Action action)
-            {
-                Text = text;
-                Action = action;
-            }
-
-            public override string ToString() => Text;
+            return (username, password);
         }
 
 
