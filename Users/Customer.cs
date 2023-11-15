@@ -13,22 +13,34 @@ namespace NET23_GrupprojektBank.Users
             BankAccounts = new List<BankAccount>();
         }
 
-        public void ViewBankAccount(List<BankAccount> bankAccount)
+        public void ViewBankAccount()
         {
-            //call method from BankAccount?
-            if (bankAccount.Count != 0)
+            if (BankAccounts.Count != 0)
             {
-                foreach (var account in bankAccount)
+                foreach (var account in BankAccounts)
                 {
                     //amazing interface
                     Console.WriteLine(account);
+                    Console.ReadKey();
                     //back to menu
                 }
             }
             else
             {
                 //amazing interface
-                Console.WriteLine($"no accounts found");
+                Console.WriteLine($"no accounts found\nwould you like to open a new account?\n1. yes\n2. no");
+                var input = int.TryParse(Console.ReadLine(), out int choice);
+                switch (choice)
+                {
+                    case 1:
+                        Console.WriteLine("enter account name, account type: checking or savings (1,2), balance, currencytype (0-50)");
+                        Console.ReadLine();
+                        break;
+                    case 2:
+                        break;
+                    default:
+                        break;
+                }
                 //add new? y/n -> call method CreateBankAccount() or back to menu
             }
         }
