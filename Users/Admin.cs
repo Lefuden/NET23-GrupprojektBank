@@ -15,13 +15,13 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Admin;
         }
 
-        public UserChoice CreateUserAccount()
-        {
-            //give option to create customer or admin -> return userchoice.customer or userchoice.admin
-            //UserChoice.CreateCustomer;
-            //UserChoice.CreateAdmin;
-            return UserChoice.Back;
-        }
+        //public UserChoice CreateUserAccount()
+        //{
+        //    //give option to create customer or admin -> return userchoice.customer or userchoice.admin
+        //    //UserChoice.CreateCustomer;
+        //    //UserChoice.CreateAdmin;
+        //    return UserChoice.Back;
+        //}
 
         public Admin CreateAdminAccount(List<string> existingUserNames)
         {
@@ -40,14 +40,15 @@ namespace NET23_GrupprojektBank.Users
             while (true)
             {
                 Console.WriteLine("Enter user details.");
-                var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); //call method IsUserNameAlreadyTaken(username) from logic manager
-                                                                                //       var exisingusernames = GetAllUsernames();
-                                                                                //       var username = AnsiConsole.Ask<string>("Enter username: ");
-                                                                                //       if(exisingusernames.Contains(username))
-                                                                                //       {
-                                                                                //           // Användarnamnet finns, försök igen... (while loop kanske?
-                                                                                //       }
-                                                                                ////Användarnmnet är godkänt, fortsätt...
+                var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); 
+                //call method IsUserNameAlreadyTaken(username) from logic manager
+                //       var exisingusernames = GetAllUsernames();
+                //       var username = AnsiConsole.Ask<string>("Enter username: ");
+                //       if(exisingusernames.Contains(username))
+                //       {
+                //           // Användarnamnet finns, försök igen... (while loop kanske?
+                //       }
+                ////Användarnmnet är godkänt, fortsätt...
 
                 var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
                         .PromptStyle("red")

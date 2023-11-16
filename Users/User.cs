@@ -43,6 +43,7 @@ namespace NET23_GrupprojektBank.Users
             return false;
         }
 
+        public Guid GetUserId() => UserId;
         internal string GetUsername() => Username;
 
         internal bool CompareUserPassword(string userPassword)
