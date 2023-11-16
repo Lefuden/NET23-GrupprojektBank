@@ -1,10 +1,12 @@
-﻿using NET23_GrupprojektBank.Managers.Login;
+﻿using NET23_GrupprojektBank.Managers.Database;
+using NET23_GrupprojektBank.Managers.Login;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Logic
 {
@@ -18,6 +20,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
         private UserChoice Choice { get; set; }
         private UserChoice PreviousChoice { get; set; }
         private bool KeepRunning { get; set; }
+        private string URI { get; set; }
 
         public LogicManager(bool usingDatabase = false)
         {
@@ -28,10 +31,16 @@ namespace NET23_GrupprojektBank.Managers.Logic
             KeepRunning = true;
             CurrentCustomer = default;
             CurrentAdmin = default;
+            if (File.Exists(@"..\..\..\UriAdress.txt"))
+            {
+                URI = File.ReadAllText(@"..\..\..\UriAdress.txt");
+                Console.WriteLine(URI);
+            }
 
             if (usingDatabase)
             {
-                // CurrentExisingUsers = GetAllUsersFromDb
+                var dbResponse = DatabaseManager.GetAllUsersFromDB(URI);
+                Users = dbResponse.Result;
             }
             else
             {
@@ -101,6 +110,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                         break;
 
+                    case UserChoice.ViewLockedMenu:
+                        PreviousChoice = UserChoice.ViewWelcomeMenu;
+                        //UserCommunications.LockedMenu();
+                        Choice = UserChoice.ViewWelcomeMenu;
+                        break;
+
                     case UserChoice.Back:
                         Choice = PreviousChoice;
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
@@ -118,7 +133,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                     case UserChoice.ViewAdminMenu:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
-                        Choice = UserCommunications.AdminMenu();
+                        //Choice = UserCommunications.AdminMenu();
                         break;
 
                     case UserChoice.ViewCustomerMenu:
@@ -130,7 +145,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeTransfer();
+                            //Transaction newTransaction = CurrentCustomer.MakeTransfer();
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -144,7 +163,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeDeposit();
+                            //Transaction newTransaction = CurrentCustomer.MakeDeposit();
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -158,7 +181,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeWithdrawal();
+                            //Transaction newTransaction = CurrentCustomer.MakeWithdrawal();
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -172,8 +199,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
+                            //Transaction newTransaction = CurrentCustomer.MakeLoan();
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeLoan();
                         }
                         else
                         {
@@ -249,19 +280,6 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewAdminMenu;
                             Choice = UserChoice.ViewAdminMenu;
-                        }
-                        break;
-
-                    case UserChoice.CreateUser:
-                        if (CurrentAdmin is not null)
-                        {
-                            PreviousChoice = UserChoice.ViewAdminMenu;
-                            Choice = CurrentAdmin.CreateUserAccount();
-                        }
-                        else
-                        {
-                            PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Choice = UserChoice.ViewCustomerMenu;
                         }
                         break;
 
@@ -368,12 +386,38 @@ namespace NET23_GrupprojektBank.Managers.Logic
             Choice = UserChoice.Exit;
         }
 
-        // DETTA SKA BORT! GÖR BARA LITE TESTER HÄR!
+
+        public EventStatus DisplayLockoutScreen(DateTime lockoutTimeStart, int lockoutDuration)
+        {
+            AnsiConsole.Progress()
+                .Start(ctx =>
+                {
+                    // Define tasks
+                    var task1 = ctx.AddTask("[green]Reticulating splines[/]", true, lockoutDuration);
+
+                    while (!ctx.IsFinished)
+                    {
+                        while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
+                        {
+                            int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
+                            Console.CursorVisible = false;
+                            Console.Clear();
+                            Console.WriteLine($"You are Locked. Remaining time {remainingTime} seconds.");
+                            Thread.Sleep(1000);
+                            task1.Increment(1);
+                        }
+                    }
+                });
+
+
+            return EventStatus.LoginUnlocked;
+        }
 
     }
 }
 
 
+// DETTA SKA BORT! GÖR BARA LITE TESTER HÄR!
 
 //    private static UserChoice ConvertEventStatusToUserChoice(EventStatus eventStatus)
 //    {

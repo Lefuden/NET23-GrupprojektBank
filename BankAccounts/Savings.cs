@@ -6,7 +6,7 @@ namespace NET23_GrupprojektBank.BankAccounts
     internal class Savings : BankAccount
     {
         private double Interest { get; set; }
-        public Savings(string bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0, double interest = 0)
+        public Savings(int bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0, double interest = 0)
         {
             BankAccountNumber = bankAccountNumber;
             BankAccountName = bankAccountName;
