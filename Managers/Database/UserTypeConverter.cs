@@ -1,4 +1,6 @@
-﻿using NET23_GrupprojektBank.Users;
+﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Managers.Logs;
+using NET23_GrupprojektBank.Users;
 using NET23_GrupprojektBank.Users.UserInformation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -16,12 +18,18 @@ namespace NET23_GrupprojektBank.Managers.Database
 
             // Extract values
             string userName = jsonObject["userName"]?.ToString();
-            string password = jsonObject["hashedPassword"]?.ToString();  // Assuming you want the hashed password
-            JObject personInformation = jsonObject["personInformation"] as JObject;
+            //string userId = jsonObject["userId"]?.ToString();
+            Guid userId = Guid.Parse(jsonObject["userId"]?.ToString());
+            string salt = jsonObject["salt"]?.ToString();
+            string hashedPassword = jsonObject["hashedPassword"]?.ToString();  // Assuming you want the hashed password
+            JObject personInformationJson = jsonObject["personInformation"] as JObject;
+            JObject? bankAccountsJson = jsonObject["bankAccounts"] as JObject;
+            JObject? logsJson = jsonObject["logs"] as JObject;
 
-            // Deserialize personInformation if it's not null
-            PersonInformation person = personInformation != null ? personInformation.ToObject<PersonInformation>() : null;
-
+            // Deserialize personInformationJson if it's not null
+            PersonInformation personInformation = personInformationJson != null ? personInformationJson.ToObject<PersonInformation>() : null;
+            List<BankAccount> bankAccounts = bankAccountsJson != null ? bankAccountsJson.ToObject<List<BankAccount>>() : null;
+            List<Log> logs = logsJson != null ? logsJson.ToObject<List<Log>>() : null;
             // Determine user type based on UserType enum
             UserType userType = (UserType)Enum.Parse(typeof(UserType), jsonObject["userType"]?.ToString() ?? UserType.Undeclared.ToString());
 
@@ -30,10 +38,10 @@ namespace NET23_GrupprojektBank.Managers.Database
             switch (userType)
             {
                 case UserType.Customer:
-                    user = new Customer(userName, password, person);
+                    user = new Customer(userName, userId, salt, hashedPassword, personInformation, userType, logs, bankAccounts);
                     break;
                 case UserType.Admin:
-                    user = new Admin(userName, password, person);
+                    user = new Admin(userName, userId, salt, hashedPassword, personInformation, userType, logs);
                     break;
                 default:
                     throw new NotSupportedException($"Unsupported UserType: {userType}");
