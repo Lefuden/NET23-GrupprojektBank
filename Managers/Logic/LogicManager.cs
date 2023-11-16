@@ -31,16 +31,19 @@ namespace NET23_GrupprojektBank.Managers.Logic
             KeepRunning = true;
             CurrentCustomer = default;
             CurrentAdmin = default;
-            if (File.Exists(@"..\..\..\UriAdress.txt"))
-            {
-                URI = File.ReadAllText(@"..\..\..\UriAdress.txt");
-                Console.WriteLine(URI);
-            }
-
             if (usingDatabase)
             {
-                var dbResponse = DatabaseManager.GetAllUsersFromDB(URI);
-                Users = dbResponse.Result;
+                if (File.Exists(@"..\..\..\UriAdress.txt"))
+                {
+                    URI = File.ReadAllText(@"..\..\..\UriAdress.txt");
+                    Console.WriteLine(URI);
+                    var dbResponse = DatabaseManager.GetAllUsersFromDB(URI).WaitAsync(new CancellationToken());
+                    while (!dbResponse.IsCompleted)
+                    {
+                        Console.WriteLine("poop");
+                    }
+                    Users = dbResponse.Result;
+                }
             }
             else
             {
@@ -134,6 +137,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                     case UserChoice.ViewAdminMenu:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
                         //Choice = UserCommunications.AdminMenu();
+                        Choice = UserCommunications.CustomerMenu();
                         break;
 
                     case UserChoice.ViewCustomerMenu:
@@ -246,7 +250,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Choice = CurrentCustomer.CreateBankAccount();
+                            // Choice = CurrentCustomer.CreateBankAccount();
                         }
                         else
                         {
