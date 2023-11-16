@@ -55,8 +55,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     {
                  "View Account Balance",
                  "Create Bank Account",
+                 "Transfer",
                  "Deposit",
                  "Withdraw",
+                 "Loan",
+                 "View Logs",
                  "Logout",
                  "Exit"
                     }
@@ -79,16 +82,18 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 "Login" => UserChoice.Login,
                 "Exit" => UserChoice.Exit,
-                "View Account Balance" => UserChoice.ViewBalance,
-                "Deposit" => UserChoice.ViewBalance,
-                "Withdraw" => UserChoice.MakeWithdrawal,
-                "Create Bank Account" => UserChoice.CreateBankAccount,
-                "Create Customer Account" => UserChoice.CreateCustomer,
-                "Create Admin Account" => UserChoice.CreateAdmin,
-                "Update Currency ExchangeRate" => UserChoice.UpdateCurrencyExchange,
-                "View Logs" => UserChoice.ViewLogs,
+                "View Account Balance" => UserChoice.ViewBalance,//inte sub
+                "Transfer" => UserChoice.MakeTransfer,//inte sub
+                "Deposit" => UserChoice.MakeDeposit,//inte sub
+                "Withdraw" => UserChoice.MakeWithdrawal,//inte sub
+                "Loan" => UserChoice.MakeLoan,//inte sub
+                "Create Bank Account" => UserChoice.CreateBankAccount,//sub
+                "Create Customer Account" => UserChoice.CreateCustomer,//ingen sub
+                "Create Admin Account" => UserChoice.CreateAdmin,//ingen sub
+                "Update Currency ExchangeRate" => UserChoice.UpdateCurrencyExchange,//inte sub
+                "View Logs" => UserChoice.ViewLogs,//inte sub
                 "Back" => UserChoice.Back,
-                "Logout" => UserChoice.ViewBalance,
+                "Logout" => UserChoice.Logout,
                 _ => UserChoice.Invalid
 
             };
