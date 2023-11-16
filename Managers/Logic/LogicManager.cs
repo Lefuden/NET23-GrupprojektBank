@@ -37,12 +37,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 {
                     URI = File.ReadAllText(@"..\..\..\UriAdress.txt");
                     Console.WriteLine(URI);
-                    var dbResponse = DatabaseManager.GetAllUsersFromDB(URI).WaitAsync(new CancellationToken());
-                    while (!dbResponse.IsCompleted)
-                    {
-                        Console.WriteLine("poop");
-                    }
-                    Users = dbResponse.Result;
+                    Users = DatabaseManager.GetAllUsersFromDB(URI).Result;
                 }
             }
             else
@@ -85,7 +80,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                         CurrentCustomer.Addlog(info.EventStatus);
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
-                                    if (info.User is Admin admin)
+                                    else if (info.User is Admin admin)
                                     {
                                         CurrentAdmin = admin;
                                         CurrentAdmin.Addlog(info.EventStatus);
