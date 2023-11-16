@@ -1,6 +1,7 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Logic;
+using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Users.UserInformation;
 
 namespace NET23_GrupprojektBank.Users
@@ -47,19 +48,6 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-        public UserChoice CreateBankAccount()
-        {
-            return UserChoice.CreateChecking;
-            return UserChoice.CreateSavings;
-            return UserChoice.Back;
-
-            //wanna make checking or savings or go back?
-
-            //BankAccount.cs
-            //string BankAccountNumber, BankAccountName
-            //Enum BankAccountType, CurrencyType
-        }
-
         public EventStatus CreateCheckingAccount()
         {
             //logic to create account goes here
@@ -72,37 +60,44 @@ namespace NET23_GrupprojektBank.Users
             throw new NotImplementedException();
         }
 
-        private void CreateTransaction() //: Transaction input parameters for various transactions/loans/withdrawals
+        private Transaction CreateTransaction() //: Transaction input parameters for various transactions/loans/withdrawals
         {
             //take input from various Make-methods to then create the transaction of corresponding type
+            //return new Transaction();
+            throw new NotImplementedException();
         }
 
-        public void MakeLoan()
+        public Transaction MakeLoan()
         {
             //BankAccount.GetBalance();
             //logic to create a loan
             //send to createtransaction for completion
+            return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
-        public void MakeWithdrawal()
+        public Transaction MakeWithdrawal()
         {
             //BankAccount.GetBalance();
             //logic to create a withdrawal
             //send to createtransaction for completion
+            return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
-        public void MakeDeposit()
+        public Transaction MakeDeposit()
         {
             //BankAccount.GetBalance();
             //logic to create a deposit
             //send to createtransaction for completion
+            return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
-        public void MakeTransfer()
+        public Transaction MakeTransfer()
         {
             //BankAccount.GetBalance();
             //logic to create a transfer
             //send to createtransaction for completion
+           
+            return CreateTransaction(); //return transaction. return null if cancelled.
         }
     }
 }
