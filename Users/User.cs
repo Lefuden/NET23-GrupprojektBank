@@ -1,6 +1,7 @@
 ﻿using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Users.UserInformation;
+using Newtonsoft.Json;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -30,6 +31,24 @@ namespace NET23_GrupprojektBank.Users
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(password + Salt);
             Logs = new List<Log>();
             UserType = UserType.Undeclared;
+        }
+        [JsonConstructor]
+        public User(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs)
+        {
+            Username = username;
+            UserId = userId;
+            Salt = salt;
+            HashedPassword = hashedPassword;
+            PersonInformation = personInformation;
+            if (Logs is null)
+            {
+                Logs = new();
+            }
+            if (logs is not null)
+            {
+                Logs = logs;
+            }
+            UserType = userType;
         }
 
         internal bool CompareUsername(string userName)

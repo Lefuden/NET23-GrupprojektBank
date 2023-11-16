@@ -1,8 +1,9 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Managers;
-using NET23_GrupprojektBank.Managers.Logic;
+using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Users.UserInformation;
+using Newtonsoft.Json;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -14,6 +15,18 @@ namespace NET23_GrupprojektBank.Users
         {
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
+        }
+        [JsonConstructor]      
+        public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
+        {
+            if (BankAccounts is null)
+            {
+                BankAccounts = new();
+            }
+            if (bankAccounts is not null)
+            {
+                BankAccounts = bankAccounts;
+            }
         }
 
         public void ViewBankAccount()
