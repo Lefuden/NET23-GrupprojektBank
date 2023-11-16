@@ -11,7 +11,7 @@ namespace NET23_GrupprojektBank.BankAccounts
     }
     internal abstract class BankAccount
     {
-        protected string BankAccountNumber { get; set; }
+        protected int BankAccountNumber { get; set; }
         protected string BankAccountName { get; set; }
         protected BankAccountType BankAccountType { get; set; }
         protected CurrencyType CurrencyType { get; set; }

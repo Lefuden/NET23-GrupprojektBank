@@ -5,6 +5,7 @@
         LoginSuccess,
         LoginFailed,
         LoginLocked,
+        LoginUnlocked,
         CurrencyExchangeRateUpdateSuccess,
         CurrencyExchangeRateUpdateFailed,
         CheckingCreationSuccess,

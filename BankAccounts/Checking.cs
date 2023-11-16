@@ -5,7 +5,7 @@ namespace NET23_GrupprojektBank.BankAccounts
 {
     internal class Checking : BankAccount
     {
-        public Checking(string bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0)
+        public Checking(int bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0)
         {
             BankAccountNumber = bankAccountNumber;
             BankAccountName = bankAccountName;
