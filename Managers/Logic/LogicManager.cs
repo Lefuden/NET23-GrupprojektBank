@@ -109,7 +109,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                     case UserChoice.Logout:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
                         Choice = UserChoice.ViewWelcomeMenu;
-                        LoginManager = new(Users);
+                        Logout();
                         break;
 
                     case UserChoice.Exit:
@@ -356,7 +356,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
             return usernameList;
         }
 
-
+        private void Logout()
+        {
+            LoginManager = new(Users);
+            CurrentAdmin = null;
+            CurrentCustomer = null;
+        }
         private void Exit()
         {
             KeepRunning = false;
