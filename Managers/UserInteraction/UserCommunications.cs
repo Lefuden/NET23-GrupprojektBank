@@ -1,5 +1,6 @@
 ﻿using NET23_GrupprojektBank.Managers.Logic;
 using Spectre.Console;
+using System.Security.Principal;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
@@ -7,7 +8,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
     {
         public static UserChoice MainMenu()
         {
-            DrawRuler("Hyper Hedgehogs Fundings", "navajowhite3");
+            DrawRuler("Hyper Hedgehogs Fundings", "Gold1");
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]Welcome Menu[/]")
@@ -15,6 +16,27 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .AddChoices(new[]
                     {
                  "Login",
+                 "Exit"
+                    }
+                ));
+
+            return ConvertStringToUserChoice(stringChoice);
+        }
+        public static UserChoice AdminMenu()
+        {
+            DrawRuler($"Admin Menu");
+
+            string stringChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[purple]What would you like to do today?[/]")
+                    .PageSize(5)
+                    .AddChoices(new[]
+                    {
+                 "Create Customer Account",
+                 "Create Admin Account",
+                 "Update Currency ExchangeRate",
+                 "View Logs",
+                 "Logout",
                  "Exit"
                     }
                 ));
@@ -32,6 +54,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .AddChoices(new[]
                     {
                  "View Account Balance",
+                 "Create Bank Account",
                  "Deposit",
                  "Withdraw",
                  "Logout",
@@ -58,8 +81,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 "Exit" => UserChoice.Exit,
                 "View Account Balance" => UserChoice.ViewBalance,
                 "Deposit" => UserChoice.ViewBalance,
-                "Withdraw" => UserChoice.ViewBalance,
-                "Back" => UserChoice.ViewBalance,
+                "Withdraw" => UserChoice.MakeWithdrawal,
+                "Create Bank Account" => UserChoice.CreateBankAccount,
+                "Create Customer Account" => UserChoice.CreateCustomer,
+                "Create Admin Account" => UserChoice.CreateAdmin,
+                "Update Currency ExchangeRate" => UserChoice.UpdateCurrencyExchange,
+                "View Logs" => UserChoice.ViewLogs,
+                "Back" => UserChoice.Back,
                 "Logout" => UserChoice.ViewBalance,
                 _ => UserChoice.Invalid
 
