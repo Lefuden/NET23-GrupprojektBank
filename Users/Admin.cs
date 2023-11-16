@@ -1,9 +1,10 @@
 ﻿using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
-using NET23_GrupprojektBank.Managers.Logic;
+using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Newtonsoft.Json;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
@@ -15,13 +16,11 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Admin;
         }
 
-        //public UserChoice CreateUserAccount()
-        //{
-        //    //give option to create customer or admin -> return userchoice.customer or userchoice.admin
-        //    //UserChoice.CreateCustomer;
-        //    //UserChoice.CreateAdmin;
-        //    return UserChoice.Back;
-        //}
+        [JsonConstructor]       
+        public Admin(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
+        {
+ 
+        }
 
         public Admin CreateAdminAccount(List<string> existingUserNames)
         {
