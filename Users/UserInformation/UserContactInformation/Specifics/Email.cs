@@ -8,7 +8,7 @@ namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Spe
         public string? WorkEmailAddress { get; set; }
         public Email(string emailAddress, string workEmailAddress = null)
         {
-            EmailAddress = IsEmailValid(emailAddress) ? emailAddress : "AHHERROOOOOONOTWORKING404";
+            EmailAddress = emailAddress;
 
             if (string.IsNullOrEmpty(workEmailAddress) is not true)
             {
@@ -16,7 +16,7 @@ namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Spe
             }
         }
 
-        private static bool IsEmailValid(string email)
+        public static bool IsEmailValid(string email)
         {
             if (string.IsNullOrEmpty(email))
             {

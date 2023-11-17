@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.Users;
+using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Login
 {
@@ -7,7 +8,7 @@ namespace NET23_GrupprojektBank.Managers.Login
         private List<User> CurrentExistingUsers { get; set; }
         private int RemainingLoginAttempts { get; set; } = 3;
         private bool IsLocked { get; set; } = false;
-        private const int LockoutDuration = 60;
+        private const int LockoutDuration = 6;
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
 
 
@@ -16,14 +17,14 @@ namespace NET23_GrupprojektBank.Managers.Login
             CurrentExistingUsers = listOfUsers;
         }
 
+        public (DateTime LockOutTimeStarted, int LockOutDuration) GetLockOutInformation() => IsLocked ? (LockoutTimeStart, LockoutDuration) : (DateTime.MaxValue, 60000000);
 
         public (User? User, EventStatus EventStatus) Login(string Username, string password)
         {
             if (IsLocked)
             {
                 LockoutTimeStart = DateTime.UtcNow;
-                DisplayLockoutScreen();
-                return (default, EventStatus.LoginLocked);
+                return (default, DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
             RemainingLoginAttempts--;
@@ -32,8 +33,7 @@ namespace NET23_GrupprojektBank.Managers.Login
             {
                 IsLocked = true;
                 LockoutTimeStart = DateTime.UtcNow;
-                DisplayLockoutScreen();
-                return (default, EventStatus.LoginLocked);
+                return (default, DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
             User? userLogin = CurrentExistingUsers.Find(user =>
@@ -58,18 +58,62 @@ namespace NET23_GrupprojektBank.Managers.Login
             return (default, EventStatus.LoginFailed);
         }
 
-        private void DisplayLockoutScreen()
+        private static Color UpdateColorBasedOnTimeRemaining(int timeRemaining)
         {
-            while (DateTime.UtcNow.Subtract(LockoutTimeStart).TotalSeconds < LockoutDuration)
+            return timeRemaining switch
             {
-                int remainingTime = LockoutDuration - (int)DateTime.UtcNow.Subtract(LockoutTimeStart).TotalSeconds;
+                > 30 => Color.Red,
+                > 20 => Color.Orange1,
+                > 10 => Color.Gold1,
+                > 3 => Color.GreenYellow,
+                <= 3 => Color.Green,
+            }; ;
+        }
+
+        public static EventStatus DisplayLockoutScreenASCII(DateTime lockoutTimeStart, int lockoutDuration)
+        {
+
+            while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
+            {
+                int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
                 Console.CursorVisible = false;
+
                 Console.Clear();
-                Console.WriteLine($"You are Locked. Remaining time {remainingTime} seconds.");
+                Color timeRemainingColor = UpdateColorBasedOnTimeRemaining(remainingTime);
+
+                AnsiConsole.Write(new FigletText("Locked for: ").Centered().Color(timeRemainingColor));
+                AnsiConsole.Write(new FigletText(remainingTime.ToString()).Centered().Color(timeRemainingColor));
+
+
                 Thread.Sleep(1000);
             }
-            IsLocked = false;
-            RemainingLoginAttempts = 3;
+            return EventStatus.LoginUnlocked;
+        }
+
+        public EventStatus DisplayLockoutScreen(DateTime lockoutTimeStart, int lockoutDuration)
+        {
+            AnsiConsole.Progress()
+                .Start(ctx =>
+                {
+                    // Define tasks
+                    var task1 = ctx.AddTask("[green]Reticulating splines[/]", true, lockoutDuration);
+
+                    while (!ctx.IsFinished)
+                    {
+                        while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
+                        {
+                            int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
+                            Console.CursorVisible = false;
+                            Console.Clear();
+                            Console.WriteLine($"You are Locked. Remaining time {remainingTime} seconds.");
+                            Thread.Sleep(1000);
+                            task1.Increment(1);
+                        }
+                    }
+                });
+
+
+            return EventStatus.LoginUnlocked;
         }
         public bool IsUsernameAlreadyTaken(string Username)
         {
