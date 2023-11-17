@@ -13,6 +13,15 @@ namespace NET23_GrupprojektBank.BankAccounts
             CurrencyType = currencyType;
             Balance = balance;
         }
+        public Checking(int bankAccountNumber, string bankAccountName, BankAccountType bankAccountType, CurrencyType currencyType, decimal balance, Guid ownerUserId)
+        {
+            BankAccountNumber = bankAccountNumber;
+            BankAccountName = bankAccountName;
+            BankAccountType = bankAccountType;
+            CurrencyType = currencyType;
+            Balance = balance;
+            OwnerUserId = ownerUserId;
+        }
         public override void MakeTransaction(Transaction transaction)
         {
             throw new NotImplementedException();

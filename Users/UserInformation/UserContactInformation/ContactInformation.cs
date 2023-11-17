@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Newtonsoft.Json;
 
 namespace NET23_GrupprojektBank.Users.UserContactInformation
 {
@@ -7,17 +8,27 @@ namespace NET23_GrupprojektBank.Users.UserContactInformation
         public Email Email { get; set; }
         public Phone? Phone { get; set; }
         public Address? Address { get; set; }
-        public ContactInformation(Email email, Phone phone = null, Address address = null)
+
+        [JsonConstructor]
+        public ContactInformation(Email email, Phone phone, Address address)
         {
             Email = email;
-            if (phone is not null)
-            {
-                Phone = phone;
-            }
-            if (address is not null)
-            {
-                Address = address;
-            }
+            Phone = phone;
+            Address = address;
+        }
+        public ContactInformation(Email email)
+        {
+            Email = email;
+        }
+        public ContactInformation(Email email, Phone phone)
+        {
+            Email = email;
+            Phone = phone;
+        }
+        public ContactInformation(Email email, Address address)
+        {
+            Email = email;
+            Address = address;
         }
     }
 }

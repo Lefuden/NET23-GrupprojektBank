@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.Users;
-using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Login
 {
@@ -12,7 +11,7 @@ namespace NET23_GrupprojektBank.Managers.Login
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
 
 
-        public LoginManager(List<User> listOfUsers)
+        public LoginManager(List<User> listOfUsers, int maxAttempts = 3)
         {
             CurrentExistingUsers = listOfUsers;
         }
@@ -24,7 +23,7 @@ namespace NET23_GrupprojektBank.Managers.Login
             if (IsLocked)
             {
                 LockoutTimeStart = DateTime.UtcNow;
-                return (default, DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
+                //return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
             RemainingLoginAttempts--;
@@ -33,7 +32,7 @@ namespace NET23_GrupprojektBank.Managers.Login
             {
                 IsLocked = true;
                 LockoutTimeStart = DateTime.UtcNow;
-                return (default, DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
+                //return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
             User? userLogin = CurrentExistingUsers.Find(user =>
@@ -58,75 +57,40 @@ namespace NET23_GrupprojektBank.Managers.Login
             return (default, EventStatus.LoginFailed);
         }
 
-        private static Color UpdateColorBasedOnTimeRemaining(int timeRemaining)
-        {
-            return timeRemaining switch
-            {
-                > 30 => Color.Red,
-                > 20 => Color.Orange1,
-                > 10 => Color.Gold1,
-                > 3 => Color.GreenYellow,
-                <= 3 => Color.Green,
-            }; ;
-        }
+        //private static Color UpdateColorBasedOnTimeRemaining(int timeRemaining)
+        //{
+        //    return timeRemaining switch
+        //    {
+        //        > 30 => Color.Red,
+        //        > 20 => Color.Orange1,
+        //        > 10 => Color.Gold1,
+        //        > 3 => Color.GreenYellow,
+        //        <= 3 => Color.Green,
+        //    }; ;
+        //}
 
-        public static EventStatus DisplayLockoutScreenASCII(DateTime lockoutTimeStart, int lockoutDuration)
-        {
+        //public static EventStatus DisplayLockoutScreenASCII(DateTime lockoutTimeStart, int lockoutDuration)
+        //{
 
-            while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
-            {
-                int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
-                Console.CursorVisible = false;
+        //    while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
+        //    {
+        //        int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
+        //        Console.CursorVisible = false;
 
-                Console.Clear();
-                Color timeRemainingColor = UpdateColorBasedOnTimeRemaining(remainingTime);
+        //        Console.Clear();
+        //        Color timeRemainingColor = UpdateColorBasedOnTimeRemaining(remainingTime);
 
-                AnsiConsole.Write(new FigletText("Locked for: ").Centered().Color(timeRemainingColor));
-                AnsiConsole.Write(new FigletText(remainingTime.ToString()).Centered().Color(timeRemainingColor));
-
-
-                Thread.Sleep(1000);
-            }
-            return EventStatus.LoginUnlocked;
-        }
-
-        public EventStatus DisplayLockoutScreen(DateTime lockoutTimeStart, int lockoutDuration)
-        {
-            AnsiConsole.Progress()
-                .Start(ctx =>
-                {
-                    // Define tasks
-                    var task1 = ctx.AddTask("[green]Reticulating splines[/]", true, lockoutDuration);
-
-                    while (!ctx.IsFinished)
-                    {
-                        while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
-                        {
-                            int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
-                            Console.CursorVisible = false;
-                            Console.Clear();
-                            Console.WriteLine($"You are Locked. Remaining time {remainingTime} seconds.");
-                            Thread.Sleep(1000);
-                            task1.Increment(1);
-                        }
-                    }
-                });
+        //        AnsiConsole.Write(new FigletText("Locked for: ").Centered().Color(timeRemainingColor));
+        //        AnsiConsole.Write(new FigletText(remainingTime.ToString()).Centered().Color(timeRemainingColor));
 
 
-            return EventStatus.LoginUnlocked;
-        }
-        public bool IsUsernameAlreadyTaken(string Username)
-        {
-            foreach (var user in CurrentExistingUsers)
-            {
-                if (user.CompareUsername(Username))
-                {
-                    return true;
-                }
-            }
+        //        Thread.Sleep(1000);
+        //    }
+        //    return EventStatus.LoginUnlocked;
+        //}
 
-            return false;
-        }
+
+
 
         //public int GetRemainingAttempts()
         //{

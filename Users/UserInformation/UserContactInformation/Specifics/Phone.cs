@@ -1,4 +1,6 @@
-﻿namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics
+﻿using Newtonsoft.Json;
+
+namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics
 {
     internal class Phone
     {
@@ -7,6 +9,7 @@
         public string? WorkPhoneNumber { get; set; }
         public string AreaCode { get; set; }
 
+        [JsonConstructor]
         public Phone(string phoneNumber, string mobilePhoneNumber, string workPhoneNumber, string areaCode)
         {
             PhoneNumber = phoneNumber;

@@ -9,6 +9,7 @@ namespace NET23_GrupprojektBank.Users
 {
     internal class Customer : User
     {
+        [JsonProperty]
         protected List<BankAccount> BankAccounts { get; set; }
 
         public Customer(string userName, string password, PersonInformation person) : base(userName, password, person)
@@ -16,7 +17,7 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
-        [JsonConstructor]      
+        [JsonConstructor]
         public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
         {
             if (BankAccounts is null)
@@ -109,7 +110,7 @@ namespace NET23_GrupprojektBank.Users
             //BankAccount.GetBalance();
             //logic to create a transfer
             //send to createtransaction for completion
-           
+
             return CreateTransaction(); //return transaction. return null if cancelled.
         }
     }
