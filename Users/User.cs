@@ -14,12 +14,19 @@ namespace NET23_GrupprojektBank.Users
 
     internal abstract class User
     {
+        [JsonProperty]
         protected string Username { get; set; }
+        [JsonProperty]
         protected Guid UserId { get; set; }
+        [JsonProperty]
         protected string Salt { get; set; }
+        [JsonProperty]
         protected string HashedPassword { get; set; }
+        [JsonProperty]
         protected PersonInformation PersonInformation { get; set; }
+        [JsonProperty]
         protected UserType UserType { get; set; }
+        [JsonProperty]
         protected List<Log> Logs { get; set; }
 
         public User(string userName, string password, PersonInformation personInformation)
@@ -31,6 +38,7 @@ namespace NET23_GrupprojektBank.Users
             HashedPassword = BCrypt.Net.BCrypt.HashPassword(password + Salt);
             Logs = new List<Log>();
             UserType = UserType.Undeclared;
+
         }
         [JsonConstructor]
         public User(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs)
@@ -92,7 +100,7 @@ namespace NET23_GrupprojektBank.Users
         }
 
         //make better log messages, humans need to read it
-        private string GetLogMessage(EventStatus eventStatus)
+        public string GetLogMessage(EventStatus eventStatus)
         {
             {
                 return eventStatus switch

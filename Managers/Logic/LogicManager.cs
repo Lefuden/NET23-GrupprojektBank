@@ -3,9 +3,7 @@ using NET23_GrupprojektBank.Managers.Login;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
-using NET23_GrupprojektBank.Users.UserContactInformation;
-using NET23_GrupprojektBank.Users.UserInformation;
-using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Newtonsoft.Json;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Logic
@@ -20,7 +18,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
         private UserChoice Choice { get; set; }
         private UserChoice PreviousChoice { get; set; }
         private bool KeepRunning { get; set; }
-        private string URI { get; set; }
+        private string? URI { get; set; }
 
         public LogicManager(bool usingDatabase = false)
         {
@@ -42,14 +40,16 @@ namespace NET23_GrupprojektBank.Managers.Logic
             }
             else
             {
-                Users = new()
-                {
-                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
-                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Skog",    new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
-                    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
-                };
+                //Users = new()
+                //{
+                //    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                //    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                //    new Customer("Wille",  "password",new PersonInformation("Wille",  "Skog",    new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                //    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
+                //};
+
             }
+
             LoginManager = new(Users);
         }
 
@@ -133,7 +133,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                     case UserChoice.ViewAdminMenu:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
                         //Choice = UserCommunications.AdminMenu();
-                        Choice = UserCommunications.CustomerMenu();
+                        Choice = UserCommunications.AdminMenu();
                         break;
 
                     case UserChoice.ViewCustomerMenu:
@@ -246,7 +246,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            // Choice = CurrentCustomer.CreateBankAccount();
+                            //Choice = CurrentCustomer.CreateBankAccount();
                         }
                         else
                         {
@@ -261,6 +261,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
                             CurrentCustomer.CreateCheckingAccount();
+                            DatabaseManager.UpdateSpecificUserInDB(URI, CurrentCustomer).Wait();
                         }
                         else
                         {
@@ -275,6 +276,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
                             CurrentCustomer.CreateSavingsAccount();
+                            DatabaseManager.UpdateSpecificUserInDB(URI, CurrentCustomer).Wait();
                         }
                         else
                         {
@@ -291,6 +293,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             Customer newCustomer = CurrentAdmin.CreateCustomerAccount(GetAllUsernames());
                             if (newCustomer is not null)
                             {
+                                //DatabaseManager.AddSpecificUserToDB(URI, newCustomer).Wait();
+                                // Convert the User object to JSON
+                                string jsonUser = JsonConvert.SerializeObject(newCustomer, Formatting.Indented);
+                                Console.WriteLine(jsonUser);
+                                Console.ReadKey();
                                 AddNewUser(newCustomer);
                             }
                         }
@@ -310,6 +317,10 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                             if (newAdmin is not null)
                             {
+                                //DatabaseManager.AddSpecificUserToDB(URI, newAdmin).Wait();
+                                string jsonUser = JsonConvert.SerializeObject(newAdmin, Formatting.Indented);
+                                Console.WriteLine(jsonUser);
+                                Console.ReadKey();
                                 AddNewUser(newAdmin);
                             }
                         }
@@ -364,9 +375,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 {
                     AnsiConsole.Write("User already exists!");
                 }
-
-                Users.Add(newUser);
-                DatabaseManager.PostSpecificUser(URI, newUser).Wait();
+                else
+                {
+                    DatabaseManager.AddSpecificUserToDB(URI, newUser).Wait();
+                    Users.Add(newUser);
+                }
             }
         }
 
@@ -386,6 +399,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
             LoginManager = new(Users);
             CurrentAdmin = null;
             CurrentCustomer = null;
+
         }
         private void Exit()
         {

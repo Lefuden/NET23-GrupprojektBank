@@ -1,4 +1,5 @@
-﻿using NET23_GrupprojektBank.Users;
+﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Users;
 using Newtonsoft.Json;
 
 namespace NET23_GrupprojektBank.Managers.Database
@@ -16,14 +17,15 @@ namespace NET23_GrupprojektBank.Managers.Database
         internal HandleResponse(string jsonResponse)
         {
             JsonResponse = jsonResponse;
-            JsonSettings = new JsonSerializerSettings
-            {
-                Converters = { new UserTypeConverter() }
-            };
+
         }
 
         internal List<User> GetUserListFromResponse()
         {
+            JsonSettings = new JsonSerializerSettings
+            {
+                Converters = { new UserTypeConverter() }
+            };
 
             var convertedUserList = JsonConvert.DeserializeObject<List<User>>(JsonResponse, JsonSettings);
 
@@ -31,9 +33,35 @@ namespace NET23_GrupprojektBank.Managers.Database
         }
         internal User GetUserFromResponse()
         {
+            JsonSettings = new JsonSerializerSettings
+            {
+                Converters = { new UserTypeConverter() }
+            };
+
             var convertedUser = JsonConvert.DeserializeObject<User>(JsonResponse, JsonSettings);
 
             return convertedUser;
+        }
+
+        internal List<BankAccount> GetAllUserBankAccountsAsListFromResponse()
+        {
+            JsonSettings = new JsonSerializerSettings
+            {
+                Converters = { new BankAccountTypeConverter() }
+            };
+            var convertedBankAcountList = JsonConvert.DeserializeObject<List<BankAccount>>(JsonResponse, JsonSettings);
+
+            return convertedBankAcountList;
+        }
+        internal BankAccount GetBankAccountFromResponse()
+        {
+            JsonSettings = new JsonSerializerSettings
+            {
+                Converters = { new BankAccountTypeConverter() }
+            };
+            var convertedBankAcount = JsonConvert.DeserializeObject<BankAccount>(JsonResponse, JsonSettings);
+
+            return convertedBankAcount;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace NET23_GrupprojektBank.Users
 {
     internal class Customer : User
     {
+        [JsonProperty]
         protected List<BankAccount> BankAccounts { get; set; }
 
         public Customer(string userName, string password, PersonInformation person) : base(userName, password, person)
@@ -18,6 +19,7 @@ namespace NET23_GrupprojektBank.Users
         }
 
         [JsonConstructor]      
+
         public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
         {
             if (BankAccounts is null)
@@ -117,6 +119,7 @@ namespace NET23_GrupprojektBank.Users
             //logic to create a transfer
             //send to createtransaction for completion
             AddLog(EventStatus.TransferCreated);
+
             return CreateTransaction(); //return transaction. return null if cancelled.
         }
     }

@@ -1,35 +1,38 @@
 ﻿using NET23_GrupprojektBank.Users;
+using Newtonsoft.Json;
 
 namespace NET23_GrupprojektBank.Managers.Logs
 {
+    //[JsonConverter(typeof(LogConverter))]
     internal class Log
     {
+        [JsonIgnore]
+        public int LogId { get; set; }
+        [JsonProperty]
         public DateTime DateAndTime { get; set; }
-        public User? User { get; set; }
+        [JsonProperty]
+        public Guid OwnerUserId { get; set; }
+        [JsonProperty]
         public string Message { get; set; }
 
+        [JsonConstructor]
+        public Log(int logId, DateTime dateAndTime, Guid ownerUserId, string message)
+        {
+            LogId = logId;
+            DateAndTime = dateAndTime;
+            OwnerUserId = ownerUserId;
+            Message = message;
+        }
+        public Log(DateTime dateAndTime, Guid ownerUserId, string message)
+        {
+            DateAndTime = dateAndTime;
+            OwnerUserId = ownerUserId;
+            Message = message;
+        }
         public Log(DateTime dateAndTime, User user, string message)
         {
             DateAndTime = dateAndTime;
-            User = user;
-            Message = message;
-        }
-        public Log(User user, string message)
-        {
-            DateAndTime = DateTime.UtcNow;
-            User = user;
-            Message = message;
-        }
-        public Log(DateTime dateAndTime, string message)
-        {
-            DateAndTime = dateAndTime;
-            User = default;
-            Message = message;
-        }
-        public Log(string message)
-        {
-            DateAndTime = DateTime.UtcNow;
-            User = default;
+            OwnerUserId = user.GetUserId();
             Message = message;
         }
     }

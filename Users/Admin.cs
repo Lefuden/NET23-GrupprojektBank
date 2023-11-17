@@ -16,10 +16,10 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Admin;
         }
 
-        [JsonConstructor]       
+        [JsonConstructor]
         public Admin(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
         {
- 
+
         }
 
         public Admin CreateAdminAccount(List<string> existingUsernames)
@@ -39,6 +39,7 @@ namespace NET23_GrupprojektBank.Users
             while (true)
             {
                 Console.WriteLine("Enter user details.");
+
                 var username = AnsiConsole.Ask<string>("[green]Username[/]:");
                 while (true)
                 {
@@ -102,9 +103,12 @@ namespace NET23_GrupprojektBank.Users
                                 {
                                     case "yes":
                                     case "1":
-                                        Console.WriteLine($"User {username} has been created");
-                                        AddLog(EventStatus.AccountCreationSuccess);
-                                        return new Customer(username, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
+
+                                        Console.WriteLine($"User {userName} has been created");
+                                        Addlog(EventStatus.AccountCreationSuccess);
+                                        Customer hej1 = new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
+                                        return hej1;
+
 
                                     case "no":
                                     case "2":
@@ -114,9 +118,13 @@ namespace NET23_GrupprojektBank.Users
                                 break;
                             case "no":
                             case "2":
-                                Console.WriteLine($"User {username} has been created");
-                                AddLog(EventStatus.AccountCreationSuccess);
-                                return new Customer(username, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
+
+                                Console.WriteLine($"User {userName} has been created");
+                                Customer hej2 = new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
+                                Addlog(EventStatus.AccountCreationSuccess);
+                                hej2.Addlog(EventStatus.AccountCreationSuccess);
+
+                                return hej2;
                         }
 
                         break;
