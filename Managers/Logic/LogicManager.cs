@@ -58,6 +58,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
             EventStatus eventStatus;
             while (KeepRunning)
             {
+                Console.Clear();
                 switch (Choice)
                 {
                     case UserChoice.ViewWelcomeMenu:
@@ -97,8 +98,8 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                 Choice = UserChoice.Login;
                                 break;
 
-                            case EventStatus.LoginLocked:
-                                Choice = UserChoice.ViewLockedMenu;
+                            case EventStatus.LoginUnlocked:
+                                Choice = UserChoice.ViewWelcomeMenu;
                                 break;
 
                             default:
@@ -355,13 +356,20 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
         }
 
-        private void AddNewUser(User user)
+        private void AddNewUser(User newUser)
         {
-            if (Users is not null && user is not null)
+            if (Users is not null && newUser is not null)
             {
-                Users.Add(user);
+                if (Users.Exists(user => user.Equals(newUser)))
+                {
+                    AnsiConsole.Write("User already exists!");
+                }
+
+                Users.Add(newUser);
+                DatabaseManager.PostSpecificUser(URI, newUser).Wait();
             }
         }
+
         private List<string> GetAllUsernames()
         {
             var usernameList = new List<string>();
@@ -384,172 +392,6 @@ namespace NET23_GrupprojektBank.Managers.Logic
             KeepRunning = false;
             Choice = UserChoice.Exit;
         }
-
-
-        public EventStatus DisplayLockoutScreen(DateTime lockoutTimeStart, int lockoutDuration)
-        {
-            AnsiConsole.Progress()
-                .Start(ctx =>
-                {
-                    // Define tasks
-                    var task1 = ctx.AddTask("[green]Reticulating splines[/]", true, lockoutDuration);
-
-                    while (!ctx.IsFinished)
-                    {
-                        while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
-                        {
-                            int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
-                            Console.CursorVisible = false;
-                            Console.Clear();
-                            Console.WriteLine($"You are Locked. Remaining time {remainingTime} seconds.");
-                            Thread.Sleep(1000);
-                            task1.Increment(1);
-                        }
-                    }
-                });
-
-
-            return EventStatus.LoginUnlocked;
-        }
-
     }
 }
-
-
-// DETTA SKA BORT! GÖR BARA LITE TESTER HÄR!
-
-//    private static UserChoice ConvertEventStatusToUserChoice(EventStatus eventStatus)
-//    {
-//        return eventStatus switch
-//        {
-//            EventStatus.LoginSuccess => UserChoice.ViewCustomerMenu,
-//            EventStatus.LoginFailed => /* Handle LoginFailed */,
-//            EventStatus.LoginLocked => /* Handle LoginLocked */,
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => /* Handle CurrencyExchangeRateUpdateSuccess */,
-//            EventStatus.CurrencyExchangeRateUpdateFailed => /* Handle CurrencyExchangeRateUpdateFailed */,
-//            EventStatus.CheckingCreationSuccess => /* Handle CheckingCreationSuccess */,
-//            EventStatus.CheckingCreationFailed => /* Handle CheckingCreationFailed */,
-//            EventStatus.SavingsCreationSuccess => /* Handle SavingsCreationSuccess */,
-//            EventStatus.SavingCreationFailed => /* Handle SavingCreationFailed */,
-//            EventStatus.TransactionSuccess => /* Handle TransactionSuccess */,
-//            EventStatus.TransactionFailed => /* Handle TransactionFailed */,
-//            EventStatus.DepositSuccess => /* Handle DepositSuccess */,
-//            EventStatus.DepositFailed => /* Handle DepositFailed */,
-//            EventStatus.WithdrawalSuccess => /* Handle WithdrawalSuccess */,
-//            EventStatus.WithdrawalFailed => /* Handle WithdrawalFailed */,
-//            EventStatus.TransferSuccess => /* Handle TransferSuccess */,
-//            EventStatus.TransferFailed => /* Handle TransferFailed */,
-//            EventStatus.LoanSuccess => /* Handle LoanSuccess */,
-//            EventStatus.LoanFailed => /* Handle LoanFailed */,
-//            EventStatus.AccountCreationSuccess => /* Handle AccountCreationSuccess */,
-//            EventStatus.AccountCreationFailed => /* Handle AccountCreationFailed */,
-//            EventStatus.AdressSuccess => /* Handle AdressSuccess */,
-//            EventStatus.AdressFailed => /* Handle AdressFailed */,
-//            EventStatus.EmailSuccess => /* Handle EmailSuccess */,
-//            EventStatus.EmailFailed => /* Handle EmailFailed */,
-//            EventStatus.PhoneSuccess => /* Handle PhoneSuccess */,
-//            EventStatus.PhoneFailed => /* Handle PhoneFailed */,
-//            EventStatus.ContactInformationSuccess => /* Handle ContactInformationSuccess */,
-//            EventStatus.ContactInformationFailed => /* Handle ContactInformationFailed */,
-//            EventStatus.InvalidInput => /* Handle InvalidInput */,
-//            EventStatus.TransactionManagerAddedToQueueSuccess => /* Handle TransactionManagerAddedToQueueSuccess */,
-//            EventStatus.TransactionManagerAddedToQueueFailed => /* Handle TransactionManagerAddedToQueueFailed */,
-//            EventStatus.NonAdminUser => /* Handle NonAdminUser */,
-//            EventStatus.AdminUpdatedCurrencyFromFile => /* Handle AdminUpdatedCurrencyFromFile */,
-//            EventStatus.AdminUpdatedCurrencyFromWebApi => /* Handle AdminUpdatedCurrencyFromWebApi */,
-//            EventStatus.AdminInvalidInput => /* Handle AdminInvalidInput */,
-//        }
-
-
-//}
-
-//internal static class EventStatusManager
-//{
-//    public static Log GetLogFromEventStatus(EventStatus eventStatus, User? user = default)
-//    {
-//        if (user is null)
-//        {
-//            return new Log(DateTime.UtcNow, GetLogMessage(eventStatus));
-//        }
-
-//        return new Log(DateTime.UtcNow, user, GetLogMessage(eventStatus));
-
-//    }
-//    public static string GetLogMessage(EventStatus eventStatus)
-//    {
-//        return eventStatus switch
-//        {
-//            EventStatus.LoginSuccess => /* Handle LoginSuccess */,
-//            EventStatus.LoginFailed => /* Handle LoginFailed */,
-//            EventStatus.LoginLocked => /* Handle LoginLocked */,
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => /* Handle CurrencyExchangeRateUpdateSuccess */,
-//            EventStatus.CurrencyExchangeRateUpdateFailed => /* Handle CurrencyExchangeRateUpdateFailed */,
-//            EventStatus.CheckingCreationSuccess => /* Handle CheckingCreationSuccess */,
-//            EventStatus.CheckingCreationFailed => /* Handle CheckingCreationFailed */,
-//            EventStatus.SavingsCreationSuccess => /* Handle SavingsCreationSuccess */,
-//            EventStatus.SavingCreationFailed => /* Handle SavingCreationFailed */,
-//            EventStatus.TransactionSuccess => /* Handle TransactionSuccess */,
-//            EventStatus.TransactionFailed => /* Handle TransactionFailed */,
-//            EventStatus.DepositSuccess => /* Handle DepositSuccess */,
-//            EventStatus.DepositFailed => /* Handle DepositFailed */,
-//            EventStatus.WithdrawalSuccess => /* Handle WithdrawalSuccess */,
-//            EventStatus.WithdrawalFailed => /* Handle WithdrawalFailed */,
-//            EventStatus.TransferSuccess => /* Handle TransferSuccess */,
-//            EventStatus.TransferFailed => /* Handle TransferFailed */,
-//            EventStatus.LoanSuccess => /* Handle LoanSuccess */,
-//            EventStatus.LoanFailed => /* Handle LoanFailed */,
-//            EventStatus.AccountCreationSuccess => /* Handle AccountCreationSuccess */,
-//            EventStatus.AccountCreationFailed => /* Handle AccountCreationFailed */,
-//            EventStatus.AdressSuccess => /* Handle AdressSuccess */,
-//            EventStatus.AdressFailed => /* Handle AdressFailed */,
-//            EventStatus.EmailSuccess => /* Handle EmailSuccess */,
-//            EventStatus.EmailFailed => /* Handle EmailFailed */,
-//            EventStatus.PhoneSuccess => /* Handle PhoneSuccess */,
-//            EventStatus.PhoneFailed => /* Handle PhoneFailed */,
-//            EventStatus.ContactInformationSuccess => /* Handle ContactInformationSuccess */,
-//            EventStatus.ContactInformationFailed => /* Handle ContactInformationFailed */,
-//            EventStatus.InvalidInput => /* Handle InvalidInput */,
-//            EventStatus.TransactionManagerAddedToQueueSuccess => /* Handle TransactionManagerAddedToQueueSuccess */,
-//            EventStatus.TransactionManagerAddedToQueueFailed => /* Handle TransactionManagerAddedToQueueFailed */,
-//            EventStatus.NonAdminUser => /* Handle NonAdminUser */,
-//            EventStatus.AdminUpdatedCurrencyFromFile => /* Handle AdminUpdatedCurrencyFromFile */,
-//            EventStatus.AdminUpdatedCurrencyFromWebApi => /* Handle AdminUpdatedCurrencyFromWebApi */,
-//            EventStatus.AdminInvalidInput => /* Handle AdminInvalidInput */,
-
-
-
-//            EventStatus.AccountCreationFailed => $"{Username} failed to create account",
-//            EventStatus.AccountCreationSuccess => $"{Username} successfully created an account",
-//            EventStatus.AdressFailed => $"{Username} failed to add address",
-//            EventStatus.AdressSuccess => $"{Username} has added an address",
-//            EventStatus.CheckingCreationFailed => $"{Username} checking account creation failed",
-//            EventStatus.CheckingCreationSuccess => $"{Username} checking account creation is a great success",
-//            EventStatus.ContactInformationFailed => $"{Username} ContactInformationFailed",
-//            EventStatus.ContactInformationSuccess => $"{Username} ContactInformationSuccess",
-//            EventStatus.CurrencyExchangeRateUpdateFailed => $"{Username} CurrencyExchangeRateUpdateFailed",
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => $"{Username} CurrencyExchangeRateUpdateSuccess",
-//            EventStatus.DepositFailed => $"{Username} DepositFailed",
-//            EventStatus.DepositSuccess => $"{Username} DepositSuccess",
-//            EventStatus.EmailFailed => $"{Username} EmailFailed",
-//            EventStatus.EmailSuccess => $"{Username} EmailSuccess",
-//            EventStatus.InvalidInput => $"{Username} InvalidInput",
-//            EventStatus.LoanFailed => $"{Username} LoanFailed",
-//            EventStatus.LoanSuccess => $"{Username} LoanSuccess",
-//            EventStatus.LoginFailed => $"{Username} LoginFailed",
-//            EventStatus.LoginSuccess => $"{Username} LoginSuccess",
-//            EventStatus.LoginLocked => $"{Username} LoginLocked",
-//            EventStatus.PhoneFailed => $"{Username}PhoneFailed",
-//            EventStatus.PhoneSuccess => $"{Username}PhoneSuccess",
-//            EventStatus.SavingCreationFailed => $"{Username}SavingCreationFailed",
-//            EventStatus.SavingsCreationSuccess => $"{Username} SavingsCreationSuccess",
-//            EventStatus.TransactionFailed => $"{Username} TransactionFailed",
-//            EventStatus.TransactionSuccess => $"{Username} TransactionSuccess",
-//            EventStatus.TransferFailed => $"{Username} TransferFailed",
-//            EventStatus.TransferSuccess => $"{Username} TransferSuccess",
-//            EventStatus.WithdrawalFailed => $"{Username} WithdrawalFailed",
-//            EventStatus.WithdrawalSuccess => $"{Username} WithdrawalSuccess",
-//            _ => $"{Username} something has gone terribly wrong"
-//        };
-//    }
-//}
 

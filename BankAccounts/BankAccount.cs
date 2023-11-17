@@ -25,6 +25,20 @@ namespace NET23_GrupprojektBank.BankAccounts
 
             return (decimal)convertRate[currencyType] * sum;
         }
+        public void Add(decimal sum)
+        {
+            if (sum > 0)
+            {
+                Balance += sum;
+            }
+        }
+        public void Remove(decimal sum)
+        {
+            if (Balance >= sum)
+            {
+                Balance -= sum;
+            }
+        }
 
     }
 }
