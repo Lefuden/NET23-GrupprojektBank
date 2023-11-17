@@ -54,19 +54,19 @@ namespace NET23_GrupprojektBank.Users
                         break;
                     }
                 }
-                
+
                 var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
                         .PromptStyle("red")
                         .Secret());
                 if (password == "-1") { return null; }
-                
+
                 var firstName = AnsiConsole.Ask<string>("First name: ");
                 if (firstName == "-1") { return null; }
-                
+
                 var lastName = AnsiConsole.Ask<string>("Last name: ");
                 if (lastName == "-1") { return null; }
-                
-                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth format YY,MM,DD or YYYY,MM,DD: "); 
+
+                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth format YY,MM,DD or YYYY,MM,DD: ");
                 //make method? to use string as input and then to check if at least 6 or 8 digits and correct order, then add correct format to parse to datetime (yy/mm/dd or yyyy/mm/dd)
                 //to get "cancel" input to work. will tinker.
                 //if (dateofBirth.ToString() == "-1") { return null; }
@@ -104,9 +104,9 @@ namespace NET23_GrupprojektBank.Users
                                     case "yes":
                                     case "1":
 
-                                        Console.WriteLine($"User {userName} has been created");
-                                        Addlog(EventStatus.AccountCreationSuccess);
-                                        Customer hej1 = new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
+                                        Console.WriteLine($"User {username} has been created");
+                                        AddLog(EventStatus.AccountCreationSuccess);
+                                        Customer hej1 = new Customer(username, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
                                         return hej1;
 
 
@@ -119,10 +119,10 @@ namespace NET23_GrupprojektBank.Users
                             case "no":
                             case "2":
 
-                                Console.WriteLine($"User {userName} has been created");
-                                Customer hej2 = new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
-                                Addlog(EventStatus.AccountCreationSuccess);
-                                hej2.Addlog(EventStatus.AccountCreationSuccess);
+                                Console.WriteLine($"User {username} has been created");
+                                Customer hej2 = new Customer(username, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
+                                AddLog(EventStatus.AccountCreationSuccess);
+                                hej2.AddLog(EventStatus.AccountCreationSuccess);
 
                                 return hej2;
                         }

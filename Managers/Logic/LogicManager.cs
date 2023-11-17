@@ -78,13 +78,13 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     if (info.User is Customer customer)
                                     {
                                         CurrentCustomer = customer;
-                                        CurrentCustomer.Addlog(info.EventStatus);
+                                        CurrentCustomer.AddLog(info.EventStatus);
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
                                     else if (info.User is Admin admin)
                                     {
                                         CurrentAdmin = admin;
-                                        CurrentAdmin.Addlog(info.EventStatus);
+                                        CurrentAdmin.AddLog(info.EventStatus);
                                         Choice = UserChoice.ViewAdminMenu;
                                     }
                                     else
