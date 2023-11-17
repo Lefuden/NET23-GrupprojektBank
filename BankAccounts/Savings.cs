@@ -28,6 +28,10 @@ namespace NET23_GrupprojektBank.BankAccounts
             OwnerUserId = ownerUserId;
             Interest = interest;
         }
+        public (string Type, string Name, string Number, string Balance, string Currency, string Interest) GetAccountInformation()
+        {
+            return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), Balance.ToString(), CurrencyType.ToString(), Interest.ToString());
+        }
         public override void MakeTransaction(Transaction transaction)
         {
             throw new NotImplementedException();
