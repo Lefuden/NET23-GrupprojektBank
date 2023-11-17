@@ -67,7 +67,26 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return ConvertStringToUserChoice(stringChoice);
         }
-        
+        public static UserChoice CreateBankAccount()
+        {
+            DrawRuler($"Create Bank Account");
+
+            string stringChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[purple]What would you like to do today?[/]")
+                    .PageSize(3)
+                    .AddChoices(new[]
+                    {
+                 "Create Checkings Account",
+                 "Create Savings Account",
+                 "Back",
+                 "Exit"
+                    }
+                ));
+
+            return ConvertStringToUserChoice(stringChoice);
+        }
+
         private static void DrawRuler(string content, string colorName)
         {
             AnsiConsole.Write(new Rule($"[{colorName}]{content}[/]"));
@@ -89,6 +108,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 "Withdraw" => UserChoice.MakeWithdrawal,//inte sub
                 "Loan" => UserChoice.MakeLoan,//inte sub
                 "Create Bank Account" => UserChoice.CreateBankAccount,//sub
+                "Create Checkings Account" => UserChoice.CreateChecking,
+                "Create Savings Account" => UserChoice.CreateSavings,
                 "Create Customer Account" => UserChoice.CreateCustomer,//ingen sub
                 "Create Admin Account" => UserChoice.CreateAdmin,//ingen sub
                 "Update Currency ExchangeRate" => UserChoice.UpdateCurrencyExchange,//inte sub
