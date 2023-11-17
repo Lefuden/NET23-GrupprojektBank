@@ -29,7 +29,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]What would you like to do today?[/]")
-                    .PageSize(5)
+                    .PageSize(10)
                     .AddChoices(new[]
                     {
                  "Create Customer Account",
@@ -50,7 +50,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]What would you like to do today?[/]")
-                    .PageSize(5)
+                    .PageSize(10)
                     .AddChoices(new[]
                     {
                  "View Account Balance",
@@ -67,6 +67,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return ConvertStringToUserChoice(stringChoice);
         }
+        
         private static void DrawRuler(string content, string colorName)
         {
             AnsiConsole.Write(new Rule($"[{colorName}]{content}[/]"));
