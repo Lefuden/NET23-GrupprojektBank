@@ -1,11 +1,14 @@
-﻿using NET23_GrupprojektBank.Managers.Logic;
+﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Managers.Logic;
 using Spectre.Console;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal class UserCommunications
     {
+        
         public static UserChoice MainMenu()
         {
             DrawRuler("Hyper Hedgehogs Fundings", "Gold1");
@@ -86,8 +89,115 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return ConvertStringToUserChoice(stringChoice);
         }
+        public static void ViewBankAccounts(List<BankAccount> bankAccounts)
+        {
+            if (bankAccounts.Count != 0)
+            {
+                var table = new Table().Centered();
 
-        private static void DrawRuler(string content, string colorName)
+
+                AnsiConsole.Live(table)
+                    .AutoClear(false)
+                    .Overflow(VerticalOverflow.Ellipsis)
+                    .Cropping(VerticalOverflowCropping.Top)
+                    .Start(ctx =>
+                    {
+                        void Update(int delay, Action action)
+                        {
+                            action();
+                            ctx.Refresh();
+                            Thread.Sleep(delay);
+                        }
+
+
+                        Update(230, () => table.AddColumn("Account Type"));
+                        Update(230, () => table.AddColumn("Account Name"));
+                        Update(230, () => table.AddColumn("Account Number"));
+                        Update(230, () => table.AddColumn("Balance"));
+                        Update(230, () => table.AddColumn("Currency"));
+                        Update(230, () => table.AddColumn("Intrest"));
+
+                        Update(70, () => table.Columns[0].Header("[orange1 bold]Account Type[/]"));
+                        Update(70, () => table.Columns[1].Header("[yellow bold]Account Name[/]"));
+                        Update(70, () => table.Columns[2].Header("[red bold]Account Number[/]"));
+                        Update(70, () => table.Columns[3].Header("[green bold]Balance[/]"));
+                        Update(70, () => table.Columns[4].Header("[blue bold]Currency[/]"));
+                        Update(70, () => table.Columns[5].Header("[cyan1 bold]Interest[/]"));
+
+
+
+                        foreach (var account in bankAccounts)
+                        {
+                         
+                            
+                                if (account is Checking checking)
+                                {
+                                    var info = checking.GetAccountInformation();
+
+                                }
+                                if (account is Savings savings)
+                                {
+                                    var info = savings.GetAccountInformation();
+
+                                }
+                            
+
+
+
+
+
+
+                            Update(100, () => table.BorderColor(Color.Purple));
+
+                            Update(0, () => table.Columns[0].Centered());
+                            Update(0, () => table.Columns[1].Centered());
+                            Update(0, () => table.Columns[2].Centered());
+                            Update(0, () => table.Columns[3].Centered());
+                            Update(0, () => table.Columns[4].Centered());
+
+
+                        }
+                        Update(500, () => table.Title("Bank Accounts"));
+                        Update(400, () => table.Title("[[ [Purple]Bank Accounts[/] ]]"));
+
+
+                        {
+                            string stringChoice = AnsiConsole.Prompt(
+                                new SelectionPrompt<string>()
+                                    .PageSize(3)
+                                    .AddChoices(new[]
+                                    {
+                                     "Back"
+                                    }
+                                ));
+
+                            return ConvertStringToUserChoice(stringChoice);
+                        }
+                        Console.ReadKey();
+                    });
+            }
+            else
+            {
+                 
+                
+                    DrawRuler($"No Bank Account");
+
+                    string stringChoice = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("[purple]Would you like to Create one or go back[/]")
+                            .PageSize(3)
+                            .AddChoices(new[]
+                            {
+                         "Create Bank Account",
+                         "Back",
+                            }
+                        ));
+
+                    return ConvertStringToUserChoice(stringChoice);
+                
+            }
+        }
+            private static void DrawRuler(string content, string colorName)
         {
             AnsiConsole.Write(new Rule($"[{colorName}]{content}[/]"));
         }
