@@ -1,4 +1,6 @@
-﻿namespace NET23_GrupprojektBank.Managers
+﻿using NET23_GrupprojektBank.Managers;
+
+namespace NET23_GrupprojektBank.Managers
 {
     public enum EventStatus
     {
@@ -11,17 +13,31 @@
         CheckingCreationSuccess,
         CheckingCreationFailed,
         SavingsCreationSuccess,
-        SavingCreationFailed,
+        SavingsCreationFailed,
         TransactionSuccess,
         TransactionFailed,
+        TransactionCreated,
         DepositSuccess,
         DepositFailed,
+        DepositFailedNegativeOrZeroSum,
+        DepositCreated,
         WithdrawalSuccess,
         WithdrawalFailed,
+        WithdrawalFailedInsufficientFunds,
+        WithdrawalCreated,
         TransferSuccess,
         TransferFailed,
+        TransferFailedInsufficientFunds,
+        TransferFailedNegativeOrZeroSum,
+        TransferCreated,
         LoanSuccess,
         LoanFailed,
+        LoanFailedNegativeOrZeroSum,
+        LoanCreated,
+        ValidUsername,
+        InvalidUsername,
+        ValidPassword,
+        InvalidPassword,
         AccountCreationSuccess,
         AccountCreationFailed,
         AdressSuccess,
