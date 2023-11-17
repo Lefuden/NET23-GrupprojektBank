@@ -17,7 +17,9 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
-        [JsonConstructor]
+
+        [JsonConstructor]      
+
         public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
         {
             if (BankAccounts is null)
@@ -65,12 +67,14 @@ namespace NET23_GrupprojektBank.Users
         public EventStatus CreateCheckingAccount()
         {
             //logic to create account goes here
+            AddLog(EventStatus.CheckingCreationSuccess); //or failed
             throw new NotImplementedException();
         }
 
         public EventStatus CreateSavingsAccount()
         {
             //logic to create account goes here
+            AddLog(EventStatus.SavingsCreationFailed); //or success
             throw new NotImplementedException();
         }
 
@@ -78,6 +82,7 @@ namespace NET23_GrupprojektBank.Users
         {
             //take input from various Make-methods to then create the transaction of corresponding type
             //return new Transaction();
+            AddLog(EventStatus.TransactionCreated);
             throw new NotImplementedException();
         }
 
@@ -86,6 +91,7 @@ namespace NET23_GrupprojektBank.Users
             //BankAccount.GetBalance();
             //logic to create a loan
             //send to createtransaction for completion
+            AddLog(EventStatus.LoanCreated);
             return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
@@ -94,6 +100,7 @@ namespace NET23_GrupprojektBank.Users
             //BankAccount.GetBalance();
             //logic to create a withdrawal
             //send to createtransaction for completion
+            AddLog(EventStatus.WithdrawalCreated);
             return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
@@ -102,6 +109,7 @@ namespace NET23_GrupprojektBank.Users
             //BankAccount.GetBalance();
             //logic to create a deposit
             //send to createtransaction for completion
+            AddLog(EventStatus.DepositCreated);
             return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
@@ -110,6 +118,7 @@ namespace NET23_GrupprojektBank.Users
             //BankAccount.GetBalance();
             //logic to create a transfer
             //send to createtransaction for completion
+            AddLog(EventStatus.TransferCreated);
 
             return CreateTransaction(); //return transaction. return null if cancelled.
         }

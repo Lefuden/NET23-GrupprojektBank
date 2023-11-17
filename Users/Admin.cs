@@ -22,14 +22,14 @@ namespace NET23_GrupprojektBank.Users
 
         }
 
-        public Admin CreateAdminAccount(List<string> existingUserNames)
+        public Admin CreateAdminAccount(List<string> existingUsernames)
         {
             //call method from usercommunication
             //return new Admin();
             throw new NotImplementedException();
         }
 
-        public Customer CreateCustomerAccount(List<string> existingUserNames)
+        public Customer CreateCustomerAccount(List<string> existingUsernames)
         {
             //return new Customer();
             //give the choice to cancel everything at some point. eg "-1"
@@ -39,29 +39,44 @@ namespace NET23_GrupprojektBank.Users
             while (true)
             {
                 Console.WriteLine("Enter user details.");
-                var userName = AnsiConsole.Ask<string>("[green]User name[/]:");
-                //call method IsUserNameAlreadyTaken(username) from logic manager
-                //       var exisingusernames = GetAllUsernames();
-                //       var username = AnsiConsole.Ask<string>("Enter username: ");
-                //       if(exisingusernames.Contains(username))
-                //       {
-                //           // Användarnamnet finns, försök igen... (while loop kanske?
-                //       }
-                ////Användarnmnet är godkänt, fortsätt...
 
+                var username = AnsiConsole.Ask<string>("[green]Username[/]:");
+                while (true)
+                {
+                    if (username == "-1") { return null; }
+
+                    if (existingUsernames.Contains(username))
+                    {
+                        Console.WriteLine($"{username} already exists, enter a valid [green]username[/]: ");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
                 var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
                         .PromptStyle("red")
                         .Secret());
-
+                if (password == "-1") { return null; }
+                
                 var firstName = AnsiConsole.Ask<string>("First name: ");
+                if (firstName == "-1") { return null; }
+                
                 var lastName = AnsiConsole.Ask<string>("Last name: ");
-                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth: "); //make method to check if at least 6 or 8 digits and correct order (yy/mm/dd or yyyy/mm/dd)
+                if (lastName == "-1") { return null; }
+                
+                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth format YY,MM,DD or YYYY,MM,DD: "); 
+                //make method? to use string as input and then to check if at least 6 or 8 digits and correct order, then add correct format to parse to datetime (yy/mm/dd or yyyy/mm/dd)
+                //to get "cancel" input to work. will tinker.
+                //if (dateofBirth.ToString() == "-1") { return null; }
+
                 var email = AnsiConsole.Ask<string>("Email: "); //use IsEmailValid(string email) from email.cs to validate?
 
                 Console.Clear();
-                Console.WriteLine($"User name: {userName}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}" +
-                                  $"\nBirth date: {dateofBirth}\nemail: {email}\n\nis this information correct?\n1. yes\n2. no");
-                var answer = Console.ReadLine().ToLower();
+                Console.WriteLine($"User name: {username}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}" +
+                                  $"\nBirth date: {dateofBirth}\nemail: {email}\n\n");
+                var answer = AnsiConsole.Ask<string>("is this information correct?\n1. yes\n2. no");
                 switch (answer)
                 {
                     case "yes":
@@ -73,26 +88,27 @@ namespace NET23_GrupprojektBank.Users
                         {
                             case "yes":
                             case "1":
-                                var areaCode = AnsiConsole.Ask<string>("First name: ");
-                                var phone = AnsiConsole.Ask<string>("First name: ");
-                                var country = AnsiConsole.Ask<string>("First name: ");
-                                var city = AnsiConsole.Ask<string>("First name: ");
-                                var street = AnsiConsole.Ask<string>("First name: ");
-                                var postalNumber = AnsiConsole.Ask<string>("First name: ");
+                                var areaCode = AnsiConsole.Ask<string>("Area code: ");
+                                var phone = AnsiConsole.Ask<string>("Phone number: ");
+                                var country = AnsiConsole.Ask<string>("Country: ");
+                                var city = AnsiConsole.Ask<string>("City: ");
+                                var street = AnsiConsole.Ask<string>("Street name: ");
+                                var postalNumber = AnsiConsole.Ask<string>("Postal/zip code: ");
 
                                 Console.Clear();
                                 Console.WriteLine($"Phone area code: {areaCode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
-                                                  $"\nStreet name: {street}\nPostal code: {postalNumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
+                                                  $"\nStreet name: {street}\nPostal/zip code: {postalNumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
                                 answer = Console.ReadLine().ToLower();
                                 switch (answer)
                                 {
                                     case "yes":
                                     case "1":
+
                                         Console.WriteLine($"User {userName} has been created");
                                         Addlog(EventStatus.AccountCreationSuccess);
                                         Customer hej1 = new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
-                                        Console.WriteLine(hej1);
                                         return hej1;
+
 
                                     case "no":
                                     case "2":
@@ -102,11 +118,12 @@ namespace NET23_GrupprojektBank.Users
                                 break;
                             case "no":
                             case "2":
+
                                 Console.WriteLine($"User {userName} has been created");
                                 Customer hej2 = new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
                                 Addlog(EventStatus.AccountCreationSuccess);
                                 hej2.Addlog(EventStatus.AccountCreationSuccess);
-                                Console.WriteLine(hej2);
+
                                 return hej2;
                         }
 
@@ -119,18 +136,10 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-
         public void UpdateCurrencyExchangeRate()
         {
-            Task<EventStatus> taskUpdateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
-            //EventStatus eventStatus = taskUpdateStatus.Result;
-            Addlog(taskUpdateStatus.Result);
-
-            //var updateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
-            //while (updateStatus.IsCompleted is not true)
-            //{
-            // fake async waiting inside a console application...
-            //}
+            EventStatus taskUpdateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType).Result;
+            AddLog(taskUpdateStatus);
         }
     }
 }
