@@ -99,8 +99,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             };
         }
-
-
         public static (string Username, string Password) GetLoginInfo()
         {
             var Username = AnsiConsole.Prompt(
@@ -126,6 +124,37 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     ));
 
             return (Username, password);
+        }
+        private static Color UpdateColorBasedOnTimeRemaining(int timeRemaining)
+        {
+            return timeRemaining switch
+            {
+                > 30 => Color.Red,
+                > 20 => Color.Orange1,
+                > 10 => Color.Gold1,
+                > 3 => Color.GreenYellow,
+                <= 3 => Color.Green,
+            }; ;
+        }
+
+        public static EventStatus DisplayLockoutScreenASCII(DateTime lockoutTimeStart, int lockoutDuration)
+        {
+
+            while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
+            {
+                int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
+                Console.CursorVisible = false;
+
+                Console.Clear();
+                Color timeRemainingColor = UpdateColorBasedOnTimeRemaining(remainingTime);
+
+                AnsiConsole.Write(new FigletText("Locked for: ").Centered().Color(timeRemainingColor));
+                AnsiConsole.Write(new FigletText(remainingTime.ToString()).Centered().Color(timeRemainingColor));
+
+
+                Thread.Sleep(1000);
+            }
+            return EventStatus.LoginUnlocked;
         }
 
 
