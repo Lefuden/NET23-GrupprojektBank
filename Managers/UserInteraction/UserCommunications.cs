@@ -133,12 +133,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 if (account is Checking checking)
                                 {
                                     var info = checking.GetAccountInformation();
+                                Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", "[cyan1][/]"));
 
                                 }
                                 if (account is Savings savings)
                                 {
                                     var info = savings.GetAccountInformation();
-
+                                Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", $"[cyan1]{info.Interest}[/]"));
                                 }
                             
 
@@ -173,13 +174,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                             return ConvertStringToUserChoice(stringChoice);
                         }
-                        Console.ReadKey();
                     });
             }
             else
             {
-                 
-                
+                static UserChoice Nånting()
+                {
                     DrawRuler($"No Bank Account");
 
                     string stringChoice = AnsiConsole.Prompt(
@@ -192,9 +192,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                          "Back",
                             }
                         ));
-
                     return ConvertStringToUserChoice(stringChoice);
-                
+                }
             }
         }
             private static void DrawRuler(string content, string colorName)
