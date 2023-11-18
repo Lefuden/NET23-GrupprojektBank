@@ -178,7 +178,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
             else
             {
-                static UserChoice Nånting()
+                static UserChoice Something()
                 {
                     DrawRuler($"No Bank Account");
 
