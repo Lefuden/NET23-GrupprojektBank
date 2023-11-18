@@ -99,25 +99,9 @@ namespace NET23_GrupprojektBank.Users
                 var lastName = AnsiConsole.Ask<string>("[green]Last name[/]:");
                 if (lastName == "-1") return ("-1", "", "", "", DateTime.Now);
 
-                DateTime dateOfBirth;
-                while (true)
-                {
-                    var userInput = AnsiConsole.Ask<string>("[green]Date of birth (YYYYMMDD)[/]:");
-                    if (userInput == "-1") return ("-1", "", "", "", DateTime.Now);
-                    if (userInput.Length == 8)
-                    {
-                        userInput = userInput.Insert(6, ",");
-                        userInput = userInput.Insert(4, ",");
-                        dateOfBirth = DateTime.Parse(userInput); //if length == 8, check if DD is within correct range, MM correct range.
-                        break;
-                    }
+                var dateOfBirth = GetBirthDateFromUser();
+                if (dateOfBirth == DateTime.MinValue) return ("-1", "", "", "", DateTime.Now);
 
-                    if (userInput.Length is > 8 or < 8)
-                    {
-                        dateOfBirth = DateTime.Now;
-                        break;
-                    }
-                }
                 Console.WriteLine($"User name: {username}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}\nBirth date: {dateOfBirth}\n\n");
                 switch (AskUserYesOrNo("is this information correct?"))
                 {
@@ -245,6 +229,37 @@ namespace NET23_GrupprojektBank.Users
                     }
                 ));
             return stringChoice == "Yes";
+        }
+
+        public static DateTime GetBirthDateFromUser()
+        {
+            while (true)
+            {
+                var userInput = AnsiConsole.Ask<string>("[green]Date of Birth (YYYYMMDD)[/]:");
+                if (userInput.Length == 8)
+                {
+                    userInput = userInput.Insert(6, ",");
+                    userInput = userInput.Insert(4, ",");
+                }
+
+                if (DateTime.TryParse(userInput, out DateTime validDateFormat))
+                {
+                    if (UserAgeRestriction(validDateFormat))
+                    {
+                        return validDateFormat;
+                    }
+
+                    AnsiConsole.MarkupLine("[red]User is below the age retriction[/]");
+                    return DateTime.MinValue;
+                }
+                AnsiConsole.MarkupLine("[red]invalid date format, try again[/]");
+            }
+        }
+
+        public static bool UserAgeRestriction(DateTime userInput)
+        {
+            int userAge = DateTime.Now.Year - userInput.Year;
+            return userAge >= 18;
         }
 
         public void UpdateCurrencyExchangeRate()
