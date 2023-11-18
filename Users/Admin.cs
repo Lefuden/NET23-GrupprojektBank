@@ -29,25 +29,60 @@ namespace NET23_GrupprojektBank.Users
             throw new NotImplementedException();
         }
 
-        public Customer CreateCustomerAccount(List<string> existingUsernames)
+        public static Customer CreateCustomerAccount(List<string> existingUsernames)
         {
-            //return new Customer();
-            //give the choice to cancel everything at some point. eg "-1"
-            //use input list to check if username already exists
-            //after finishing user creation method, move it to usercommunication and then call method here
+            var (username, password, firstName, lastName, dateOfBirth) = GetBasicsFromUser(existingUsernames);
+            if (username == "-1") return null;
 
+            if (!AskUserYesOrNo("Add more information?"))
+            {
+                return new Customer(username, password, 
+                       new PersonInformation(firstName, lastName, dateOfBirth, 
+                       new ContactInformation(new Email(""))));
+            }
+
+            Email email = GetEmailFromUser();
+            if (email.EmailAddress == "-1") return null;
+            
+            if (!AskUserYesOrNo("Add more information?"))
+            {
+                return new Customer(username, password, 
+                       new PersonInformation(firstName, lastName, dateOfBirth, 
+                       new ContactInformation(email)));
+            }
+
+
+            Phone phone = GetPhoneFromUser();
+            if (phone.PhoneNumber == "-1") return null;
+            
+            if (!AskUserYesOrNo("Add more information?"))
+            {
+                return new Customer(username, password, 
+                       new PersonInformation(firstName, lastName, dateOfBirth, 
+                       new ContactInformation(email, phone)));
+            }
+
+            Address adress = GetAdressFromUser();
+            if (adress.Country == "-1") return null;
+
+            return new Customer(username, password, 
+                   new PersonInformation(firstName, lastName, dateOfBirth,
+                   new ContactInformation(email, phone, adress)));
+        }
+
+        public static (string Username, string Password, string FirstName, string LastName, DateTime DateOfBirth) GetBasicsFromUser(List<string> existingUsernames)
+        {
             while (true)
             {
-                Console.WriteLine("Enter user details.");
-
-                var username = AnsiConsole.Ask<string>("[green]Username[/]:");
+                Console.WriteLine("Enter user information.");
+                string? username;
                 while (true)
                 {
-                    if (username == "-1") { return null; }
-
+                    username = AnsiConsole.Ask<string>("[green]Username[/]:");
+                    if (username == "-1") return ("-1", "", "", "", DateTime.Now);
                     if (existingUsernames.Contains(username))
                     {
-                        Console.WriteLine($"{username} already exists, enter a valid [green]username[/]: ");
+                        Console.WriteLine($"{username} already exists, enter a valid username:");
                     }
                     else
                     {
@@ -56,84 +91,160 @@ namespace NET23_GrupprojektBank.Users
                 }
 
                 var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
-                        .PromptStyle("red")
-                        .Secret());
-                if (password == "-1") { return null; }
+                    .PromptStyle("red")
+                    .Secret());
+                var firstName = AnsiConsole.Ask<string>("[green]First name[/]:");
+                if (firstName == "-1") return ("-1", "", "", "", DateTime.Now);
 
-                var firstName = AnsiConsole.Ask<string>("First name: ");
-                if (firstName == "-1") { return null; }
+                var lastName = AnsiConsole.Ask<string>("[green]Last name[/]:");
+                if (lastName == "-1") return ("-1", "", "", "", DateTime.Now);
 
-                var lastName = AnsiConsole.Ask<string>("Last name: ");
-                if (lastName == "-1") { return null; }
-
-                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth format YY,MM,DD or YYYY,MM,DD: ");
-                //make method? to use string as input and then to check if at least 6 or 8 digits and correct order, then add correct format to parse to datetime (yy/mm/dd or yyyy/mm/dd)
-                //to get "cancel" input to work. will tinker.
-                //if (dateofBirth.ToString() == "-1") { return null; }
-
-                var email = AnsiConsole.Ask<string>("Email: "); //use IsEmailValid(string email) from email.cs to validate?
-
-                Console.Clear();
-                Console.WriteLine($"User name: {username}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}" +
-                                  $"\nBirth date: {dateofBirth}\nemail: {email}\n\n");
-                var answer = AnsiConsole.Ask<string>("is this information correct?\n1. yes\n2. no");
-                switch (answer)
+                DateTime dateOfBirth;
+                while (true)
                 {
-                    case "yes":
-                    case "1":
-                        Console.WriteLine("Would you like to add additional user information?\n1. yes\n2. no");
-                        answer = Console.ReadLine().ToLower();
-
-                        switch (answer)
-                        {
-                            case "yes":
-                            case "1":
-                                var areaCode = AnsiConsole.Ask<string>("Area code: ");
-                                var phone = AnsiConsole.Ask<string>("Phone number: ");
-                                var country = AnsiConsole.Ask<string>("Country: ");
-                                var city = AnsiConsole.Ask<string>("City: ");
-                                var street = AnsiConsole.Ask<string>("Street name: ");
-                                var postalNumber = AnsiConsole.Ask<string>("Postal/zip code: ");
-
-                                Console.Clear();
-                                Console.WriteLine($"Phone area code: {areaCode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
-                                                  $"\nStreet name: {street}\nPostal/zip code: {postalNumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
-                                answer = Console.ReadLine().ToLower();
-                                switch (answer)
-                                {
-                                    case "yes":
-                                    case "1":
-
-                                        Console.WriteLine($"User {username} has been created");
-                                        AddLog(EventStatus.AccountCreationSuccess);
-                                        Customer hej1 = new Customer(username, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
-                                        return hej1;
-
-
-                                    case "no":
-                                    case "2":
-                                        //loop again
-                                        break;
-                                }
-                                break;
-                            case "no":
-                            case "2":
-
-                                Console.WriteLine($"User {username} has been created");
-                                Customer hej2 = new Customer(username, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
-                                AddLog(EventStatus.AccountCreationSuccess);
-                                hej2.AddLog(EventStatus.AccountCreationSuccess);
-
-                                return hej2;
-                        }
-
+                    var userInput = AnsiConsole.Ask<string>("[green]Date of birth (YYYYMMDD)[/]:");
+                    if (userInput == "-1") return ("-1", "", "", "", DateTime.Now);
+                    if (userInput.Length == 8)
+                    {
+                        userInput = userInput.Insert(6, ",");
+                        userInput = userInput.Insert(4, ",");
+                        dateOfBirth = DateTime.Parse(userInput); //if length == 8, check if DD is within correct range, MM correct range.
                         break;
-                    case "no":
-                    case "2":
-                        //loop again
+                    }
+
+                    if (userInput.Length is > 8 or < 8)
+                    {
+                        dateOfBirth = DateTime.Now;
+                        break;
+                    }
+                }
+                Console.WriteLine($"User name: {username}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}\nBirth date: {dateOfBirth}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return (username, password, firstName, lastName, dateOfBirth);
+                    case false:
+                        Console.Clear();
                         break;
                 }
             }
+        }
+        
+        public static Email GetEmailFromUser()
+        {
+            while (true)
+            {
+                Console.WriteLine("Enter email information.");
+                var email = AnsiConsole.Ask<string>("[green]Email[/]:");
+                if (email == "-1") return new Email("-1", "");
+                while (true)
+                {
+                    if (!Email.IsEmailValid(email))
+                    {
+                        email = AnsiConsole.Ask<string>("[red]invalid email format, try again:[/]");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                var workEmail = AnsiConsole.Ask<string>("[green]Work email[/]:");
+                if (workEmail == "-1") return new Email("-1", "");
+                while (true)
+                {
+                    if (!Email.IsEmailValid(workEmail))
+                    {
+                        workEmail = AnsiConsole.Ask<string>("[red]invalid email format, try again:[/]");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                Console.Clear();
+                Console.WriteLine($"Email: {email}\nWork email: {workEmail}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return new Email(email, workEmail);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
+        public static Phone GetPhoneFromUser() //requires set amount of digits on phone number?
+        {
+            while (true)
+            {
+                Console.WriteLine("Enter phone information.");
+                var mobilePhone = AnsiConsole.Ask<string>("[green]Mobilephone number[/]:");
+                if (mobilePhone == "-1") return new Phone("-1");
+                
+                //error handling on number format
+                
+                Console.Clear();
+                Console.WriteLine($"Phone number: {mobilePhone}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return new Phone(mobilePhone);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
+        public static Address GetAdressFromUser()
+        {
+            while (true)
+            {
+                Console.WriteLine("Enter adress information.");
+                var country = AnsiConsole.Ask<string>("[green]Country[/]:");
+                if (country == "-1") return new Address("-1", "", "", "");
+
+                var city = AnsiConsole.Ask<string>("[green]City[/]:");
+                if (city == "-1") return new Address("-1", "", "", "");
+
+                var street = AnsiConsole.Ask<string>("[green]Street name[/]:");
+                if (street == "-1") return new Address("-1", "", "", "");
+
+                var postalNumber = AnsiConsole.Ask<string>("[green]Postal/zip code[/]:");
+                if (postalNumber == "-1") return new Address("-1", "", "", "");
+
+                Console.Clear();
+                Console.WriteLine($"Country: {country}\nCity: {city}\nStreet name: {street}\nPostal/zip code: {postalNumber}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return new Address(country, city, street, postalNumber);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
+        public static bool AskUserYesOrNo(string message)
+        {
+            string stringChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title($"[purple]{message}[/]")
+                .PageSize(3)
+                .AddChoices(new[]
+                    {
+                        "Yes",
+                        "No"
+                    }
+                ));
+            return stringChoice == "Yes";
         }
 
         public void UpdateCurrencyExchangeRate()
