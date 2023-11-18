@@ -24,9 +24,49 @@ namespace NET23_GrupprojektBank.Users
 
         public Admin CreateAdminAccount(List<string> existingUsernames)
         {
-            //call method from usercommunication
-            //return new Admin();
-            throw new NotImplementedException();
+            var (username, password, firstName, lastName, dateOfBirth) = GetBasicsFromUser(existingUsernames);
+            if (username == "-1") return null;
+
+            if (!AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+                //AddLog(EventStatus.AccountCreationSuccess);
+                return new Admin(username, password, 
+                       new PersonInformation(firstName, lastName, dateOfBirth, 
+                       new ContactInformation(new Email(""))));
+            }
+
+            Email email = GetEmailFromUser();
+            if (email.EmailAddress == "-1") return null;
+
+            if (!AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+                //AddLog(EventStatus.AccountCreationSuccess);
+                return new Admin(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(email)));
+            }
+
+            Phone phone = GetPhoneFromUser();
+            if (phone.PhoneNumber == "-1") return null;
+
+            if (!AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+                //AddLog(EventStatus.AccountCreationSuccess);
+                return new Admin(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(email, phone)));
+            }
+
+            Address adress = GetAdressFromUser();
+            if (adress.Country == "-1") return null;
+            AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+            //AddLog(EventStatus.AccountCreationSuccess);
+            return new Admin(username, password,
+                   new PersonInformation(firstName, lastName, dateOfBirth,
+                   new ContactInformation(email, phone, adress)));
         }
 
         public static Customer CreateCustomerAccount(List<string> existingUsernames)
@@ -36,6 +76,8 @@ namespace NET23_GrupprojektBank.Users
 
             if (!AskUserYesOrNo("Add more information?"))
             {
+                AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                //AddLog(EventStatus.AccountCreationSuccess);
                 return new Customer(username, password, 
                        new PersonInformation(firstName, lastName, dateOfBirth, 
                        new ContactInformation(new Email(""))));
@@ -43,29 +85,33 @@ namespace NET23_GrupprojektBank.Users
 
             Email email = GetEmailFromUser();
             if (email.EmailAddress == "-1") return null;
-            
+
             if (!AskUserYesOrNo("Add more information?"))
             {
-                return new Customer(username, password, 
-                       new PersonInformation(firstName, lastName, dateOfBirth, 
+                AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                //AddLog(EventStatus.AccountCreationSuccess);
+                return new Customer(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(email)));
             }
 
-
             Phone phone = GetPhoneFromUser();
             if (phone.PhoneNumber == "-1") return null;
-            
+
             if (!AskUserYesOrNo("Add more information?"))
             {
-                return new Customer(username, password, 
-                       new PersonInformation(firstName, lastName, dateOfBirth, 
+                AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                //AddLog(EventStatus.AccountCreationSuccess);
+                return new Customer(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(email, phone)));
             }
 
             Address adress = GetAdressFromUser();
             if (adress.Country == "-1") return null;
-
-            return new Customer(username, password, 
+            AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+            //AddLog(EventStatus.AccountCreationSuccess);
+            return new Customer(username, password,
                    new PersonInformation(firstName, lastName, dateOfBirth,
                    new ContactInformation(email, phone, adress)));
         }
@@ -101,7 +147,7 @@ namespace NET23_GrupprojektBank.Users
 
                 var dateOfBirth = GetBirthDateFromUser();
                 if (dateOfBirth == DateTime.MinValue) return ("-1", "", "", "", DateTime.Now);
-
+                
                 Console.WriteLine($"User name: {username}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}\nBirth date: {dateOfBirth}\n\n");
                 switch (AskUserYesOrNo("is this information correct?"))
                 {
@@ -114,7 +160,7 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
         }
-        
+
         public static Email GetEmailFromUser()
         {
             while (true)
@@ -162,23 +208,34 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-        public static Phone GetPhoneFromUser() //requires set amount of digits on phone number?
+        public static Phone GetPhoneFromUser()
         {
             while (true)
             {
-                Console.WriteLine("Enter phone information.");
-                var mobilePhone = AnsiConsole.Ask<string>("[green]Mobilephone number[/]:");
-                if (mobilePhone == "-1") return new Phone("-1");
-                
-                //error handling on number format
-                
-                Console.Clear();
-                Console.WriteLine($"Phone number: {mobilePhone}\n\n");
+                string? phone;
+                while (true)
+                {
+                    phone = AnsiConsole.Ask<string>("[green]Phone number (10 digits)[/]:");
+                    if (phone.Length != 10)
+                    {
+                        AnsiConsole.MarkupLine("[red]Invalid number length (10 digits)[/]");
+                    }
+                    if (phone.Length == 10)
+                    {
+                        if (ulong.TryParse(phone, out ulong i))
+                        {
+                            break;
+                        }
+
+                        AnsiConsole.MarkupLine("[red]Invalid number format (10 digits)[/]");
+                    }
+                }
+                Console.WriteLine($"Phone number: {phone}\n\n");
                 switch (AskUserYesOrNo("is this information correct?"))
                 {
                     case true:
                         Console.Clear();
-                        return new Phone(mobilePhone);
+                        return new Phone(phone);
                     case false:
                         Console.Clear();
                         break;
