@@ -5,28 +5,11 @@ namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Spe
     internal class Phone
     {
         public string? PhoneNumber { get; set; }
-        public string MobilePhoneNumber { get; set; }
-        public string? WorkPhoneNumber { get; set; }
-        public string AreaCode { get; set; }
-
+        
         [JsonConstructor]
-        public Phone(string phoneNumber, string mobilePhoneNumber, string workPhoneNumber, string areaCode)
+        public Phone(string phoneNumber)
         {
             PhoneNumber = phoneNumber;
-            MobilePhoneNumber = mobilePhoneNumber;
-            WorkPhoneNumber = workPhoneNumber;
-            AreaCode = areaCode;
-        }
-        public Phone(string phoneNumber, string mobilePhoneNumber, string areaCode)
-        {
-            PhoneNumber = phoneNumber;
-            MobilePhoneNumber = mobilePhoneNumber;
-            AreaCode = areaCode;
-        }
-        public Phone(string mobilePhoneNumber, string areaCode)
-        {
-            MobilePhoneNumber = mobilePhoneNumber;
-            AreaCode = areaCode;
         }
     }
 }
