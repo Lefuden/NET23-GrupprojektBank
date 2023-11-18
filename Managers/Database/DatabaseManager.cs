@@ -99,34 +99,28 @@ namespace NET23_GrupprojektBank.Managers.Database
             }
         }
 
-        //internal static async Task<List<Log>> GetAllUserLogsFromDB(string uri, User user)
-        //{
-        //    using (HttpClient client = new HttpClient())
-        //    {
-        //        string url = $"{uri}/Log/owner/{user.GetUserId()}";
-        //        var response = await client.GetAsync(url);
-        //        await Console.Out.WriteLineAsync(response.StatusCode.ToString());
-        //        List<Log> users = new();
+        internal static async Task<List<Log>> GetAllUserLogsFromDB(string uri, User user)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string url = $"{uri}/Log/owner/{user.GetUserId()}";
+                var response = await client.GetAsync(url);
+                await Console.Out.WriteLineAsync(response.StatusCode.ToString());
+                List<Log> userLogs = new();
 
-        //        // HÄR ÄR JAG HALLPÅ!!!!
-
-
-
-
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            var json = await response.Content.ReadAsStringAsync();
-        //            HandleResponse handleResponse = new HandleResponse(json);
-        //            users.AddRange(handleResponse.GetUserListFromResponse());
-        //            return users;
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
-        //            return null;
-        //        }
-        //    }
-        //}
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    userLogs = JsonConvert.DeserializeObject<List<Log>>(json);
+                    return userLogs;
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
+                    return null;
+                }
+            }
+        }
         // ADD DATA TO DB
 
         internal static async Task AddSpecificUserToDB(string apiUrl, User user)
