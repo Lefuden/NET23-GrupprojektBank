@@ -1,9 +1,12 @@
-﻿using NET23_GrupprojektBank.Managers.Database;
+﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers.Login;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
-using Newtonsoft.Json;
+using NET23_GrupprojektBank.Users.UserContactInformation;
+using NET23_GrupprojektBank.Users.UserInformation;
+using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.Logic
@@ -11,7 +14,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
     internal class LogicManager
     {
         private List<User> Users { get; set; }
-        private LoginManager? LoginManager { get; set; }
+        private LoginManager LoginManager { get; set; }
         private Customer? CurrentCustomer { get; set; }
         private Admin? CurrentAdmin { get; set; }
         private TransactionsManager TransactionsManager { get; set; }
@@ -19,41 +22,47 @@ namespace NET23_GrupprojektBank.Managers.Logic
         private UserChoice PreviousChoice { get; set; }
         private bool KeepRunning { get; set; }
 
-        public LogicManager(bool usingDatabase = false)
+        public LogicManager()
         {
-
             TransactionsManager = new();
             Choice = UserChoice.ViewWelcomeMenu;
             PreviousChoice = UserChoice.ViewWelcomeMenu;
             KeepRunning = true;
             CurrentCustomer = default;
             CurrentAdmin = default;
-            if (usingDatabase)
-            {
-                if (File.Exists(@"..\..\..\UriAdress.txt"))
+            List<User> users = new()
                 {
-                    DatabaseManager.SetUriAddress(File.ReadAllText(@"..\..\..\UriAdress.txt"));
+                    new Admin("ATobias",   "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
+                    new Admin("ADaniel",   "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel.admin@edugrade.com")))),
+                    new Admin("AWille",    "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille.admin@edugrade.com")))),
+                    new Admin("AEfrem",    "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem.admin@edugrade.com")))),
+                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
+                };
+            foreach (var user in users)
+            {
+                user.AddLog(EventStatus.AccountCreationSuccess);
+                Random rng = new Random();
+                if (user is Customer customer)
+                {
+                    decimal sum = rng.Next(0, 1000001);
+                    customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{user.GetUsername()}'s Konto", CurrencyType.SEK, sum));
+                    customer.AddLog(EventStatus.CheckingCreationSuccess);
                 }
             }
-            else
-            {
-                //Users = new()
-                //{
-                //    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
-                //    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                //    new Customer("Wille",  "password",new PersonInformation("Wille",  "Skog",    new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
-                //    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
-                //};
 
-            }
+            Users = users;
+            LoginManager = new(Users);
         }
 
 
 
-        public async Task GetUserChoice()
+        public void GetUserChoice()
         {
-            Users = await DatabaseManager.GetAllUsersFromDB();
-            LoginManager = new(Users);
+            //Users = await DatabaseManager.GetAllUsersFromDB();
+
 
             while (KeepRunning)
             {
@@ -77,13 +86,13 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     if (info.User is Customer customer)
                                     {
                                         CurrentCustomer = customer;
-                                        await CurrentCustomer.AddLog(info.EventStatus);
+                                        CurrentCustomer.AddLog(info.EventStatus);
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
                                     else if (info.User is Admin admin)
                                     {
                                         CurrentAdmin = admin;
-                                        await CurrentAdmin.AddLog(info.EventStatus);
+                                        CurrentAdmin.AddLog(info.EventStatus);
                                         Choice = UserChoice.ViewAdminMenu;
                                     }
                                     else
@@ -116,11 +125,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                     case UserChoice.Logout:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
                         Choice = UserChoice.ViewWelcomeMenu;
-                        await Logout();
+                        Logout();
                         break;
 
                     case UserChoice.Exit:
-                        await Exit();
+                        Exit();
                         break;
 
                     case UserChoice.ViewAdminMenu:
@@ -138,11 +147,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            //Transaction newTransaction = UserCommunications.MakeTransferMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            Transaction newTransaction = UserCommunications.MakeTransferMenu(customerBankAccounts);
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -156,11 +165,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            //Transaction newTransaction = UserCommunications.MakeDepositMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            Transaction newTransaction = UserCommunications.MakeDepositMenu(customerBankAccounts);
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -174,13 +183,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            var customerBankAccounts = await DatabaseManager.GetAllUserBankAccountsFromDB(CurrentCustomer);
-                            // TransactionManager in AddTransaction() add a method call to dequeue!!!
-                            //Transaction newTransaction = UserCommunications.MakeWithdrawalMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            var customerBankAccounts = CurrentCustomer.GetBankAccounts();
+                            Transaction newTransaction = UserCommunications.MakeWithdrawalMenu(customerBankAccounts);
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -194,12 +202,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            var customerBankAccounts = await DatabaseManager.GetAllUserBankAccountsFromDB(CurrentCustomer);
-                            //Transaction newTransaction = UserCommunications.MakeLoanMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            var customerBankAccounts = CurrentCustomer.GetBankAccounts();
+                            Transaction newTransaction = UserCommunications.MakeLoanMenu(customerBankAccounts);
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -213,15 +221,13 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            var userLogs = await DatabaseManager.GetAllUserLogsFromDB(CurrentCustomer);
-                            CurrentCustomer.ShowLogs(userLogs);
+                            CurrentCustomer.ShowLogs();
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else if (CurrentAdmin is not null)
                         {
                             PreviousChoice = UserChoice.ViewAdminMenu;
-                            var userLogs = await DatabaseManager.GetAllUserLogsFromDB(CurrentAdmin);
-                            CurrentAdmin.ShowLogs(userLogs);
+                            CurrentAdmin.ShowLogs();
                             Choice = UserChoice.ViewAdminMenu;
                         }
                         break;
@@ -230,8 +236,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            var customerBankAccounts = await DatabaseManager.GetAllUserBankAccountsFromDB(CurrentCustomer);
-                            UserCommunications.ViewBankAccounts(customerBankAccounts);
+                            CurrentCustomer.ViewBankAccount();
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -259,8 +264,8 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.CreateCheckingAccount();
-                            await DatabaseManager.UpdateSpecificUserInDB(CurrentCustomer);
+                            var unavailableAccountNumbers = GetBankAccountNumbers();
+                            CurrentCustomer.CreateCheckingAccount(unavailableAccountNumbers);
                         }
                         else
                         {
@@ -274,8 +279,8 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.CreateSavingsAccount();
-                            await DatabaseManager.UpdateSpecificUserInDB(CurrentCustomer);
+                            var unavailableAccountNumbers = GetBankAccountNumbers();
+                            CurrentCustomer.CreateSavingsAccount(unavailableAccountNumbers);
                         }
                         else
                         {
@@ -292,7 +297,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             Customer newCustomer = CurrentAdmin.CreateCustomerAccount(GetAllUsernames());
                             if (newCustomer is not null)
                             {
-                                await AddNewUser(newCustomer);
+                                AddNewUser(newCustomer);
                             }
                         }
                         else
@@ -311,11 +316,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                             if (newAdmin is not null)
                             {
-                                //DatabaseManager.AddSpecificUserToDB(URI, newAdmin).Wait();
-                                string jsonUser = JsonConvert.SerializeObject(newAdmin, Formatting.Indented);
-                                Console.WriteLine(jsonUser);
-                                Console.ReadKey();
-                                await AddNewUser(newAdmin);
+                                AddNewUser(newAdmin);
                             }
                         }
                         else
@@ -360,8 +361,23 @@ namespace NET23_GrupprojektBank.Managers.Logic
             }
 
         }
+        private List<int> GetBankAccountNumbers()
+        {
+            List<int> bankAccountNumbers = new();
+            foreach (var user in Users)
+            {
+                if (user is Customer customer)
+                {
+                    foreach (var bankAccountList in customer.GetBankAccounts())
+                    {
+                        bankAccountNumbers.Add(bankAccountList.GetAccountNumber());
+                    }
+                }
+            }
 
-        private async Task AddNewUser(User newUser)
+            return bankAccountNumbers;
+        }
+        private void AddNewUser(User newUser)
         {
             if (Users is not null && newUser is not null)
             {
@@ -371,7 +387,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 }
                 else
                 {
-                    await DatabaseManager.AddSpecificUserToDB(newUser);
+                    // await DatabaseManager.AddSpecificUserToDB(newUser);
                     Users.Add(newUser);
                 }
             }
@@ -388,18 +404,18 @@ namespace NET23_GrupprojektBank.Managers.Logic
             return usernameList;
         }
 
-        private async Task Logout()
+        private void Logout()
         {
-            Users = await DatabaseManager.GetAllUsersFromDB();
+            //Users = await DatabaseManager.GetAllUsersFromDB();
             LoginManager = new(Users);
             CurrentAdmin = null;
             CurrentCustomer = null;
 
         }
-        private async Task Exit()
+        private void Exit()
         {
-            Users = await DatabaseManager.GetAllUsersFromDB();
-            await DatabaseManager.UpdateAllUsers(Users);
+            //Users = await DatabaseManager.GetAllUsersFromDB();
+            //await DatabaseManager.UpdateAllUsers(Users);
             KeepRunning = false;
             Choice = UserChoice.Exit;
         }

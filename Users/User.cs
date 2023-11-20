@@ -1,7 +1,8 @@
 ﻿using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Logs;
+using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserInformation;
-using Newtonsoft.Json;
+using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -14,19 +15,12 @@ namespace NET23_GrupprojektBank.Users
 
     internal abstract class User
     {
-        [JsonProperty]
         protected string Username { get; set; }
-        [JsonProperty]
         protected Guid UserId { get; set; }
-        [JsonProperty]
         protected string Salt { get; set; }
-        [JsonProperty]
         protected string HashedPassword { get; set; }
-        [JsonProperty]
         protected PersonInformation PersonInformation { get; set; }
-        [JsonProperty]
         protected UserType UserType { get; set; }
-        [JsonProperty]
         protected List<Log> Logs { get; set; }
 
         public User(string userName, string password, PersonInformation personInformation)
@@ -40,24 +34,24 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Undeclared;
 
         }
-        [JsonConstructor]
-        public User(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs)
-        {
-            Username = username;
-            UserId = userId;
-            Salt = salt;
-            HashedPassword = hashedPassword;
-            PersonInformation = personInformation;
-            if (Logs is null)
-            {
-                Logs = new();
-            }
-            if (logs is not null)
-            {
-                Logs = logs;
-            }
-            UserType = userType;
-        }
+        //[JsonConstructor]
+        //public User(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs)
+        //{
+        //    Username = username;
+        //    UserId = userId;
+        //    Salt = salt;
+        //    HashedPassword = hashedPassword;
+        //    PersonInformation = personInformation;
+        //    if (Logs is null)
+        //    {
+        //        Logs = new();
+        //    }
+        //    if (logs is not null)
+        //    {
+        //        Logs = logs;
+        //    }
+        //    UserType = userType;
+        //}
 
         internal bool CompareUsername(string userName)
         {
@@ -88,14 +82,12 @@ namespace NET23_GrupprojektBank.Users
 
         public void ShowLogs()
         {
+
             if (Logs.Count <= 0)
-                Console.WriteLine("No activity has been logged.");
+                AnsiConsole.Write("No activity has been logged.");
             else
             {
-                foreach (var log in Logs)
-                {
-                    Console.WriteLine(log);
-                }
+                UserCommunications.ShowLogs(Logs);
             }
         }
 
