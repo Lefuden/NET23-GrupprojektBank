@@ -8,8 +8,7 @@ namespace NET23_GrupprojektBank.Application
 
         public App()
         {
-            bool isUsingDatabase = true;
-            LogicManager = new(isUsingDatabase);
+            LogicManager = new();
         }
 
         public void Run()
