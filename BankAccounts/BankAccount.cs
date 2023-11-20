@@ -27,6 +27,7 @@ namespace NET23_GrupprojektBank.BankAccounts
 
         public abstract void MakeTransaction(Transaction transaction);
         public virtual decimal GetBalance() => Balance;
+        public int GetAccountNumber() => BankAccountNumber;
         protected virtual decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
         {
             var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(currencyType);
@@ -48,5 +49,18 @@ namespace NET23_GrupprojektBank.BankAccounts
             }
         }
 
+        private int BankAccountNumberGenerator()
+        {
+            var existingBankAccountNumbers = GetBankAccountNumbers();
+            var nrGenerator = new Random();
+            var accountNr = nrGenerator.Next(1000000000, 2000000001);    
+            
+            while (existingBankAccountNumbers.Contains(accountNr))
+            {
+                nrGenerator = new Random();
+                accountNr = nrGenerator.Next(1000000000, 2000000001);    
+            }
+            return accountNr;
+        }
     }
 }
