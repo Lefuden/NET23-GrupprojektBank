@@ -199,7 +199,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static void MakeWithdrawalMenu(List<BankAccount> bankAccounts)
         {
-            AnsiConsole.WriteLine("Withdraw Menu");
+            DrawRuler($"Withdrawal Menu");
 
             var accountChoices = new List<string>();
 
@@ -222,7 +222,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             var selectedAccountChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .PageSize(5)
-                    .Title("Select an Account")
+                    .Title("Select an Account to Withdraw from")
                     .MoreChoicesText("Scroll down for more options")
                     .AddChoices(accountChoices)
             );
