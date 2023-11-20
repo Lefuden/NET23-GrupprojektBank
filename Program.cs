@@ -3,10 +3,10 @@ namespace NET23_GrupprojektBank
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             App HyperHedgehogsBank = new();
-            HyperHedgehogsBank.Run();
+            await HyperHedgehogsBank.Run();
         }
     }
 }

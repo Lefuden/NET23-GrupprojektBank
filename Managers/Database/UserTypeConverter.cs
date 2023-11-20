@@ -29,7 +29,6 @@ namespace NET23_GrupprojektBank.Managers.Database
             // Deserialize personInformationJson if it's not null
             PersonInformation personInformation = personInformationJson != null ? personInformationJson.ToObject<PersonInformation>() : null;
             List<BankAccount> bankAccounts = bankAccountsJson != null ? bankAccountsJson.ToObject<List<BankAccount>>() : null;
-            List<Log> logs = logsJson != null ? logsJson.ToObject<List<Log>>() : null;
             // Determine user type based on UserType enum
             UserType userType = (UserType)Enum.Parse(typeof(UserType), jsonObject["userType"]?.ToString() ?? UserType.Undeclared.ToString());
 

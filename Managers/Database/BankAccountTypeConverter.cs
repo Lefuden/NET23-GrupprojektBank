@@ -20,7 +20,7 @@ namespace NET23_GrupprojektBank.Managers.Database
             BankAccountType bankAccountType = (BankAccountType)Enum.Parse(typeof(BankAccountType), jsonObject["bankAccountType"]?.ToString() ?? BankAccountType.Undeclared.ToString());
             CurrencyType currencyType = (CurrencyType)Enum.Parse(typeof(CurrencyType), jsonObject["currencyType"]?.ToString() ?? CurrencyType.SEK.ToString());
             decimal balance = jsonObject["balance"].Value<decimal>();
-            Guid ownerUserId = Guid.Parse(jsonObject["ownerUserId"]?.ToString());
+            Guid ownerUserId = Guid.Parse(jsonObject["userId"]?.ToString());
 
             // Create the appropriate bank account type based on BankAccountType
             BankAccount bankAccount;

@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Users;
 using Newtonsoft.Json;
 
@@ -62,6 +63,27 @@ namespace NET23_GrupprojektBank.Managers.Database
             var convertedBankAcount = JsonConvert.DeserializeObject<BankAccount>(JsonResponse, JsonSettings);
 
             return convertedBankAcount;
+        }
+
+        internal List<Log> GetAllUserLogsAsListFromResponse()
+        {
+            JsonSettings = new JsonSerializerSettings
+            {
+                Converters = { new LogConverter() }
+            };
+            var convertedLogList = JsonConvert.DeserializeObject<List<Log>>(JsonResponse, JsonSettings);
+
+            return convertedLogList;
+        }
+        internal Log GetLogFromResponse()
+        {
+            JsonSettings = new JsonSerializerSettings
+            {
+                Converters = { new LogConverter() }
+            };
+            var convertedLog = JsonConvert.DeserializeObject<Log>(JsonResponse, JsonSettings);
+
+            return convertedLog;
         }
     }
 }

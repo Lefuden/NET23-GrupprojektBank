@@ -1,6 +1,4 @@
-﻿using NET23_GrupprojektBank.Managers;
-
-namespace NET23_GrupprojektBank.Managers
+﻿namespace NET23_GrupprojektBank.Managers
 {
     public enum EventStatus
     {
@@ -24,8 +22,10 @@ namespace NET23_GrupprojektBank.Managers
         WithdrawalSuccess,
         WithdrawalFailed,
         WithdrawalFailedInsufficientFunds,
+        WithdrawalFailedNegativeOrZeroSum,
         WithdrawalCreated,
         TransferSuccess,
+        TransferReceivedSuccess,
         TransferFailed,
         TransferFailedInsufficientFunds,
         TransferFailedNegativeOrZeroSum,
