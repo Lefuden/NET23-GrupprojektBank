@@ -132,32 +132,6 @@ namespace NET23_GrupprojektBank.Managers.Database
             }
         }
 
-        internal static async Task<List<Log>> GetAllUserLogsFromDB(User user)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                string url = $"{URI}/Log/owner/{user.GetUserId()}";
-                Console.WriteLine(url);
-                var response = await client.GetAsync(url);
-                await Console.Out.WriteLineAsync(response.StatusCode.ToString());
-                List<Log> userLogs = new();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine(json);
-                    userLogs = JsonConvert.DeserializeObject<List<Log>>(json);
-                    return userLogs;
-                }
-                else
-                {
-                    Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
-                    return null;
-                }
-            }
-        }
-
-
         // ADD DATA TO DB
 
         internal static async Task AddSpecificUserToDB(User user)
