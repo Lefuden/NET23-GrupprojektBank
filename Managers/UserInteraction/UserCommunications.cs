@@ -1,6 +1,7 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Managers.Logic;
 using Spectre.Console;
+using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 
@@ -196,13 +197,144 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 }
             }
         }
-            private static void DrawRuler(string content, string colorName)
+        public static void MakeWithdrawalMenu(List<BankAccount> bankAccounts)
+        {
+            DrawRuler("Withdraw");
+
+            WriteDivider("Bank Account Number");
+            var accountNumber = AskBankAccount();
+
+            BankAccount selectedAccount = null;
+
+            (string Type, string Name, string Number, string Balance, string Currency) selectedInfo = ("", "", "", "", "",);
+
+            foreach (var account in bankAccounts)
+            {
+                if (account is Checking checking)
+                {
+                    var info = checking.GetAccountInformation();
+                    if (accountNumber == info.Number)
+                    {
+                        selectedAccount = account;
+                        selectedInfo = (
+                    info.Type,
+                    info.Name,
+                    info.Number,
+                    info.Balance,
+                    info.Currency
+                );
+                        break;
+                    }
+                }
+                if(account is Savings savings)
+                {
+                    var info = savings.GetAccountInformation();
+                    if (accountNumber == info.Number)
+                    {
+                        selectedAccount = account;
+                        selectedInfo = (
+                    info.Type,
+                    info.Name,
+                    info.Number,
+                    info.Balance,
+                    info.Currency
+                );
+                        break;
+                    }
+                }
+                
+            }
+
+            if (selectedAccount != null)
+            {
+                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{selectedInfo.Name}[/]");
+                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{selectedInfo.Balance}[/] [gold1]{selectedInfo.Currency}[/]");
+                WriteDivider($"Withdraw from {selectedInfo.Name}");
+
+                decimal withdrawalAmount;
+                decimal maxWithdrawal;
+
+                if (!decimal.TryParse(selectedInfo.Balance, out maxWithdrawal))
+                {
+                    
+                    Console.WriteLine("Invalid balance value.");
+                    return;
+                }
+                while (true)
+                {
+                    string input = AnsiConsole.Ask<string>($"[purple]How Much Would You Like To Withdraw?[/] [gold1](Maximum: {maxWithdrawal})[/]");
+
+                    if (!decimal.TryParse(input, out withdrawalAmount) || withdrawalAmount <= 0 || withdrawalAmount > maxWithdrawal)
+                    {
+                        AnsiConsole.MarkupLine($"[red]Please enter a valid withdrawal amount between 0 and {maxWithdrawal}.[/]");
+                    }
+                    else
+                    {
+                        decimal currentBalance = decimal.Parse(selectedInfo.Balance);
+                        currentBalance -= withdrawalAmount;
+                        selectedInfo.Balance = currentBalance.ToString();
+
+                        AnsiConsole.MarkupLine($"[green]${withdrawalAmount} {selectedInfo.Currency}[/] [purple]has been withdrawn from {selectedInfo.Name}[/]");
+                    }
+                }
+                {
+                    string stringChoice = AnsiConsole.Prompt(
+                               new SelectionPrompt<string>()
+                                   .PageSize(3)
+                                   .AddChoices(new[]
+                                   {
+                                     "Back"
+                                   }
+                               ));
+
+                     ConvertStringToUserChoice(stringChoice);
+                }
+            }
+            else
+            {
+                Console.Clear();
+                AnsiConsole.MarkupLine("[red]Account not Found[/]");
+                Thread.Sleep(2000);
+                MakeWithdrawalMenu(bankAccounts);
+            }
+        }
+        public static string AskBankAccount()
+        {
+            string accountNumber;
+            do
+            {
+                accountNumber = AnsiConsole.Ask<string>("[purple]What Bank account would you like to  Withdraw From ?[/]");
+
+                if (accountNumber.Length != 10 || !IsDigitsOnly(accountNumber))
+                {
+                    AnsiConsole.MarkupLine("[red]Please enter a 10-digit account number.[/]");
+                }
+            } while (accountNumber.Length != 10 || !IsDigitsOnly(accountNumber));
+
+            return accountNumber;
+        }
+
+        public static bool IsDigitsOnly(string str)
+        {
+            foreach (char c in str)
+            {
+                if (c < '0' || c > '9')
+                    return false;
+            }
+            return true;
+        }
+        private static void DrawRuler(string content, string colorName)
         {
             AnsiConsole.Write(new Rule($"[{colorName}]{content}[/]"));
         }
         private static void DrawRuler(string content)
         {
             AnsiConsole.Write(new Rule(content));
+        }
+        private static void WriteDivider(string text)
+        {
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(new Rule($"[gold1]{text}[/]").RuleStyle("grey").LeftJustified());
         }
         private static UserChoice ConvertStringToUserChoice(string input)
         {
