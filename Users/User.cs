@@ -78,7 +78,7 @@ namespace NET23_GrupprojektBank.Users
             return false;
         }
 
-        internal void AddLog(EventStatus eventStatus) => Logs.Add(new Log(DateTime.Now, this, GetLogMessage(eventStatus)));
+        internal void AddLog(EventStatus eventStatus) => Logs.Add(new Log(DateTime.Now, GetLogMessage(eventStatus)));
 
         public void ShowLogs()
         {
