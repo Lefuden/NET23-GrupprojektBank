@@ -206,7 +206,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             BankAccount selectedAccount = null;
 
-            (string Type, string Name, string Number, string Balance, string Currency) selectedInfo = ("", "", "", "", "",);
+            (string Type, string Name, string Number, string Balance, string Currency) selectedInfo = ("", "", "", "", "");
 
             foreach (var account in bankAccounts)
             {
