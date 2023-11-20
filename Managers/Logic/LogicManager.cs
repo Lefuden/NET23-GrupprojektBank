@@ -147,11 +147,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Transaction newTransaction = UserCommunications.MakeTransferMenu(customerBankAccounts);
-                            if (newTransaction is not null)
-                            {
-                                TransactionsManager.AddTransaction(newTransaction);
-                            }
+                            //Transaction newTransaction = UserCommunications.MakeTransferMenu(customerBankAccounts);
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -165,11 +165,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Transaction newTransaction = UserCommunications.MakeDepositMenu(customerBankAccounts);
-                            if (newTransaction is not null)
-                            {
-                                TransactionsManager.AddTransaction(newTransaction);
-                            }
+                            //Transaction newTransaction = UserCommunications.MakeDepositMenu(customerBankAccounts);
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -184,11 +184,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             var customerBankAccounts = CurrentCustomer.GetBankAccounts();
-                            Transaction newTransaction = UserCommunications.MakeWithdrawalMenu(customerBankAccounts);
-                            if (newTransaction is not null)
-                            {
-                                TransactionsManager.AddTransaction(newTransaction);
-                            }
+                            //Transaction newTransaction = UserCommunications.MakeWithdrawalMenu(customerBankAccounts);
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -203,11 +203,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             var customerBankAccounts = CurrentCustomer.GetBankAccounts();
-                            Transaction newTransaction = UserCommunications.MakeLoanMenu(customerBankAccounts);
-                            if (newTransaction is not null)
-                            {
-                                TransactionsManager.AddTransaction(newTransaction);
-                            }
+                            //Transaction newTransaction = UserCommunications.MakeLoanMenu(customerBankAccounts);
+                            //if (newTransaction is not null)
+                            //{
+                            //    TransactionsManager.AddTransaction(newTransaction);
+                            //}
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
