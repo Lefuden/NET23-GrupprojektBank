@@ -199,67 +199,90 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static void MakeWithdrawalMenu(List<BankAccount> bankAccounts)
         {
-            DrawRuler("Withdraw");
+            AnsiConsole.WriteLine("Withdraw Menu");
 
-            WriteDivider("Bank Account Number");
-            var accountNumber = AskBankAccount();
-
-            BankAccount selectedAccount = null;
-
-            (string Type, string Name, string Number, string Balance, string Currency) selectedInfo = ("", "", "", "", "");
+            var accountChoices = new List<string>();
 
             foreach (var account in bankAccounts)
             {
-                if (account is Checking checking)
+                if (account is Checking checkingAccount)
                 {
-                    var info = checking.GetAccountInformation();
-                    if (accountNumber == info.Number)
-                    {
-                        selectedAccount = account;
-                        selectedInfo = (
-                    info.Type,
-                    info.Name,
-                    info.Number,
-                    info.Balance,
-                    info.Currency
-                );
-                        break;
-                    }
+                    var info = checkingAccount.GetAccountInformation();
+                    accountChoices.Add($"[orange1 bold]{info.Type}[/] - [yellow bold]{info.Name}[/] - [red bold]{info.Number}[/] - [green bold]{info.Balance}[/] - [blue bold]{info.Currency}[/]");
                 }
-                if(account is Savings savings)
+                else if (account is Savings savingsAccount)
                 {
-                    var info = savings.GetAccountInformation();
-                    if (accountNumber == info.Number)
-                    {
-                        selectedAccount = account;
-                        selectedInfo = (
-                    info.Type,
-                    info.Name,
-                    info.Number,
-                    info.Balance,
-                    info.Currency
-                );
-                        break;
-                    }
+                    var info = savingsAccount.GetAccountInformation();
+                    accountChoices.Add($"[orange1 bold]{info.Type}[/] - [yellow bold]{info.Name}[/] - [red bold]{info.Number}[/] - [green bold]{info.Balance}[/] - [blue bold]{info.Currency}[/] - [cyan1 bold]{info.Interest}[/]");
                 }
-                
             }
+
+            accountChoices.Add("Exit");
+
+            var selectedAccountChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .PageSize(5)
+                    .Title("Select an Account")
+                    .MoreChoicesText("Scroll down for more options")
+                    .AddChoices(accountChoices)
+            );
+
+            var selectedAccount = bankAccounts.FirstOrDefault(account =>
+            {
+                if (account is Checking checkingAccount)
+                {
+                    var info = checkingAccount.GetAccountInformation();
+                    return $"{info.Name} - {info.Number}" == selectedAccountChoice;
+                }
+                else if (account is Savings savingsAccount)
+                {
+                    var info = savingsAccount.GetAccountInformation();
+                    return $"{info.Name} - {info.Number}" == selectedAccountChoice;
+                }
+                return false;
+            });
 
             if (selectedAccount != null)
             {
-                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{selectedInfo.Name}[/]");
-                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{selectedInfo.Balance}[/] [gold1]{selectedInfo.Currency}[/]");
-                WriteDivider($"Withdraw from {selectedInfo.Name}");
+                string accountName;
+                string balance;
+                string currency;
+
+                if (selectedAccount is Checking)
+                {
+                    var checkingAccount = selectedAccount as Checking;
+                    var info = checkingAccount.GetAccountInformation();
+                    accountName = info.Name;
+                    balance = info.Balance;
+                    currency = info.Currency;
+                }
+                else if (selectedAccount is Savings)
+                {
+                    var savingsAccount = selectedAccount as Savings;
+                    var info = savingsAccount.GetAccountInformation();
+                    accountName = info.Name;
+                    balance = info.Balance;
+                    currency = info.Currency;
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
+                    return;
+                }
+
+                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{accountName}[/]");
+                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currency}[/]");
+                AnsiConsole.MarkupLine($"[purple]Withdraw from[/]  [green]{accountName}[/]");
 
                 decimal withdrawalAmount;
                 decimal maxWithdrawal;
 
-                if (!decimal.TryParse(selectedInfo.Balance, out maxWithdrawal))
+                if (!decimal.TryParse(balance, out maxWithdrawal))
                 {
-                    
-                    Console.WriteLine("Invalid balance value.");
+                    AnsiConsole.MarkupLine("[red]Invalid balance value.[/]");
                     return;
                 }
+
                 while (true)
                 {
                     string input = AnsiConsole.Ask<string>($"[purple]How Much Would You Like To Withdraw?[/] [gold1](Maximum: {maxWithdrawal})[/]");
@@ -270,58 +293,38 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                     else
                     {
-                        decimal currentBalance = decimal.Parse(selectedInfo.Balance);
+                        decimal currentBalance = decimal.Parse(balance);
                         currentBalance -= withdrawalAmount;
-                        selectedInfo.Balance = currentBalance.ToString();
+                        balance = currentBalance.ToString();
 
-                        AnsiConsole.MarkupLine($"[green]${withdrawalAmount} {selectedInfo.Currency}[/] [purple]has been withdrawn from {selectedInfo.Name}[/]");
+                        AnsiConsole.MarkupLine($"[green]${withdrawalAmount} {currency}[/] [purple]has been withdrawn from {accountName}[/]");
+
+                        string stringChoice = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .PageSize(3)
+                                .AddChoices(new[]
+                                {
+                            "Back",
+                            "Exit"
+                                }
+                            ));
+
+                        if (stringChoice == "Back")
+                        {
+                            return;
+                        }
+                        else if (stringChoice == "Exit")
+                        {
+                            Environment.Exit(0);
+                        }
                     }
-                }
-                {
-                    string stringChoice = AnsiConsole.Prompt(
-                               new SelectionPrompt<string>()
-                                   .PageSize(3)
-                                   .AddChoices(new[]
-                                   {
-                                     "Back"
-                                   }
-                               ));
-
-                     ConvertStringToUserChoice(stringChoice);
                 }
             }
             else
             {
-                Console.Clear();
-                AnsiConsole.MarkupLine("[red]Account not Found[/]");
-                Thread.Sleep(2000);
-                MakeWithdrawalMenu(bankAccounts);
+                AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
+                return;
             }
-        }
-        public static string AskBankAccount()
-        {
-            string accountNumber;
-            do
-            {
-                accountNumber = AnsiConsole.Ask<string>("[purple]What Bank account would you like to  Withdraw From ?[/]");
-
-                if (accountNumber.Length != 10 || !IsDigitsOnly(accountNumber))
-                {
-                    AnsiConsole.MarkupLine("[red]Please enter a 10-digit account number.[/]");
-                }
-            } while (accountNumber.Length != 10 || !IsDigitsOnly(accountNumber));
-
-            return accountNumber;
-        }
-
-        public static bool IsDigitsOnly(string str)
-        {
-            foreach (char c in str)
-            {
-                if (c < '0' || c > '9')
-                    return false;
-            }
-            return true;
         }
         private static void DrawRuler(string content, string colorName)
         {
