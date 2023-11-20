@@ -13,15 +13,15 @@ namespace NET23_GrupprojektBank.BankAccounts
             CurrencyType = currencyType;
             Balance = balance;
         }
-        public Checking(int bankAccountNumber, string bankAccountName, BankAccountType bankAccountType, CurrencyType currencyType, decimal balance, Guid ownerUserId)
-        {
-            BankAccountNumber = bankAccountNumber;
-            BankAccountName = bankAccountName;
-            BankAccountType = bankAccountType;
-            CurrencyType = currencyType;
-            Balance = balance;
-            OwnerUserId = ownerUserId;
-        }
+        //public Checking(int bankAccountNumber, string bankAccountName, BankAccountType bankAccountType, CurrencyType currencyType, decimal balance, Guid ownerUserId)
+        //{
+        //    BankAccountNumber = bankAccountNumber;
+        //    BankAccountName = bankAccountName;
+        //    BankAccountType = bankAccountType;
+        //    CurrencyType = currencyType;
+        //    Balance = balance;
+        //    OwnerUserId = ownerUserId;
+        //}
         public (string Type, string Name, string Number, string Balance, string Currency) GetAccountInformation()
         {
             return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), Balance.ToString(), CurrencyType.ToString());

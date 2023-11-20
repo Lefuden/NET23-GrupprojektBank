@@ -7,7 +7,9 @@ namespace NET23_GrupprojektBank.Managers.Transactions
     public enum TransactionType
     {
         Withdrawal,
-        Loan,
+
+
+        ,
         Transfer,
         Deposit
     }

@@ -1,14 +1,11 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
-using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Managers.Transactions;
+using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserInformation;
-using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Newtonsoft.Json;
 using Spectre.Console;
-using System.Diagnostics.Metrics;
-using System.IO;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -22,32 +19,34 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
+        public List<BankAccount> GetBankAccounts() => BankAccounts;
+        public void AddBankAccount(BankAccount bankAccount) => BankAccounts.Add(bankAccount);
+        //[JsonConstructor]      
 
-        [JsonConstructor]      
-
-        public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
-        {
-            if (BankAccounts is null)
-            {
-                BankAccounts = new();
-            }
-            if (bankAccounts is not null)
-            {
-                BankAccounts = bankAccounts;
-            }
-        }
+        //public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
+        //{
+        //    if (BankAccounts is null)
+        //    {
+        //        BankAccounts = new();
+        //    }
+        //    if (bankAccounts is not null)
+        //    {
+        //        BankAccounts = bankAccounts;
+        //    }
+        //}
 
         public void ViewBankAccount()
         {
             if (BankAccounts.Count != 0)
             {
-                foreach (var account in BankAccounts)
-                {
-                    //amazing interface
-                    Console.WriteLine(account);
-                    Console.ReadKey();
-                    //back to menu
-                }
+                UserCommunications.ViewBankAccounts(BankAccounts);
+                //foreach (var account in BankAccounts)
+                //{
+                //    //amazing interface
+                //    Console.WriteLine(account);
+                //    Console.ReadKey();
+                //    //back to menu
+                //}
             }
             else
             {
@@ -62,7 +61,7 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-        public EventStatus CreateCheckingAccount()
+        public EventStatus CreateCheckingAccount(List<int> existingBankAccountNumbers)
         {
             //logic to create account goes here
             AddLog(EventStatus.CheckingCreationSuccess); //or failed
@@ -90,9 +89,9 @@ namespace NET23_GrupprojektBank.Users
                 var bankAccountName = AnsiConsole.Ask<string>("[green]Account name[/]:");
 
                 var currencyType = ChooseCurrencyType();
-                
+
                 var bankAccountNr = BankAccountNumberGenerator();
-                
+
                 Console.WriteLine($"Account type: {bankAccountType}Account number: {bankAccountNr}\nAccount name: {bankAccountName}\nAccount currency type: {currencyType}\n\n");
                 switch (Admin.AskUserYesOrNo("is this information correct?"))
                 {
@@ -106,9 +105,9 @@ namespace NET23_GrupprojektBank.Users
                             case BankAccountType.Savings:
                                 AddLog(EventStatus.SavingsCreationSuccess);
                                 return new Savings(1234, bankAccountName, currencyType, 0.0M, interest: 0.0);
-                            //case BankAccountType.Undeclared:
-                            //    AddLog(EventStatus.AccountCreationFailed);
-                            //    return null;
+                                //case BankAccountType.Undeclared:
+                                //    AddLog(EventStatus.AccountCreationFailed);
+                                //    return null;
                         }
                         break;
                     case false:
@@ -118,7 +117,7 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
-        public EventStatus CreateSavingsAccount()
+        public EventStatus CreateSavingsAccount(List<int> existingBankAccountNumbers)
         {
             //logic to create account goes here
             AddLog(EventStatus.SavingsCreationFailed); //or success
@@ -132,7 +131,7 @@ namespace NET23_GrupprojektBank.Users
             AddLog(EventStatus.TransactionCreated);
             throw new NotImplementedException();
         }
-        
+
         public Transaction MakeLoan()
         {
             //BankAccount.GetBalance();
@@ -160,7 +159,7 @@ namespace NET23_GrupprojektBank.Users
         public Transaction MakeWithdrawal()
         {
             Console.WriteLine("Withdrawal");
-            
+
             var accountChoice = GetBankAccountDetails();
             foreach (var account in BankAccounts)
             {
@@ -205,7 +204,7 @@ namespace NET23_GrupprojektBank.Users
                 ));
             return stringChoice == "Checking account";
         }
-        
+
         public string GetBankAccountDetails()
         {
             var accounts = new SelectionPrompt<string>()
@@ -217,17 +216,17 @@ namespace NET23_GrupprojektBank.Users
                 switch (account)
                 {
                     case Savings savingsAccount:
-                    {
-                        var accountDetails = savingsAccount.GetAccountInformation();
-                        accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency} {accountDetails.Interest}");
-                        break;
-                    }
+                        {
+                            var accountDetails = savingsAccount.GetAccountInformation();
+                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency} {accountDetails.Interest}");
+                            break;
+                        }
                     case Checking checkingAccount:
-                    {
-                        var accountDetails = checkingAccount.GetAccountInformation();
-                        accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency}");
-                        break;
-                    }
+                        {
+                            var accountDetails = checkingAccount.GetAccountInformation();
+                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency}");
+                            break;
+                        }
                 }
             }
 
