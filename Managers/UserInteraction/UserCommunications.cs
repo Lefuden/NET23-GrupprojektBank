@@ -1,18 +1,242 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers.Logic;
+using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Spectre.Console;
-using System.Globalization;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Principal;
+using System.Text.RegularExpressions;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
-    internal class UserCommunications
+    internal partial class UserCommunications
     {
-        
+        public static CurrencyType ChooseCurrencyType()
+        {
+            WriteDivider("Choose Currency Type");
+            var currencyChoices = new SelectionPrompt<string>()
+                .Title("Choose currency type")
+                .PageSize(3);
+
+            foreach (CurrencyType type in CurrencyType.GetValuesAsUnderlyingType<CurrencyType>())
+            {
+                currencyChoices.AddChoice($"{type}");
+            }
+
+            var choice = AnsiConsole.Prompt(currencyChoices);
+            Console.Clear();
+            return Enum.TryParse(choice, out CurrencyType test) ? test : CurrencyType.SEK;
+        }
+        public static Email GetEmailFromUser()
+        {
+            WriteDivider("Email Information");
+            while (true)
+            {
+                Console.WriteLine("Enter email information.");
+                var email = AnsiConsole.Ask<string>("[green]Email[/]:");
+                if (email == "-1") return new Email("-1", "");
+                while (true)
+                {
+                    if (!Email.IsEmailValid(email))
+                    {
+                        email = AnsiConsole.Ask<string>("[red]invalid email format, try again:[/]");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                var workEmail = AnsiConsole.Ask<string>("[green]Work email[/]:");
+                if (workEmail == "-1") return new Email("-1", "");
+                while (true)
+                {
+                    if (!Email.IsEmailValid(workEmail))
+                    {
+                        workEmail = AnsiConsole.Ask<string>("[red]invalid email format, try again:[/]");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                Console.Clear();
+                Console.WriteLine($"Email: {email}\nWork email: {workEmail}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return new Email(email, workEmail);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
+        public static Phone GetPhoneFromUser()
+        {
+            WriteDivider("Phone Information");
+            while (true)
+            {
+                string? phone;
+                while (true)
+                {
+                    phone = AnsiConsole.Ask<string>("[green]Phone number (10 digits)[/]:");
+                    if (phone.Length != 10)
+                    {
+                        AnsiConsole.MarkupLine("[red]Invalid number length (10 digits)[/]");
+                    }
+                    if (phone.Length == 10)
+                    {
+                        if (ulong.TryParse(phone, out ulong i))
+                        {
+                            break;
+                        }
+
+                        AnsiConsole.MarkupLine("[red]Invalid number format (10 digits)[/]");
+                    }
+                }
+                Console.WriteLine($"Phone number: {phone}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return new Phone(phone);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
+        public static Address GetAdressFromUser()
+        {
+            WriteDivider("Address Information");
+            while (true)
+            {
+                Console.WriteLine("Enter adress information.");
+                var country = AnsiConsole.Ask<string>("[green]Country[/]:");
+                if (country == "-1") return new Address("-1", "", "", "");
+
+                var city = AnsiConsole.Ask<string>("[green]City[/]:");
+                if (city == "-1") return new Address("-1", "", "", "");
+
+                var street = AnsiConsole.Ask<string>("[green]Street name[/]:");
+                if (street == "-1") return new Address("-1", "", "", "");
+
+                var postalNumber = AnsiConsole.Ask<string>("[green]Postal/zip code[/]:");
+                if (postalNumber == "-1") return new Address("-1", "", "", "");
+
+                Console.Clear();
+                Console.WriteLine($"Country: {country}\nCity: {city}\nStreet name: {street}\nPostal/zip code: {postalNumber}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return new Address(country, city, street, postalNumber);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
+        public static bool AskUserYesOrNo(string message)
+        {
+            string stringChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title($"[purple]{message}[/]")
+                .PageSize(3)
+                .AddChoices(new[]
+                    {
+                        "Yes",
+                        "No"
+                    }
+                ));
+            return stringChoice == "Yes";
+        }
+
+        public static DateTime GetBirthDateFromUser()
+        {
+            WriteDivider("Birth Date Information");
+            while (true)
+            {
+                var userInput = AnsiConsole.Ask<string>("[green]Date of Birth (YYYYMMDD)[/]:");
+                if (userInput.Length == 8)
+                {
+                    userInput = userInput.Insert(6, ",");
+                    userInput = userInput.Insert(4, ",");
+                }
+
+                if (DateTime.TryParse(userInput, out DateTime validDateFormat))
+                {
+                    if (UserAgeRestriction(validDateFormat))
+                    {
+                        return validDateFormat;
+                    }
+
+                    AnsiConsole.MarkupLine("[red]User is below the age retriction[/]");
+                    return DateTime.MinValue;
+                }
+                AnsiConsole.MarkupLine("[red]invalid date format, try again[/]");
+            }
+        }
+
+        public static bool UserAgeRestriction(DateTime userInput)
+        {
+            int userAge = DateTime.Now.Year - userInput.Year;
+            return userAge >= 18;
+
+
+        }
+        public static (string Username, string Password, string FirstName, string LastName, DateTime DateOfBirth) GetBasicsFromUser(List<string> existingUsernames)
+        {
+            WriteDivider("User Information");
+            while (true)
+            {
+                Console.WriteLine("Enter user information.");
+                string? username;
+                while (true)
+                {
+                    username = AnsiConsole.Ask<string>("[green]Username[/]:");
+                    if (username == "-1") return ("-1", "", "", "", DateTime.Now);
+                    if (existingUsernames.Contains(username))
+                    {
+                        Console.WriteLine($"{username} already exists, enter a valid username:");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
+                    .PromptStyle("red")
+                    .Secret());
+                var firstName = AnsiConsole.Ask<string>("[green]First name[/]:");
+                if (firstName == "-1") return ("-1", "", "", "", DateTime.Now);
+
+                var lastName = AnsiConsole.Ask<string>("[green]Last name[/]:");
+                if (lastName == "-1") return ("-1", "", "", "", DateTime.Now);
+
+                var dateOfBirth = GetBirthDateFromUser();
+                if (dateOfBirth == DateTime.MinValue) return ("-1", "", "", "", DateTime.Now);
+
+                Console.WriteLine($"User name: {username}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}\nBirth date: {dateOfBirth}\n\n");
+                switch (AskUserYesOrNo("is this information correct?"))
+                {
+                    case true:
+                        Console.Clear();
+                        return (username, password, firstName, lastName, dateOfBirth);
+                    case false:
+                        Console.Clear();
+                        break;
+                }
+            }
+        }
+
         public static UserChoice MainMenu()
         {
-            DrawRuler("Hyper Hedgehogs Fundings", "Gold1");
+            WriteDivider("Hyper Hedgehogs Fundings");
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]Welcome Menu[/]")
@@ -28,7 +252,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static UserChoice AdminMenu()
         {
-            DrawRuler($"Admin Menu");
+            WriteDivider("Admin Menu");
 
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -49,7 +273,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static UserChoice CustomerMenu()
         {
-            DrawRuler($"Bank Menu");
+            WriteDivider("Customer Menu");
 
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -73,7 +297,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static UserChoice CreateBankAccount()
         {
-            DrawRuler($"Create Bank Account");
+            WriteDivider($"Create Bank Account");
 
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -129,24 +353,19 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                         foreach (var account in bankAccounts)
                         {
-                         
-                            
-                                if (account is Checking checking)
-                                {
-                                    var info = checking.GetAccountInformation();
+
+
+                            if (account is Checking checking)
+                            {
+                                var info = checking.GetAccountInformation();
                                 Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", "[cyan1][/]"));
 
-                                }
-                                if (account is Savings savings)
-                                {
-                                    var info = savings.GetAccountInformation();
-                                Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", $"[cyan1]{info.Interest}[/]"));
-                                }
-                            
-
-
-
-
+                            }
+                            if (account is Savings savings)
+                            {
+                                var info = savings.GetAccountInformation();
+                                Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", $"[cyan1]{info.Interest:p}[/]"));
+                            }
 
 
                             Update(100, () => table.BorderColor(Color.Purple));
@@ -164,18 +383,21 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
 
                         {
-                            string stringChoice = AnsiConsole.Prompt(
-                                new SelectionPrompt<string>()
-                                    .PageSize(3)
-                                    .AddChoices(new[]
-                                    {
-                                     "Back"
-                                    }
-                                ));
-
-                            return ConvertStringToUserChoice(stringChoice);
+                            return;
                         }
                     });
+
+                AnsiConsole.Cursor.SetPosition(0, 10);
+                string stringChoice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .PageSize(3)
+                        .AddChoices(new[]
+                        {
+                                     "Back"
+                        }
+                    ));
+
+                return;
             }
             else
             {
@@ -197,11 +419,25 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 }
             }
         }
-        public static void MakeWithdrawalMenu(List<BankAccount> bankAccounts)
+        private static int GetSingleMatch(string pattern, string input)
         {
-            DrawRuler($"Withdrawal Menu");
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(input);
+
+            if (match.Success)
+            {
+                // The captured number is in the first capturing group (index 1).
+                return int.Parse(match.Groups[1].Value);
+            }
+
+            return 0; // Return null if no match is found.
+        }
+        public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeWithdrawalMenu(List<BankAccount> bankAccounts)
+        {
+            WriteDivider($"Withdrawal Menu");
 
             var accountChoices = new List<string>();
+            // (string Type, string Name, string Number, string Balance, string Currency, string Interest) info = new();
 
             foreach (var account in bankAccounts)
             {
@@ -227,17 +463,21 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .AddChoices(accountChoices)
             );
 
+
+
+
+            string pattern = @"\[red bold\](\d+)\[/\]";
+            Regex regex = new Regex(pattern);
+
+
+            int choosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
+
+
             var selectedAccount = bankAccounts.FirstOrDefault(account =>
             {
-                if (account is Checking checkingAccount)
+                if (account.GetAccountNumber() == choosenAccountNumber)
                 {
-                    var info = checkingAccount.GetAccountInformation();
-                    return $"{info.Name} - {info.Number}" == selectedAccountChoice;
-                }
-                else if (account is Savings savingsAccount)
-                {
-                    var info = savingsAccount.GetAccountInformation();
-                    return $"{info.Name} - {info.Number}" == selectedAccountChoice;
+                    return true;
                 }
                 return false;
             });
@@ -246,7 +486,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {
                 string accountName;
                 string balance;
-                string currency;
+                string currencyType;
 
                 if (selectedAccount is Checking)
                 {
@@ -254,7 +494,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     var info = checkingAccount.GetAccountInformation();
                     accountName = info.Name;
                     balance = info.Balance;
-                    currency = info.Currency;
+                    currencyType = info.Currency;
                 }
                 else if (selectedAccount is Savings)
                 {
@@ -262,16 +502,16 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     var info = savingsAccount.GetAccountInformation();
                     accountName = info.Name;
                     balance = info.Balance;
-                    currency = info.Currency;
+                    currencyType = info.Currency;
                 }
                 else
                 {
                     AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
-                    return;
+                    return default;
                 }
 
                 AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{accountName}[/]");
-                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currency}[/]");
+                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currencyType}[/]");
                 AnsiConsole.MarkupLine($"[purple]Withdraw from[/]  [green]{accountName}[/]");
 
                 decimal withdrawalAmount;
@@ -280,7 +520,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 if (!decimal.TryParse(balance, out maxWithdrawal))
                 {
                     AnsiConsole.MarkupLine("[red]Invalid balance value.[/]");
-                    return;
                 }
 
                 while (true)
@@ -297,7 +536,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                         currentBalance -= withdrawalAmount;
                         balance = currentBalance.ToString();
 
-                        AnsiConsole.MarkupLine($"[green]${withdrawalAmount} {currency}[/] [purple]has been withdrawn from {accountName}[/]");
+                        AnsiConsole.MarkupLine($"[green]{withdrawalAmount:c} {currencyType}[/] [purple]has been withdrawn from {accountName}[/]");
 
                         string stringChoice = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
@@ -311,7 +550,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                         if (stringChoice == "Back")
                         {
-                            return;
+                            CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
+                            return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, withdrawalAmount);
                         }
                         else if (stringChoice == "Exit")
                         {
@@ -323,7 +563,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             else
             {
                 AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
-                return;
+                return default;
             }
         }
         private static void DrawRuler(string content, string colorName)
@@ -336,8 +576,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         private static void WriteDivider(string text)
         {
-            AnsiConsole.WriteLine();
             AnsiConsole.Write(new Rule($"[gold1]{text}[/]").RuleStyle("grey").LeftJustified());
+            AnsiConsole.WriteLine();
         }
         private static UserChoice ConvertStringToUserChoice(string input)
         {
@@ -366,6 +606,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static (string Username, string Password) GetLoginInfo()
         {
+            WriteDivider("Login");
             var Username = AnsiConsole.Prompt(
          new TextPrompt<string>("[orange1]Username: [/]")
                     .PromptStyle("green")
@@ -423,5 +664,33 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
 
 
+        public static string GetBankAccountDetails(List<BankAccount> bankAccounts)
+        {
+            var accounts = new SelectionPrompt<string>()
+                .Title("Choose account")
+                .PageSize(5);
+
+            foreach (var account in bankAccounts)
+            {
+                switch (account)
+                {
+                    case Savings savingsAccount:
+                        {
+                            var accountDetails = savingsAccount.GetAccountInformation();
+                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency} {accountDetails.Interest}");
+                            break;
+                        }
+                    case Checking checkingAccount:
+                        {
+                            var accountDetails = checkingAccount.GetAccountInformation();
+                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency}");
+                            break;
+                        }
+                }
+            }
+
+            var choice = AnsiConsole.Prompt(accounts);
+            return choice;
+        }
     }
 }

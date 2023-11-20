@@ -48,10 +48,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 if (user is Customer customer)
                 {
                     decimal sum = rng.Next(0, 1000001);
-                    customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{user.GetUsername()}'s Konto", CurrencyType.SEK, sum));
+
+                    customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(new List<int>() { 982375871, 2982385, 92835782, 92837529 }), $"{user.GetUsername()}'s Konto", CurrencyType.SEK, sum));
                     customer.AddLog(EventStatus.CheckingCreationSuccess);
                 }
             }
+
 
             Users = users;
             LoginManager = new(Users);
@@ -108,6 +110,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                             case EventStatus.LoginUnlocked:
                                 Choice = UserChoice.ViewWelcomeMenu;
+                                LoginManager.ResetLoginLockout();
                                 break;
 
                             default:
@@ -134,7 +137,6 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                     case UserChoice.ViewAdminMenu:
                         PreviousChoice = UserChoice.ViewWelcomeMenu;
-                        //Choice = UserCommunications.AdminMenu();
                         Choice = UserCommunications.AdminMenu();
                         break;
 
@@ -147,11 +149,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            //Transaction newTransaction = UserCommunications.MakeTransferMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            Transaction newTransaction = CurrentCustomer.MakeTransfer();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -165,11 +167,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            //Transaction newTransaction = UserCommunications.MakeDepositMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            Transaction newTransaction = CurrentCustomer.MakeDeposit();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -183,12 +185,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            var customerBankAccounts = CurrentCustomer.GetBankAccounts();
-                            //Transaction newTransaction = UserCommunications.MakeWithdrawalMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            Transaction newTransaction = CurrentCustomer.MakeWithdrawal();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -202,12 +203,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            var customerBankAccounts = CurrentCustomer.GetBankAccounts();
-                            //Transaction newTransaction = UserCommunications.MakeLoanMenu(customerBankAccounts);
-                            //if (newTransaction is not null)
-                            //{
-                            //    TransactionsManager.AddTransaction(newTransaction);
-                            //}
+                            Transaction newTransaction = CurrentCustomer.MakeLoan();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -265,7 +265,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
                             var unavailableAccountNumbers = GetBankAccountNumbers();
-                            CurrentCustomer.CreateCheckingAccount(unavailableAccountNumbers);
+                            CurrentCustomer.CreateBankAccount(unavailableAccountNumbers, BankAccountType.Checking);
                         }
                         else
                         {
@@ -280,7 +280,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
                             var unavailableAccountNumbers = GetBankAccountNumbers();
-                            CurrentCustomer.CreateSavingsAccount(unavailableAccountNumbers);
+                            CurrentCustomer.CreateBankAccount(unavailableAccountNumbers, BankAccountType.Savings);
                         }
                         else
                         {

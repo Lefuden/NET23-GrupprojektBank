@@ -2,6 +2,12 @@
 {
     internal enum CurrencyType
     {
+        SEK,
+        EUR,
+        USD,
+    }
+    internal enum CurrencyTypeFull
+    {
         AED,
         ARS,
         AUD,

@@ -14,5 +14,9 @@
             DateAndTime = dateAndTime;
             Message = message;
         }
+        public override string ToString()
+        {
+            return $"{LogId} - {Message} - {DateAndTime}";
+        }
     }
 }
