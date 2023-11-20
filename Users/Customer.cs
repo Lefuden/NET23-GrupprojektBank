@@ -21,117 +21,71 @@ namespace NET23_GrupprojektBank.Users
         }
         public List<BankAccount> GetBankAccounts() => BankAccounts;
         public void AddBankAccount(BankAccount bankAccount) => BankAccounts.Add(bankAccount);
-        //[JsonConstructor]      
-
-        //public Customer(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs, List<BankAccount> bankAccounts) : base(username, userId, salt, hashedPassword, personInformation, userType, logs)
-        //{
-        //    if (BankAccounts is null)
-        //    {
-        //        BankAccounts = new();
-        //    }
-        //    if (bankAccounts is not null)
-        //    {
-        //        BankAccounts = bankAccounts;
-        //    }
-        //}
 
         public void ViewBankAccount()
         {
-            if (BankAccounts.Count != 0)
+            if (BankAccounts is null)
             {
-                UserCommunications.ViewBankAccounts(BankAccounts);
-                //foreach (var account in BankAccounts)
-                //{
-                //    //amazing interface
-                //    Console.WriteLine(account);
-                //    Console.ReadKey();
-                //    //back to menu
-                //}
+                BankAccounts = new List<BankAccount>();
             }
-            else
-            {
-                switch (Admin.AskUserYesOrNo("no account found. would you like to open a new account?"))
-                {
-                    case true:
-                        CreateBankAccount(BankAccounts);
-                        break;
-                    case false:
-                        break;
-                }
-            }
+            UserCommunications.ViewBankAccounts(BankAccounts);
         }
-
-        public EventStatus CreateCheckingAccount(List<int> existingBankAccountNumbers)
-        {
-            //logic to create account goes here
-            AddLog(EventStatus.CheckingCreationSuccess); //or failed
-            throw new NotImplementedException();
-        }
-
-        public BankAccount CreateBankAccount(List<BankAccount> existingBankAccountNumbers)
+        public void CreateBankAccount(List<int> existingBankAccountNumbers, BankAccountType bankAccountTypeToBeCreated)
         {
             while (true)
             {
-                Console.WriteLine("Enter bank account details.");
-                var bankAccountType = BankAccountType.Undeclared;
-                switch (ChooseAccountType())
-                {
-                    case true:
-                        Console.Clear();
-                        bankAccountType = BankAccountType.Checking;
-                        break;
-                    case false:
-                        Console.Clear();
-                        bankAccountType = BankAccountType.Savings;
-                        break;
-                }
-
+                Console.Clear();
                 var bankAccountName = AnsiConsole.Ask<string>("[green]Account name[/]:");
+                var currencyType = UserCommunications.ChooseCurrencyType();
+                var bankAccountNr = BankAccount.BankAccountNumberGenerator(existingBankAccountNumbers);
+                Console.Clear();
 
-                var currencyType = ChooseCurrencyType();
+                double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? DecideInterestRate() : 0;
 
-                var bankAccountNr = BankAccountNumberGenerator();
+                AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n", Style.WithDecoration(Decoration.RapidBlink)).LeftJustified());
 
-                Console.WriteLine($"Account type: {bankAccountType}Account number: {bankAccountNr}\nAccount name: {bankAccountName}\nAccount currency type: {currencyType}\n\n");
-                switch (Admin.AskUserYesOrNo("is this information correct?"))
+
+                if (UserCommunications.AskUserYesOrNo("is this information correct?"))
                 {
-                    case true:
-                        Console.Clear();
-                        switch (bankAccountType)
-                        {
-                            case BankAccountType.Checking:
-                                AddLog(EventStatus.CheckingCreationSuccess);
-                                return new Checking(1234, bankAccountName, currencyType, 0.0M);
-                            case BankAccountType.Savings:
-                                AddLog(EventStatus.SavingsCreationSuccess);
-                                return new Savings(1234, bankAccountName, currencyType, 0.0M, interest: 0.0);
-                                //case BankAccountType.Undeclared:
-                                //    AddLog(EventStatus.AccountCreationFailed);
-                                //    return null;
-                        }
-                        break;
-                    case false:
-                        Console.Clear();
-                        break;
+                    switch (bankAccountTypeToBeCreated)
+                    {
+                        case BankAccountType.Checking:
+                            AddLog(EventStatus.CheckingCreationSuccess);
+                            BankAccounts.Add(new Checking(bankAccountNr, bankAccountName, currencyType, 0.0M));
+                            break;
+
+                        case BankAccountType.Savings:
+                            AddLog(EventStatus.SavingsCreationSuccess);
+                            BankAccounts.Add(new Savings(bankAccountNr, bankAccountName, currencyType, 0.0M, interest));
+                            break;
+                    }
+                    return;
                 }
             }
         }
-
-        public EventStatus CreateSavingsAccount(List<int> existingBankAccountNumbers)
+        private double DecideInterestRate(bool isMakingLoan = false)
         {
-            //logic to create account goes here
-            AddLog(EventStatus.SavingsCreationFailed); //or success
-            throw new NotImplementedException();
-        }
+            Random rng = new();
+            int highestValue = 0;
+            decimal totalAmountOfMoneyOnBankAccounts = 0;
+            double interest = 0;
+            foreach (var bankAccount in BankAccounts)
+            {
+                totalAmountOfMoneyOnBankAccounts += bankAccount.GetBalance();
+            }
+            if (isMakingLoan)
+            {
+                highestValue = totalAmountOfMoneyOnBankAccounts <= 0 ? 100 : totalAmountOfMoneyOnBankAccounts <= 10000 ? 80 : totalAmountOfMoneyOnBankAccounts <= 25000 ? 60 : totalAmountOfMoneyOnBankAccounts <= 50000 ? 40 : totalAmountOfMoneyOnBankAccounts <= 100000 ? 30 : totalAmountOfMoneyOnBankAccounts <= 500000 ? 20 : 10;
+                interest = rng.Next(0, highestValue + 1);
+                interest *= 0.01;
+            }
+            else
+            {
+                interest = rng.NextDouble() / 100;
+            }
 
-        private Transaction CreateTransaction() //: Transaction input parameters for various transactions/loans/withdrawals
-        {
-            //take input from various Make-methods to then create the transaction of corresponding type
-            //return new Transaction();
-            AddLog(EventStatus.TransactionCreated);
-            throw new NotImplementedException();
+            return interest;
         }
-
         public Transaction MakeLoan()
         {
             //BankAccount.GetBalance();
@@ -141,112 +95,50 @@ namespace NET23_GrupprojektBank.Users
             while (true)
             {
                 Console.WriteLine("make loan.");
-                CurrencyType currencyType = ChooseCurrencyType();
+                CurrencyType currencyType = UserCommunications.ChooseCurrencyType();
                 Console.WriteLine($"{currencyType}\n\n");
-                switch (Admin.AskUserYesOrNo("is this information correct?"))
-                {
-                    case true:
-                        Console.Clear();
-                        break;
-                    case false:
-                        Console.Clear();
-                        break;
-                }
+                //switch (Admin.AskUserYesOrNo("is this information correct?"))
+                //{
+                //    case true:
+                //        Console.Clear();
+                //        break;
+                //    case false:
+                //        Console.Clear();
+                //        break;
+                //}
             }
             return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
         public Transaction MakeWithdrawal()
         {
-            Console.WriteLine("Withdrawal");
-
-            var accountChoice = GetBankAccountDetails();
-            foreach (var account in BankAccounts)
-            {
-                account.GetBalance();
-            }
-
-            //logic to create a withdrawal
-            //send to createtransaction for completion
+            var info = UserCommunications.MakeWithdrawalMenu(BankAccounts);
             AddLog(EventStatus.WithdrawalCreated);
-            return CreateTransaction(); //return transaction. return null if cancelled.
+
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
         }
 
         public Transaction MakeDeposit()
         {
-            //BankAccount.GetBalance();
-            //logic to create a deposit
-            //send to createtransaction for completion
+            var info = UserCommunications.MakeDepositMenu(BankAccounts);
             AddLog(EventStatus.DepositCreated);
-            return CreateTransaction(); //return transaction. return null if cancelled.
+
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
         }
 
         public Transaction MakeTransfer()
         {
-            //BankAccount.GetBalance();
-            //logic to create a transfer
-            //send to createtransaction for completion
+            var info = UserCommunications.MakeTransferMenu(BankAccounts);
             AddLog(EventStatus.TransferCreated);
 
-            return CreateTransaction(); //return transaction. return null if cancelled.
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
         }
-
-        public bool ChooseAccountType()
+        private Transaction CreateTransaction()
         {
-            var stringChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                .Title($"[purple]Select bank account type[/]")
-                .PageSize(3)
-                .AddChoices(new[]
-                    {
-                        "Checking account",
-                        "Savings account"
-                    }
-                ));
-            return stringChoice == "Checking account";
+            throw new NotImplementedException();
         }
 
-        public string GetBankAccountDetails()
-        {
-            var accounts = new SelectionPrompt<string>()
-                .Title("Choose account")
-                .PageSize(5);
 
-            foreach (var account in BankAccounts)
-            {
-                switch (account)
-                {
-                    case Savings savingsAccount:
-                        {
-                            var accountDetails = savingsAccount.GetAccountInformation();
-                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency} {accountDetails.Interest}");
-                            break;
-                        }
-                    case Checking checkingAccount:
-                        {
-                            var accountDetails = checkingAccount.GetAccountInformation();
-                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency}");
-                            break;
-                        }
-                }
-            }
 
-            var choice = AnsiConsole.Prompt(accounts);
-            return choice;
-        }
-
-        public CurrencyType ChooseCurrencyType()
-        {
-            var currencyChoices = new SelectionPrompt<string>()
-                .Title("Choose currency type")
-                .PageSize(5);
-
-            foreach (CurrencyType type in CurrencyType.GetValuesAsUnderlyingType<CurrencyType>())
-            {
-                currencyChoices.AddChoice($"{type}");
-            }
-
-            var choice = AnsiConsole.Prompt(currencyChoices);
-            return Enum.TryParse(choice, out CurrencyType test) ? test : CurrencyType.AED;
-        }
     }
 }

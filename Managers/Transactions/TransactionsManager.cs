@@ -1,8 +1,11 @@
-﻿namespace NET23_GrupprojektBank.Managers.Transactions
+﻿using NET23_GrupprojektBank.Managers.Logs;
+
+namespace NET23_GrupprojektBank.Managers.Transactions
 {
     internal class TransactionsManager
     {
         private Queue<Transaction> Transactions { get; set; }
+        private List<Log> TransactionLogs { get; set; }
         public TransactionsManager(Queue<Transaction>? transactions = null)
         {
             if (transactions is not null)
@@ -13,18 +16,19 @@
             {
                 Transactions = new();
             }
+            TransactionLogs = new();
         }
 
-        public EventStatus AddTransaction(Transaction transaction)
+        public void AddTransaction(Transaction transaction)
         {
             if (transaction is not null)
             {
                 Transactions.Enqueue(transaction);
-                return EventStatus.TransactionManagerAddedToQueueSuccess;
+                TransactionLogs.Add(new Log(DateTime.UtcNow, "Transaction Manager Added Transaction To Queue Successfully"));
             }
             else
             {
-                return EventStatus.TransactionManagerAddedToQueueFailed;
+                TransactionLogs.Add(new Log(DateTime.UtcNow, "Transaction Manager Failed To Add Transaction To Queue"));
             }
         }
 

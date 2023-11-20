@@ -2,7 +2,6 @@
 using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserInformation;
-using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -34,24 +33,6 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Undeclared;
 
         }
-        //[JsonConstructor]
-        //public User(string username, Guid userId, string salt, string hashedPassword, PersonInformation personInformation, UserType userType, List<Log> logs)
-        //{
-        //    Username = username;
-        //    UserId = userId;
-        //    Salt = salt;
-        //    HashedPassword = hashedPassword;
-        //    PersonInformation = personInformation;
-        //    if (Logs is null)
-        //    {
-        //        Logs = new();
-        //    }
-        //    if (logs is not null)
-        //    {
-        //        Logs = logs;
-        //    }
-        //    UserType = userType;
-        //}
 
         internal bool CompareUsername(string userName)
         {
@@ -60,7 +41,6 @@ namespace NET23_GrupprojektBank.Users
                 AddLog(EventStatus.ValidUsername);
                 return true;
             }
-            AddLog(EventStatus.InvalidUsername);
             return false;
         }
 
@@ -82,13 +62,11 @@ namespace NET23_GrupprojektBank.Users
 
         public void ShowLogs()
         {
-
-            if (Logs.Count <= 0)
-                AnsiConsole.Write("No activity has been logged.");
-            else
+            if (Logs is null)
             {
-                UserCommunications.ShowLogs(Logs);
+                Logs = new List<Log>();
             }
+            UserCommunications.ShowLogs(Logs);
         }
 
         //make better log messages, humans need to read it
