@@ -1,4 +1,5 @@
-﻿using NET23_GrupprojektBank.Users;
+﻿using NET23_GrupprojektBank.Managers.UserInteraction;
+using NET23_GrupprojektBank.Users;
 
 namespace NET23_GrupprojektBank.Managers.Login
 {
@@ -23,7 +24,7 @@ namespace NET23_GrupprojektBank.Managers.Login
             if (IsLocked)
             {
                 LockoutTimeStart = DateTime.UtcNow;
-                //return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
+                return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
             RemainingLoginAttempts--;
@@ -32,7 +33,7 @@ namespace NET23_GrupprojektBank.Managers.Login
             {
                 IsLocked = true;
                 LockoutTimeStart = DateTime.UtcNow;
-                //return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
+                return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
             User? userLogin = CurrentExistingUsers.Find(user =>

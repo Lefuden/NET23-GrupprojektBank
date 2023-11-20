@@ -10,42 +10,75 @@ namespace NET23_GrupprojektBank.Managers.Database
     internal static class DatabaseManager
     {
         // GET DATA FROM DB
-
-        internal static async Task<List<User>> GetAllUsersFromDB(string uri)
+        private static string URI { get; set; }
+        internal static void SetUriAddress(string uri)
         {
+            URI = uri;
+        }
+        internal static async Task<List<User>> GetAllUsersFromDB()
+        {
+            List<User> users = new();
+
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{uri}/User";
+                // Setting the api to get all the Customers
+                string url = $"{URI}/Customer";
                 var response = await client.GetAsync(url);
                 await Console.Out.WriteLineAsync(response.StatusCode.ToString());
-                List<User> users = new();
+
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     HandleResponse handleResponse = new HandleResponse(json);
                     users.AddRange(handleResponse.GetUserListFromResponse());
-                    return users;
                 }
                 else
                 {
                     Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
-                    return null;
                 }
+
+                // Setting the api to get all the Admins
+                url = $"{URI}/Admin";
+                response = await client.GetAsync(url);
+                await Console.Out.WriteLineAsync(response.StatusCode.ToString());
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    HandleResponse handleResponse = new HandleResponse(json);
+                    users.AddRange(handleResponse.GetUserListFromResponse());
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
+                }
+
+                // Returning the result as List<User>
+                return users;
             }
         }
-        internal static async Task<User> GetOneUserFromDB(string uri, Guid userId)
+        internal static async Task<User> GetOneUserFromDB(User user)
         {
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{uri}/User/{userId}";
+                string url = "";
+                if (user is Customer)
+                {
+                    url = $"{URI}/Customer/{user.GetUserId}";
+                }
+                else if (user is Admin)
+                {
+                    url = $"{URI}/Admin/{user.GetUserId}";
+                }
+
                 var response = await client.GetAsync(url);
                 await Console.Out.WriteLineAsync(response.StatusCode.ToString());
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     HandleResponse handleResponse = new HandleResponse(json);
-                    var user = handleResponse.GetUserFromResponse();
-                    return user;
+                    var userObject = handleResponse.GetUserFromResponse();
+                    return userObject;
                 }
                 else
                 {
@@ -55,11 +88,11 @@ namespace NET23_GrupprojektBank.Managers.Database
             }
         }
 
-        internal static async Task<List<BankAccount>> GetAllUserBankAccountsFromDB(string uri, User user)
+        internal static async Task<List<BankAccount>> GetAllUserBankAccountsFromDB(User user)
         {
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{uri}/BankAccount/{user.GetUserId()}";
+                string url = $"{URI}/BankAccount/owner/{user.GetUserId()}";
                 var response = await client.GetAsync(url);
                 await Console.Out.WriteLineAsync(response.StatusCode.ToString());
                 List<BankAccount> bankAccounts = new();
@@ -77,11 +110,11 @@ namespace NET23_GrupprojektBank.Managers.Database
                 }
             }
         }
-        internal static async Task<BankAccount> GetSpecificBankAccountFromDB(string uri, int bankAccountNumber)
+        internal static async Task<BankAccount> GetSpecificBankAccountFromDB(int bankAccountNumber)
         {
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{uri}/BankAccount/{bankAccountNumber}";
+                string url = $"{URI}/BankAccount/{bankAccountNumber}";
                 var response = await client.GetAsync(url);
                 await Console.Out.WriteLineAsync(response.StatusCode.ToString());
                 if (response.IsSuccessStatusCode)
@@ -99,42 +132,48 @@ namespace NET23_GrupprojektBank.Managers.Database
             }
         }
 
-        //internal static async Task<List<Log>> GetAllUserLogsFromDB(string uri, User user)
-        //{
-        //    using (HttpClient client = new HttpClient())
-        //    {
-        //        string url = $"{uri}/Log/owner/{user.GetUserId()}";
-        //        var response = await client.GetAsync(url);
-        //        await Console.Out.WriteLineAsync(response.StatusCode.ToString());
-        //        List<Log> users = new();
+        internal static async Task<List<Log>> GetAllUserLogsFromDB(User user)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                string url = $"{URI}/Log/owner/{user.GetUserId()}";
+                Console.WriteLine(url);
+                var response = await client.GetAsync(url);
+                await Console.Out.WriteLineAsync(response.StatusCode.ToString());
+                List<Log> userLogs = new();
 
-        //        // HÄR ÄR JAG HALLPÅ!!!!
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine(json);
+                    userLogs = JsonConvert.DeserializeObject<List<Log>>(json);
+                    return userLogs;
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
+                    return null;
+                }
+            }
+        }
 
 
-
-
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            var json = await response.Content.ReadAsStringAsync();
-        //            HandleResponse handleResponse = new HandleResponse(json);
-        //            users.AddRange(handleResponse.GetUserListFromResponse());
-        //            return users;
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine($"Failed to fetch data. Status code: {response.StatusCode}");
-        //            return null;
-        //        }
-        //    }
-        //}
         // ADD DATA TO DB
 
-        internal static async Task AddSpecificUserToDB(string apiUrl, User user)
+        internal static async Task AddSpecificUserToDB(User user)
         {
             AnsiConsole.Write(new FigletText($"Adding: {user.GetUsername()} to DB"));
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{apiUrl}/User";
+                string url = "";
+                if (user is Customer)
+                {
+                    url = $"{URI}/Customer";
+                }
+                else if (user is Admin)
+                {
+                    url = $"{URI}/Admin";
+                }
                 // Serialize bankAccount object to JSON
                 string jsonUser = JsonConvert.SerializeObject(user, Formatting.Indented);
 
@@ -158,12 +197,12 @@ namespace NET23_GrupprojektBank.Managers.Database
             }
         }
 
-        internal static async Task AddLogToDB(string uri, Log log)
+        internal static async Task AddLogToDB(Log log)
         {
             AnsiConsole.Write(new FigletText($"Adding log to DB"));
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{uri}/Log";
+                string url = $"{URI}/Log";
                 // Serialize Log object to JSON
                 string jsonLog = JsonConvert.SerializeObject(log, Formatting.Indented);
 
@@ -184,12 +223,12 @@ namespace NET23_GrupprojektBank.Managers.Database
                 }
             }
         }
-        internal static async Task AddBankAccountToDB(string uri, BankAccount bankAccount)
+        internal static async Task AddBankAccountToDB(BankAccount bankAccount)
         {
             AnsiConsole.Write(new FigletText($"Adding bank account to DB"));
             using (HttpClient client = new HttpClient())
             {
-                string url = $"{uri}/BankAccount";
+                string url = $"{URI}/BankAccount";
                 // Serialize BankAccount object to JSON
                 string jsonBankAccount = JsonConvert.SerializeObject(bankAccount, Formatting.Indented);
 
@@ -214,14 +253,22 @@ namespace NET23_GrupprojektBank.Managers.Database
 
         // UPDATE DATA IN DB
 
-        internal static async Task UpdateSpecificUserInDB(string uri, User user)
+        internal static async Task UpdateSpecificUserInDB(User user)
         {
             AnsiConsole.Write(new FigletText($"Updating {user.GetUsername()}"));
             // Create an instance of HttpClient
             using (HttpClient client = new HttpClient())
             {
                 // Construct the URL for the specific bankAccount
-                string url = $"{uri}/User/{user.GetUserId()}";
+                string url = "";
+                if (user is Customer)
+                {
+                    url = $"{URI}/Customer/{user.GetUserId}";
+                }
+                else if (user is Admin)
+                {
+                    url = $"{URI}/Admin/{user.GetUserId}";
+                }
 
 
                 string jsonUser = JsonConvert.SerializeObject(user, Formatting.Indented);
@@ -244,20 +291,20 @@ namespace NET23_GrupprojektBank.Managers.Database
             }
         }
 
-        internal static async Task UpdateSpecificBankAccountInDB(string uri, BankAccount bankAccount)
+        internal static async Task UpdateSpecificBankAccountInDB(BankAccount bankAccount)
         {
             AnsiConsole.Write(new FigletText($"Updating bank account in DB"));
             // Create an instance of HttpClient
             using (HttpClient client = new HttpClient())
             {
                 // Construct the URL for the specific bankAccount
-                string url = $"{uri}/BankAccount/{bankAccount.OwnerUserId}";
+                string url = $"{URI}/BankAccount/{bankAccount.GetAccountNumber()}";
 
 
-                string jsonUser = JsonConvert.SerializeObject(bankAccount, Formatting.Indented);
+                string jsonBankAccount = JsonConvert.SerializeObject(bankAccount, Formatting.Indented);
 
                 // Create a StringContent with the JSON body
-                StringContent content = new StringContent(jsonUser, Encoding.UTF8, "application/json");
+                StringContent content = new StringContent(jsonBankAccount, Encoding.UTF8, "application/json");
 
                 // Send the PUT request
                 HttpResponseMessage response = await client.PutAsync(url, content);
@@ -265,7 +312,7 @@ namespace NET23_GrupprojektBank.Managers.Database
                 // Check the response status
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("User updated successfully.");
+                    Console.WriteLine("Bank account updated successfully.");
                 }
                 else
                 {
@@ -275,7 +322,7 @@ namespace NET23_GrupprojektBank.Managers.Database
         }
 
 
-        internal static async Task UpdateAllUsers(string uri, List<User> users)
+        internal static async Task UpdateAllUsers(List<User> users)
         {
             AnsiConsole.Write(new FigletText($"Updating all users"));
             using (HttpClient client = new HttpClient())
@@ -283,7 +330,15 @@ namespace NET23_GrupprojektBank.Managers.Database
                 foreach (var user in users)
                 {
                     // Construct the URL for the specific bankAccount
-                    string url = $"{uri}{user.GetUserId()}";
+                    string url = "";
+                    if (user is Customer)
+                    {
+                        url = $"{URI}/Customer/{user.GetUserId}";
+                    }
+                    else if (user is Admin)
+                    {
+                        url = $"{URI}/Admin/{user.GetUserId}";
+                    }
 
                     string jsonUser = JsonConvert.SerializeObject(user, Formatting.Indented);
 
