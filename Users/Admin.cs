@@ -32,7 +32,7 @@ namespace NET23_GrupprojektBank.Users
             var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
             if (username == "-1")
             {
-                StopUserCreation("Admin creation cancelled", EventStatus.AccountCreationFailed);
+                StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
                 return null;
             }
 
@@ -47,72 +47,78 @@ namespace NET23_GrupprojektBank.Users
                 {
                     case "Email":
                         email = UserCommunications.GetEmailFromUser();
-                        if (email.EmailAddress == "-1")
+                        choices.Remove("Email");
+                        Console.Clear();
+                        switch (email.EmailAddress)
                         {
-                            choices.Remove("Email");
-                            Console.Clear();
-                            if (!UserCommunications.AskUserYesOrNo("Continue account creation without email?"))
-                            {
-                                StopUserCreation("Admin creation cancelled", EventStatus.AccountCreationFailed);
-                                return null;
-                            }
-                        }
-                        else if (email != null)
-                        {
-                            choices.Remove("Email");
+                            case "-1":
+                                AddLog(EventStatus.EmailFailed);
+                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an email?"))
+                                {
+                                    StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
+                                    return null;
+                                }
+                                break;
+                            default:
+                                AddLog(EventStatus.EmailSuccess);
+                                break;
                         }
                         break;
 
                     case "Phone":
                         phone = UserCommunications.GetPhoneFromUser();
-                        if (phone.PhoneNumber == "-1")
+                        choices.Remove("Phone");
+                        Console.Clear();
+                        switch (phone.PhoneNumber)
                         {
-                            choices.Remove("Phone");
-                            Console.Clear();
-                            if (!UserCommunications.AskUserYesOrNo("Continue account creation without phone number?"))
-                            {
-                                StopUserCreation("Admin creation cancelled", EventStatus.AccountCreationFailed);
-                                return null;
-                            }
-                        }
-                        else if (phone != null)
-                        {
-                            choices.Remove("Phone");
+                            case "-1":
+                                AddLog(EventStatus.PhoneFailed);
+                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without a phone number?"))
+                                {
+                                    StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
+                                    return null;
+                                }
+                                break;
+                            default:
+                                AddLog(EventStatus.PhoneSuccess);
+                                break;
                         }
                         break;
 
                     case "Adress":
                         adress = UserCommunications.GetAdressFromUser();
-                        if (adress.Country == "-1")
+                        choices.Remove("Adress");
+                        Console.Clear();
+                        switch (adress.Country)
                         {
-                            choices.Remove("Adress");
-                            Console.Clear();
-                            if (!UserCommunications.AskUserYesOrNo("Continue account creation without adress?"))
-                            {
-                                StopUserCreation("Admin creation cancelled", EventStatus.AccountCreationFailed);
-                                return null;
-                            }
-                        }
-                        else if (adress != null)
-                        {
-                            choices.Remove("Adress");
+                            case "-1":
+                                AddLog(EventStatus.AdressFailed);
+                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an adress?"))
+                                {
+                                    StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
+                                    return null;
+                                }
+                                break;
+                            default:
+                                AddLog(EventStatus.AdressSuccess);
+                                break;
                         }
                         break;
 
                     case "Complete":
-                        StopUserCreation("New admin has been created", EventStatus.AccountCreationSuccess);
+                        StopUserCreation("New admin has been created", EventStatus.AdminAccountCreationSuccess);
                         return new Admin(username, password,
                                new PersonInformation(firstName, lastName, dateOfBirth,
                                new ContactInformation(email, phone, adress)));
                     
                     case "Back":
-                        StopUserCreation("Admin creation cancelled", EventStatus.AccountCreationFailed);
+                        StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
                         return null;
                 }
 
                 if (choices.Count == 2)
                 {
-                    StopUserCreation("New admin has been created", EventStatus.AccountCreationSuccess);
+                    StopUserCreation("New admin has been created", EventStatus.AdminAccountCreationSuccess);
                     return new Admin(username, password,
                            new PersonInformation(firstName, lastName, dateOfBirth,
                            new ContactInformation(email, phone, adress)));
@@ -137,7 +143,7 @@ namespace NET23_GrupprojektBank.Users
             var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
             if (username == "-1")
             {
-                StopUserCreation("Customer creation cancelled", EventStatus.AccountCreationFailed);
+                StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
                 return null;
             }
 
@@ -152,72 +158,78 @@ namespace NET23_GrupprojektBank.Users
                 {
                     case "Email":
                         email = UserCommunications.GetEmailFromUser();
-                        if (email.EmailAddress == "-1")
+                        choices.Remove("Email");
+                        Console.Clear();
+                        switch (email.EmailAddress)
                         {
-                            choices.Remove("Email");
-                            Console.Clear();
-                            if (!UserCommunications.AskUserYesOrNo("Continue account creation without email?"))
-                            {
-                                StopUserCreation("Customer creation cancelled", EventStatus.AccountCreationFailed);
-                                return null;
-                            }
-                        }
-                        else if (email != null)
-                        {
-                            choices.Remove("Email");
+                            case "-1":
+                                AddLog(EventStatus.EmailFailed);
+                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an email?"))
+                                {
+                                    StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
+                                    return null;
+                                }
+                                break;
+                            default:
+                                AddLog(EventStatus.EmailSuccess);
+                                break;
                         }
                         break;
 
                     case "Phone":
                         phone = UserCommunications.GetPhoneFromUser();
-                        if (phone.PhoneNumber == "-1")
+                        choices.Remove("Phone");
+                        Console.Clear();
+                        switch (phone.PhoneNumber)
                         {
-                            choices.Remove("Phone");
-                            Console.Clear();
-                            if (!UserCommunications.AskUserYesOrNo("Continue account creation without phone number?"))
-                            {
-                                StopUserCreation("Customer creation cancelled", EventStatus.AccountCreationFailed);
-                                return null;
-                            }
-                        }
-                        else if (phone != null)
-                        {
-                            choices.Remove("Phone");
+                            case "-1":
+                                AddLog(EventStatus.PhoneFailed);
+                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without a phone number?"))
+                                {
+                                    StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
+                                    return null;
+                                }
+                                break;
+                            default:
+                                AddLog(EventStatus.PhoneSuccess);
+                                break;
                         }
                         break;
 
                     case "Adress":
                         adress = UserCommunications.GetAdressFromUser();
-                        if (adress.Country == "-1")
+                        choices.Remove("Adress");
+                        Console.Clear();
+                        switch (adress.Country)
                         {
-                            choices.Remove("Adress");
-                            Console.Clear();
-                            if (!UserCommunications.AskUserYesOrNo("Continue account creation without adress?"))
-                            {
-                                StopUserCreation("Customer creation cancelled", EventStatus.AccountCreationFailed);
-                                return null;
-                            }
-                        }
-                        else if (adress != null)
-                        {
-                            choices.Remove("Adress");
+                            case "-1":
+                                AddLog(EventStatus.AdressFailed);
+                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an adress?"))
+                                {
+                                    StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
+                                    return null;
+                                }
+                                break;
+                            default:
+                                AddLog(EventStatus.AdressSuccess);
+                                break;
                         }
                         break;
 
                     case "Complete":
-                        StopUserCreation("New customer has been created", EventStatus.AccountCreationSuccess);
+                        StopUserCreation("New customer has been created", EventStatus.CustomerAccountCreationSuccess);
                         return new Customer(username, password,
                                new PersonInformation(firstName, lastName, dateOfBirth,
                                new ContactInformation(email, phone, adress)));
                     
                     case "Back":
-                        StopUserCreation("Customer creation cancelled", EventStatus.AccountCreationFailed);
+                        StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
                         return null;
                 }
 
                 if (choices.Count == 2)
                 {
-                    StopUserCreation("New customer has been created", EventStatus.AccountCreationSuccess);
+                    StopUserCreation("New customer has been created", EventStatus.CustomerAccountCreationSuccess);
                     return new Customer(username, password,
                            new PersonInformation(firstName, lastName, dateOfBirth,
                            new ContactInformation(email, phone, adress)));

@@ -74,6 +74,10 @@ namespace NET23_GrupprojektBank.Users
             {
                 return eventStatus switch
                 {
+                    EventStatus.AdminAccountCreationSuccess => $"{Username} created an admin account",
+                    EventStatus.AdminAccountCreationFailed => $"{Username} failed to create admin account",
+                    EventStatus.CustomerAccountCreationSuccess => $"{Username} created a customer account",
+                    EventStatus.CustomerAccountCreationFailed => $"{Username} failed to create customer account",
                     EventStatus.AdressFailed => $"{Username} failed to add address",
                     EventStatus.AdressSuccess => $"{Username} added an address",
                     EventStatus.CheckingCreationFailed => $"{Username} failed to create a checking account",

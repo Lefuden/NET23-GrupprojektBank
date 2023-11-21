@@ -1,4 +1,3 @@
-﻿
 namespace NET23_GrupprojektBank.Managers
 {
     public enum EventStatus
@@ -43,8 +42,10 @@ namespace NET23_GrupprojektBank.Managers
         InvalidUsername,
         ValidPassword,
         InvalidPassword,
-        AccountCreationSuccess,
-        AccountCreationFailed,
+        AdminAccountCreationSuccess,
+        AdminAccountCreationFailed,
+        CustomerAccountCreationSuccess,
+        CustomerAccountCreationFailed,
         AdressSuccess,
         AdressFailed,
         EmailSuccess,
