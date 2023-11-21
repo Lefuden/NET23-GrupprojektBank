@@ -1,6 +1,8 @@
-﻿namespace NET23_GrupprojektBank.Managers
+﻿using NET23_GrupprojektBank.Managers;
+ 
+namespace NET23_GrupprojektBank.Managers
 {
-    public enum EventStatus
+        public enum EventStatus
     {
         LoginSuccess,
         LoginFailed,
