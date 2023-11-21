@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics
 {
@@ -12,7 +11,6 @@ namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Spe
             EmailAddress = emailAddress;
         }
 
-        [JsonConstructor]
         public Email(string emailAddress, string workEmailAddress)
         {
             EmailAddress = emailAddress;

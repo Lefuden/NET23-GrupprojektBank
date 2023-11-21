@@ -23,7 +23,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             var choice = AnsiConsole.Prompt(currencyChoices);
             Console.Clear();
-            return Enum.TryParse(choice, out CurrencyType test) ? test : CurrencyType.SEK;
+            return Enum.TryParse(choice, out CurrencyType selectedType) ? selectedType : CurrencyType.SEK;
         }
         public static Email GetEmailFromUser()
         {
@@ -82,6 +82,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 while (true)
                 {
                     phone = AnsiConsole.Ask<string>("[green]Phone number (10 digits)[/]:");
+                    if (phone == "-1") return new Phone("-1");
                     if (phone.Length != 10)
                     {
                         AnsiConsole.MarkupLine("[red]Invalid number length (10 digits)[/]");
@@ -111,7 +112,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
         public static Address GetAdressFromUser()
         {
-            WriteDivider("Address Information");
+            WriteDivider("Adress Information");
             while (true)
             {
                 Console.WriteLine("Enter adress information.");
@@ -197,11 +198,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 string? username;
                 while (true)
                 {
-                    username = AnsiConsole.Ask<string>("[green]Username[/]:");
+                    username = AnsiConsole.Ask<string>("[green]Username (minimum 5 characters)[/]:");
                     if (username == "-1") return ("-1", "", "", "", DateTime.Now);
                     if (existingUsernames.Contains(username))
                     {
                         Console.WriteLine($"{username} already exists, enter a valid username:");
+                    }else if (username.Length < 5)
+                    {
+                        Console.WriteLine($"{username} is too short, enter a valid username:");
                     }
                     else
                     {
@@ -584,36 +588,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 Thread.Sleep(1000);
             }
             return EventStatus.LoginUnlocked;
-        }
-
-
-        public static string GetBankAccountDetails(List<BankAccount> bankAccounts)
-        {
-            var accounts = new SelectionPrompt<string>()
-                .Title("Choose account")
-                .PageSize(20);
-
-            foreach (var account in bankAccounts)
-            {
-                switch (account)
-                {
-                    case Savings savingsAccount:
-                        {
-                            var accountDetails = savingsAccount.GetAccountInformation();
-                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency} {accountDetails.Interest}");
-                            break;
-                        }
-                    case Checking checkingAccount:
-                        {
-                            var accountDetails = checkingAccount.GetAccountInformation();
-                            accounts.AddChoice($"{accountDetails.Number} {accountDetails.Name} {accountDetails.Balance} {accountDetails.Currency}");
-                            break;
-                        }
-                }
-            }
-
-            var choice = AnsiConsole.Prompt(accounts);
-            return choice;
         }
     }
 }

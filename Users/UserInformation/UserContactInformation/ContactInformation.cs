@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
-using Newtonsoft.Json;
 
 namespace NET23_GrupprojektBank.Users.UserContactInformation
 {
@@ -9,7 +8,6 @@ namespace NET23_GrupprojektBank.Users.UserContactInformation
         public Phone? Phone { get; set; }
         public Address? Address { get; set; }
 
-        [JsonConstructor]
         public ContactInformation(Email email, Phone phone, Address address)
         {
             Email = email;

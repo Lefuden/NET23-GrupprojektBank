@@ -15,7 +15,6 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Admin;
         }
 
-
         public Admin CreateAdminAccount(List<string> existingUsernames)
         {
             var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
@@ -25,39 +24,65 @@ namespace NET23_GrupprojektBank.Users
             {
                 AnsiConsole.MarkupLine("[green]Admin has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
+                UserCommunications.FakeBackChoice("Ok");
                 return new Admin(username, password,
                        new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(new Email(""))));
             }
 
             Email email = UserCommunications.GetEmailFromUser();
-            if (email.EmailAddress == "-1") return null;
+            if (email.EmailAddress == "-1")
+            {
+                Console.Clear();
+                if (!UserCommunications.AskUserYesOrNo("Continue account creation without email?"))
+                {
+                    return null;
+                }
+            }
 
             if (!UserCommunications.AskUserYesOrNo("Add more information?"))
             {
                 AnsiConsole.MarkupLine("[green]Admin has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
+                UserCommunications.FakeBackChoice("Ok");
                 return new Admin(username, password,
                        new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(email)));
             }
 
             Phone phone = UserCommunications.GetPhoneFromUser();
-            if (phone.PhoneNumber == "-1") return null;
+            if (phone.PhoneNumber == "-1")
+            {
+                Console.Clear();
+                if (!UserCommunications.AskUserYesOrNo("Continue account creation without phone number?"))
+                {
+                    return null;
+                }
+            }
 
             if (!UserCommunications.AskUserYesOrNo("Add more information?"))
             {
                 AnsiConsole.MarkupLine("[green]Admin has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
+                UserCommunications.FakeBackChoice("Ok");
                 return new Admin(username, password,
                        new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(email, phone)));
             }
 
             Address adress = UserCommunications.GetAdressFromUser();
-            if (adress.Country == "-1") return null;
+            if (adress.Country == "-1")
+            {
+                Console.Clear();
+                if (!UserCommunications.AskUserYesOrNo("Continue account creation without adress?"))
+                {
+                    return null;
+                }
+            }
+
             AnsiConsole.MarkupLine("[green]Admin has been created[/]");
             AddLog(EventStatus.AccountCreationSuccess);
+            UserCommunications.FakeBackChoice("Ok");
             return new Admin(username, password,
                    new PersonInformation(firstName, lastName, dateOfBirth,
                    new ContactInformation(email, phone, adress)));
@@ -66,47 +91,52 @@ namespace NET23_GrupprojektBank.Users
         public Customer CreateCustomerAccount(List<string> existingUsernames)
         {
             var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
-
-            if (username == "-1")
-            {
-                return null;
-            }
+            if (username == "-1") return null;
 
             if (!UserCommunications.AskUserYesOrNo("Add more information?"))
             {
                 AnsiConsole.MarkupLine("[green]Customer has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
+                UserCommunications.FakeBackChoice("Ok");
                 return new Customer(username, password,
                        new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(new Email(""))));
             }
 
             Email email = UserCommunications.GetEmailFromUser();
-
             if (email.EmailAddress == "-1")
             {
-                return null;
+                Console.Clear();
+                if (!UserCommunications.AskUserYesOrNo("Continue account creation without email?"))
+                {
+                    return null;
+                }
             }
 
             if (!UserCommunications.AskUserYesOrNo("Add more information?"))
             {
                 AnsiConsole.MarkupLine("[green]Customer has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
+                UserCommunications.FakeBackChoice("Ok");
                 return new Customer(username, password,
                        new PersonInformation(firstName, lastName, dateOfBirth,
                        new ContactInformation(email)));
             }
 
             Phone phone = UserCommunications.GetPhoneFromUser();
-
             if (phone.PhoneNumber == "-1")
             {
-                return null;
+                Console.Clear();
+                if (!UserCommunications.AskUserYesOrNo("Continue account creation without phone number?"))
+                {
+                    return null;
+                }
             }
 
             if (!UserCommunications.AskUserYesOrNo("Add more information?"))
             {
                 AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                UserCommunications.FakeBackChoice("Ok");
                 AddLog(EventStatus.AccountCreationSuccess);
                 return new Customer(username, password,
                        new PersonInformation(firstName, lastName, dateOfBirth,
@@ -114,22 +144,22 @@ namespace NET23_GrupprojektBank.Users
             }
 
             Address adress = UserCommunications.GetAdressFromUser();
-
             if (adress.Country == "-1")
             {
-                return null;
+                Console.Clear();
+                if (!UserCommunications.AskUserYesOrNo("Continue account creation without adress?"))
+                {
+                    return null;
+                }
             }
 
             AnsiConsole.MarkupLine("[green]Customer has been created[/]");
             AddLog(EventStatus.AccountCreationSuccess);
+            UserCommunications.FakeBackChoice("Ok");
             return new Customer(username, password,
-                new PersonInformation(firstName, lastName, dateOfBirth,
-                new ContactInformation(email, phone, adress)));
+                   new PersonInformation(firstName, lastName, dateOfBirth, 
+                   new ContactInformation(email, phone, adress)));
         }
-
-
-
-
 
         public void UpdateCurrencyExchangeRate()
         {
