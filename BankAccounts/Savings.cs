@@ -16,7 +16,7 @@ namespace NET23_GrupprojektBank.BankAccounts
             Interest = interest;
         }
 
-        public (string Type, string Name, string Number, string Balance, string Currency, string Interest) GetAccountInformation()
+        public override (string Type, string Name, string Number, string Balance, string Currency, string Interest) GetAccountInformation()
         {
             return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), $"{Balance:.00}", CurrencyType.ToString(), $"{Interest:p}".ToString());
         }
