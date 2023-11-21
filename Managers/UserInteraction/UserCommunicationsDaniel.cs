@@ -9,10 +9,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
     {
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeDepositMenu(List<BankAccount> bankAccounts)
         {
-            WriteDivider($"Withdrawal Menu");
-
+            WriteDivider($"Deposit Menu");
             var accountChoices = new List<string>();
-            // (string Type, string Name, string Number, string Balance, string Currency, string Interest) info = new();
 
             foreach (var account in bankAccounts)
             {
@@ -29,25 +27,18 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
 
             accountChoices.Add("Exit");
-
             var selectedAccountChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .PageSize(5)
-                    .Title("Select an Account to Withdraw from")
+                    .Title("Select an account to deposit to")
                     .MoreChoicesText("Scroll down for more options")
                     .AddChoices(accountChoices)
             );
 
-
-
-
             string pattern = @"\[red bold\](\d+)\[/\]";
             Regex regex = new Regex(pattern);
 
-
             int choosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
-
-
             var selectedAccount = bankAccounts.FirstOrDefault(account =>
             {
                 if (account.GetAccountNumber() == choosenAccountNumber)
@@ -63,55 +54,48 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 string balance;
                 string currencyType;
 
-                if (selectedAccount is Checking)
+                switch (selectedAccount)
                 {
-                    var checkingAccount = selectedAccount as Checking;
-                    var info = checkingAccount.GetAccountInformation();
-                    accountName = info.Name;
-                    balance = info.Balance;
-                    currencyType = info.Currency;
-                }
-                else if (selectedAccount is Savings)
-                {
-                    var savingsAccount = selectedAccount as Savings;
-                    var info = savingsAccount.GetAccountInformation();
-                    accountName = info.Name;
-                    balance = info.Balance;
-                    currencyType = info.Currency;
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
-                    return default;
+                    case Checking checkingAccount:
+                    {
+                        var info = checkingAccount.GetAccountInformation();
+                        accountName = info.Name;
+                        balance = info.Balance;
+                        currencyType = info.Currency;
+                        break;
+                    }
+                    case Savings savingsAccount:
+                    {
+                        var info = savingsAccount.GetAccountInformation();
+                        accountName = info.Name;
+                        balance = info.Balance;
+                        currencyType = info.Currency;
+                        break;
+                    }
+                    default:
+                        AnsiConsole.MarkupLine("[red]Selected account type is not supported for deposits.[/]");
+                        return default;
                 }
 
-                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{accountName}[/]");
+                AnsiConsole.MarkupLine($"[purple]Account name:[/] [green]{accountName}[/]");
                 AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currencyType}[/]");
-                AnsiConsole.MarkupLine($"[purple]Withdraw from[/]  [green]{accountName}[/]");
-
-                decimal withdrawalAmount;
-                decimal maxWithdrawal;
-
-                if (!decimal.TryParse(balance, out maxWithdrawal))
-                {
-                    AnsiConsole.MarkupLine("[red]Invalid balance value.[/]");
-                }
+                AnsiConsole.MarkupLine($"[purple]Deposit to:[/]  [green]{accountName}[/]");
 
                 while (true)
                 {
-                    string input = AnsiConsole.Ask<string>($"[purple]How Much Would You Like To Withdraw?[/] [gold1](Maximum: {maxWithdrawal})[/]");
+                    string input = AnsiConsole.Ask<string>($"[purple]How much would you like to deposit?[/]");
 
-                    if (!decimal.TryParse(input, out withdrawalAmount) || withdrawalAmount <= 0 || withdrawalAmount > maxWithdrawal)
+                    if (!decimal.TryParse(input, out decimal depositAmount) || depositAmount <= 0)
                     {
-                        AnsiConsole.MarkupLine($"[red]Please enter a valid withdrawal amount between 0 and {maxWithdrawal}.[/]");
+                        AnsiConsole.MarkupLine($"[red]Please enter a valid desposit amount[/]");
                     }
                     else
                     {
                         decimal currentBalance = decimal.Parse(balance);
-                        currentBalance -= withdrawalAmount;
+                        currentBalance += depositAmount;
                         balance = currentBalance.ToString();
 
-                        AnsiConsole.MarkupLine($"[green]{withdrawalAmount:c} {currencyType}[/] [purple]has been withdrawn from {accountName}[/]");
+                        AnsiConsole.MarkupLine($"[green]{depositAmount:c} {currencyType}[/] [purple]has been deposited to {accountName}[/]");
 
                         string stringChoice = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
@@ -126,7 +110,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                         if (stringChoice == "Back")
                         {
                             CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
-                            return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, withdrawalAmount);
+                            return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, depositAmount);
                         }
                         else if (stringChoice == "Exit")
                         {
@@ -137,7 +121,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
             else
             {
-                AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
+                AnsiConsole.MarkupLine("[red]Selected account type is not supported for deposit.[/]");
                 return default;
             }
         }
