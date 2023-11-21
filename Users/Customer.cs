@@ -109,7 +109,7 @@ namespace NET23_GrupprojektBank.Users
             var info = UserCommunications.MakeDepositMenu(BankAccounts);
             AddLog(EventStatus.DepositCreated);
 
-            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Deposit, info.Sum);
         }
 
         public Transaction MakeTransfer()
@@ -117,14 +117,7 @@ namespace NET23_GrupprojektBank.Users
             var info = UserCommunications.MakeTransferMenu(BankAccounts);
             AddLog(EventStatus.TransferCreated);
 
-            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Transfer, info.Sum);
         }
-        private Transaction CreateTransaction()
-        {
-            throw new NotImplementedException();
-        }
-
-
-
     }
 }
