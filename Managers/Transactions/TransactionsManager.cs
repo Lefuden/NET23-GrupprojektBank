@@ -58,7 +58,7 @@ namespace NET23_GrupprojektBank.Managers.Transactions
         }
         private void HandleQueuedTransactions()
         {
-            AnsiConsole.MarkupLine("[green]Taking care of transactions woop woop[/]");
+            //AnsiConsole.MarkupLine("[green]Taking care of transactions woop woop[/]");
 
             while (Transactions.Count > 0)
             {
