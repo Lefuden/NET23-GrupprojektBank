@@ -1,17 +1,21 @@
-﻿using NET23_GrupprojektBank.Managers.Login;
+﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Currency;
+using NET23_GrupprojektBank.Managers.Login;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+using Spectre.Console;
+using Transaction = NET23_GrupprojektBank.Managers.Transactions.Transaction;
 
 namespace NET23_GrupprojektBank.Managers.Logic
 {
     internal class LogicManager
     {
         private List<User> Users { get; set; }
-        private LoginManager? LoginManager { get; set; }
+        private LoginManager LoginManager { get; set; }
         private Customer? CurrentCustomer { get; set; }
         private Admin? CurrentAdmin { get; set; }
         private TransactionsManager TransactionsManager { get; set; }
@@ -19,38 +23,97 @@ namespace NET23_GrupprojektBank.Managers.Logic
         private UserChoice PreviousChoice { get; set; }
         private bool KeepRunning { get; set; }
 
-        public LogicManager(bool usingDatabase = false)
+        public LogicManager()
         {
-
             TransactionsManager = new();
             Choice = UserChoice.ViewWelcomeMenu;
             PreviousChoice = UserChoice.ViewWelcomeMenu;
             KeepRunning = true;
             CurrentCustomer = default;
             CurrentAdmin = default;
+            Users = InitializeTestUsers();
+            CreateBankAccountsForTestUsers();
+            LoginManager = new(Users);
 
-            if (usingDatabase)
-            {
-                // CurrentExisingUsers = GetAllUsersFromDb
-            }
-            else
-            {
-                Users = new()
+        }
+
+        private List<User> InitializeTestUsers()
+        {
+            List<User> users = new()
                 {
+                    new Admin("ATobias",   "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
+                    new Admin("ADaniel",   "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel.admin@edugrade.com")))),
+                    new Admin("AWille",    "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille.admin@edugrade.com")))),
+                    new Admin("AEfrem",    "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem.admin@edugrade.com")))),
                     new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
                     new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Skog",    new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
                     new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
                 };
+            foreach (var user in users)
+            {
+                user.AddLog(EventStatus.AccountCreationSuccess);
             }
-            LoginManager = new(Users);
+            return users;
+        }
+        private void CreateBankAccountsForTestUsers()
+        {
+            foreach (var user in Users)
+            {
+                user.AddLog(EventStatus.AccountCreationSuccess);
+                Random rng = new Random();
+                if (user is Customer customer)
+                {
+                    decimal sum;
+                    int amountOfAccounts = rng.Next(2, 6);
+                    for (int i = 0; i < amountOfAccounts; i++)
+                    {
+                        sum = rng.Next(0, 1001);
+                        customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum));
+                        customer.AddLog(EventStatus.CheckingCreationSuccess);
+
+                        sum = rng.Next(0, 1001);
+                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, Customer.DecideInterestRate(customer.GetBankAccounts())));
+                        customer.AddLog(EventStatus.SavingsCreationSuccess);
+                    }
+
+                }
+            }
+        }
+        private string CreateAmazingAccountName(int i, string name)
+        {
+            return i switch
+            {
+                0 => $"{name}'s Hemliga Godis Konto",
+                1 => $"{name}'s Semester Konto",
+                2 => $"{name}'s Mat Konto",
+                3 => $"{name}'s Reservdels Konto för Ockelbon",
+                4 => $"{name}'s Tomma Konto",
+                5 => $"{name}'s Hemliga Honungs Konto",
+                _ => $"{name}'s Något Blev Fel Konto"
+            };
         }
 
         public void GetUserChoice()
         {
-            EventStatus eventStatus;
+            //Users = await DatabaseManager.GetAllUsersFromDB();
+            // IF you want to test the currency exchange rate uncomment these 2 lines
+            CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType.Admin).Wait();
+            UserCommunications.TestCurrencyExchangeRate();
+            foreach (var user in Users)
+            {
+                if (user is Customer customer)
+                {
+                    var transaction = new Transaction(customer, customer, customer.BankAccounts[0], customer.BankAccounts[1], CurrencyType.SEK, CurrencyType.EUR, DateTime.UtcNow, TransactionType.Transfer, 250);
+                    TransactionsManager.AddTransaction(transaction);
+                }
+            }
+
+            TransactionsManager.Start();
+
             while (KeepRunning)
             {
+                Console.Clear();
                 switch (Choice)
                 {
                     case UserChoice.ViewWelcomeMenu:
@@ -70,13 +133,13 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     if (info.User is Customer customer)
                                     {
                                         CurrentCustomer = customer;
-                                        CurrentCustomer.Addlog(info.EventStatus);
+                                        CurrentCustomer.AddLog(info.EventStatus);
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
-                                    if (info.User is Admin admin)
+                                    else if (info.User is Admin admin)
                                     {
                                         CurrentAdmin = admin;
-                                        CurrentAdmin.Addlog(info.EventStatus);
+                                        CurrentAdmin.AddLog(info.EventStatus);
                                         Choice = UserChoice.ViewAdminMenu;
                                     }
                                     else
@@ -90,8 +153,9 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                 Choice = UserChoice.Login;
                                 break;
 
-                            case EventStatus.LoginLocked:
-                                Choice = UserChoice.ViewLockedMenu;
+                            case EventStatus.LoginUnlocked:
+                                Choice = UserChoice.ViewWelcomeMenu;
+                                LoginManager.ResetLoginLockout();
                                 break;
 
                             default:
@@ -113,7 +177,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         break;
 
                     case UserChoice.Exit:
-                        Exit();
+                        Exit().Wait();
                         break;
 
                     case UserChoice.ViewAdminMenu:
@@ -130,7 +194,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeTransfer();
+                            Transaction newTransaction = CurrentCustomer.MakeTransfer();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -144,7 +212,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeDeposit();
+                            Transaction newTransaction = CurrentCustomer.MakeDeposit();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -158,7 +230,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeWithdrawal();
+                            Transaction newTransaction = CurrentCustomer.MakeWithdrawal();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
                         }
                         else
@@ -172,8 +248,12 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
+                            Transaction newTransaction = CurrentCustomer.MakeLoan();
+                            if (newTransaction is not null)
+                            {
+                                TransactionsManager.AddTransaction(newTransaction);
+                            }
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.MakeLoan();
                         }
                         else
                         {
@@ -189,7 +269,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                             CurrentCustomer.ShowLogs();
                             Choice = UserChoice.ViewCustomerMenu;
                         }
-                        if (CurrentAdmin is not null)
+                        else if (CurrentAdmin is not null)
                         {
                             PreviousChoice = UserChoice.ViewAdminMenu;
                             CurrentAdmin.ShowLogs();
@@ -215,7 +295,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Choice = CurrentCustomer.CreateBankAccount();
+                            Choice = UserCommunications.CreateBankAccount();
                         }
                         else
                         {
@@ -229,7 +309,8 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.CreateCheckingAccount();
+                            var unavailableAccountNumbers = GetBankAccountNumbers();
+                            CurrentCustomer.CreateBankAccount(unavailableAccountNumbers, BankAccountType.Checking);
                         }
                         else
                         {
@@ -243,25 +324,13 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Choice = UserChoice.ViewCustomerMenu;
-                            CurrentCustomer.CreateSavingsAccount();
+                            var unavailableAccountNumbers = GetBankAccountNumbers();
+                            CurrentCustomer.CreateBankAccount(unavailableAccountNumbers, BankAccountType.Savings);
                         }
                         else
                         {
                             PreviousChoice = UserChoice.ViewAdminMenu;
                             Choice = UserChoice.ViewAdminMenu;
-                        }
-                        break;
-
-                    case UserChoice.CreateUser:
-                        if (CurrentAdmin is not null)
-                        {
-                            PreviousChoice = UserChoice.ViewAdminMenu;
-                            Choice = CurrentAdmin.CreateUserAccount();
-                        }
-                        else
-                        {
-                            PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Choice = UserChoice.ViewCustomerMenu;
                         }
                         break;
 
@@ -337,14 +406,38 @@ namespace NET23_GrupprojektBank.Managers.Logic
             }
 
         }
-
-        private void AddNewUser(User user)
+        private List<int> GetBankAccountNumbers()
         {
-            if (Users is not null && user is not null)
+            List<int> bankAccountNumbers = new();
+            foreach (var user in Users)
             {
-                Users.Add(user);
+                if (user is Customer customer)
+                {
+                    foreach (var bankAccountList in customer.GetBankAccounts())
+                    {
+                        bankAccountNumbers.Add(bankAccountList.GetAccountNumber());
+                    }
+                }
+            }
+
+            return bankAccountNumbers;
+        }
+        private void AddNewUser(User newUser)
+        {
+            if (Users is not null && newUser is not null)
+            {
+                if (Users.Exists(user => user.Equals(newUser)))
+                {
+                    AnsiConsole.Write("User already exists!");
+                }
+                else
+                {
+                    // await DatabaseManager.AddSpecificUserToDB(newUser);
+                    Users.Add(newUser);
+                }
             }
         }
+
         private List<string> GetAllUsernames()
         {
             var usernameList = new List<string>();
@@ -358,155 +451,20 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
         private void Logout()
         {
+            //Users = await DatabaseManager.GetAllUsersFromDB();
             LoginManager = new(Users);
             CurrentAdmin = null;
             CurrentCustomer = null;
+
         }
-        private void Exit()
+        private async Task Exit()
         {
+            //Users = await DatabaseManager.GetAllUsersFromDB();
+            //await DatabaseManager.UpdateAllUsers(Users);
+            await TransactionsManager.StopAsync();
             KeepRunning = false;
             Choice = UserChoice.Exit;
         }
-
-        // DETTA SKA BORT! GÖR BARA LITE TESTER HÄR!
-
     }
 }
-
-
-
-//    private static UserChoice ConvertEventStatusToUserChoice(EventStatus eventStatus)
-//    {
-//        return eventStatus switch
-//        {
-//            EventStatus.LoginSuccess => UserChoice.ViewCustomerMenu,
-//            EventStatus.LoginFailed => /* Handle LoginFailed */,
-//            EventStatus.LoginLocked => /* Handle LoginLocked */,
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => /* Handle CurrencyExchangeRateUpdateSuccess */,
-//            EventStatus.CurrencyExchangeRateUpdateFailed => /* Handle CurrencyExchangeRateUpdateFailed */,
-//            EventStatus.CheckingCreationSuccess => /* Handle CheckingCreationSuccess */,
-//            EventStatus.CheckingCreationFailed => /* Handle CheckingCreationFailed */,
-//            EventStatus.SavingsCreationSuccess => /* Handle SavingsCreationSuccess */,
-//            EventStatus.SavingCreationFailed => /* Handle SavingCreationFailed */,
-//            EventStatus.TransactionSuccess => /* Handle TransactionSuccess */,
-//            EventStatus.TransactionFailed => /* Handle TransactionFailed */,
-//            EventStatus.DepositSuccess => /* Handle DepositSuccess */,
-//            EventStatus.DepositFailed => /* Handle DepositFailed */,
-//            EventStatus.WithdrawalSuccess => /* Handle WithdrawalSuccess */,
-//            EventStatus.WithdrawalFailed => /* Handle WithdrawalFailed */,
-//            EventStatus.TransferSuccess => /* Handle TransferSuccess */,
-//            EventStatus.TransferFailed => /* Handle TransferFailed */,
-//            EventStatus.LoanSuccess => /* Handle LoanSuccess */,
-//            EventStatus.LoanFailed => /* Handle LoanFailed */,
-//            EventStatus.AccountCreationSuccess => /* Handle AccountCreationSuccess */,
-//            EventStatus.AccountCreationFailed => /* Handle AccountCreationFailed */,
-//            EventStatus.AdressSuccess => /* Handle AdressSuccess */,
-//            EventStatus.AdressFailed => /* Handle AdressFailed */,
-//            EventStatus.EmailSuccess => /* Handle EmailSuccess */,
-//            EventStatus.EmailFailed => /* Handle EmailFailed */,
-//            EventStatus.PhoneSuccess => /* Handle PhoneSuccess */,
-//            EventStatus.PhoneFailed => /* Handle PhoneFailed */,
-//            EventStatus.ContactInformationSuccess => /* Handle ContactInformationSuccess */,
-//            EventStatus.ContactInformationFailed => /* Handle ContactInformationFailed */,
-//            EventStatus.InvalidInput => /* Handle InvalidInput */,
-//            EventStatus.TransactionManagerAddedToQueueSuccess => /* Handle TransactionManagerAddedToQueueSuccess */,
-//            EventStatus.TransactionManagerAddedToQueueFailed => /* Handle TransactionManagerAddedToQueueFailed */,
-//            EventStatus.NonAdminUser => /* Handle NonAdminUser */,
-//            EventStatus.AdminUpdatedCurrencyFromFile => /* Handle AdminUpdatedCurrencyFromFile */,
-//            EventStatus.AdminUpdatedCurrencyFromWebApi => /* Handle AdminUpdatedCurrencyFromWebApi */,
-//            EventStatus.AdminInvalidInput => /* Handle AdminInvalidInput */,
-//        }
-
-
-//}
-
-//internal static class EventStatusManager
-//{
-//    public static Log GetLogFromEventStatus(EventStatus eventStatus, User? user = default)
-//    {
-//        if (user is null)
-//        {
-//            return new Log(DateTime.UtcNow, GetLogMessage(eventStatus));
-//        }
-
-//        return new Log(DateTime.UtcNow, user, GetLogMessage(eventStatus));
-
-//    }
-//    public static string GetLogMessage(EventStatus eventStatus)
-//    {
-//        return eventStatus switch
-//        {
-//            EventStatus.LoginSuccess => /* Handle LoginSuccess */,
-//            EventStatus.LoginFailed => /* Handle LoginFailed */,
-//            EventStatus.LoginLocked => /* Handle LoginLocked */,
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => /* Handle CurrencyExchangeRateUpdateSuccess */,
-//            EventStatus.CurrencyExchangeRateUpdateFailed => /* Handle CurrencyExchangeRateUpdateFailed */,
-//            EventStatus.CheckingCreationSuccess => /* Handle CheckingCreationSuccess */,
-//            EventStatus.CheckingCreationFailed => /* Handle CheckingCreationFailed */,
-//            EventStatus.SavingsCreationSuccess => /* Handle SavingsCreationSuccess */,
-//            EventStatus.SavingCreationFailed => /* Handle SavingCreationFailed */,
-//            EventStatus.TransactionSuccess => /* Handle TransactionSuccess */,
-//            EventStatus.TransactionFailed => /* Handle TransactionFailed */,
-//            EventStatus.DepositSuccess => /* Handle DepositSuccess */,
-//            EventStatus.DepositFailed => /* Handle DepositFailed */,
-//            EventStatus.WithdrawalSuccess => /* Handle WithdrawalSuccess */,
-//            EventStatus.WithdrawalFailed => /* Handle WithdrawalFailed */,
-//            EventStatus.TransferSuccess => /* Handle TransferSuccess */,
-//            EventStatus.TransferFailed => /* Handle TransferFailed */,
-//            EventStatus.LoanSuccess => /* Handle LoanSuccess */,
-//            EventStatus.LoanFailed => /* Handle LoanFailed */,
-//            EventStatus.AccountCreationSuccess => /* Handle AccountCreationSuccess */,
-//            EventStatus.AccountCreationFailed => /* Handle AccountCreationFailed */,
-//            EventStatus.AdressSuccess => /* Handle AdressSuccess */,
-//            EventStatus.AdressFailed => /* Handle AdressFailed */,
-//            EventStatus.EmailSuccess => /* Handle EmailSuccess */,
-//            EventStatus.EmailFailed => /* Handle EmailFailed */,
-//            EventStatus.PhoneSuccess => /* Handle PhoneSuccess */,
-//            EventStatus.PhoneFailed => /* Handle PhoneFailed */,
-//            EventStatus.ContactInformationSuccess => /* Handle ContactInformationSuccess */,
-//            EventStatus.ContactInformationFailed => /* Handle ContactInformationFailed */,
-//            EventStatus.InvalidInput => /* Handle InvalidInput */,
-//            EventStatus.TransactionManagerAddedToQueueSuccess => /* Handle TransactionManagerAddedToQueueSuccess */,
-//            EventStatus.TransactionManagerAddedToQueueFailed => /* Handle TransactionManagerAddedToQueueFailed */,
-//            EventStatus.NonAdminUser => /* Handle NonAdminUser */,
-//            EventStatus.AdminUpdatedCurrencyFromFile => /* Handle AdminUpdatedCurrencyFromFile */,
-//            EventStatus.AdminUpdatedCurrencyFromWebApi => /* Handle AdminUpdatedCurrencyFromWebApi */,
-//            EventStatus.AdminInvalidInput => /* Handle AdminInvalidInput */,
-
-
-
-//            EventStatus.AccountCreationFailed => $"{Username} failed to create account",
-//            EventStatus.AccountCreationSuccess => $"{Username} successfully created an account",
-//            EventStatus.AdressFailed => $"{Username} failed to add address",
-//            EventStatus.AdressSuccess => $"{Username} has added an address",
-//            EventStatus.CheckingCreationFailed => $"{Username} checking account creation failed",
-//            EventStatus.CheckingCreationSuccess => $"{Username} checking account creation is a great success",
-//            EventStatus.ContactInformationFailed => $"{Username} ContactInformationFailed",
-//            EventStatus.ContactInformationSuccess => $"{Username} ContactInformationSuccess",
-//            EventStatus.CurrencyExchangeRateUpdateFailed => $"{Username} CurrencyExchangeRateUpdateFailed",
-//            EventStatus.CurrencyExchangeRateUpdateSuccess => $"{Username} CurrencyExchangeRateUpdateSuccess",
-//            EventStatus.DepositFailed => $"{Username} DepositFailed",
-//            EventStatus.DepositSuccess => $"{Username} DepositSuccess",
-//            EventStatus.EmailFailed => $"{Username} EmailFailed",
-//            EventStatus.EmailSuccess => $"{Username} EmailSuccess",
-//            EventStatus.InvalidInput => $"{Username} InvalidInput",
-//            EventStatus.LoanFailed => $"{Username} LoanFailed",
-//            EventStatus.LoanSuccess => $"{Username} LoanSuccess",
-//            EventStatus.LoginFailed => $"{Username} LoginFailed",
-//            EventStatus.LoginSuccess => $"{Username} LoginSuccess",
-//            EventStatus.LoginLocked => $"{Username} LoginLocked",
-//            EventStatus.PhoneFailed => $"{Username}PhoneFailed",
-//            EventStatus.PhoneSuccess => $"{Username}PhoneSuccess",
-//            EventStatus.SavingCreationFailed => $"{Username}SavingCreationFailed",
-//            EventStatus.SavingsCreationSuccess => $"{Username} SavingsCreationSuccess",
-//            EventStatus.TransactionFailed => $"{Username} TransactionFailed",
-//            EventStatus.TransactionSuccess => $"{Username} TransactionSuccess",
-//            EventStatus.TransferFailed => $"{Username} TransferFailed",
-//            EventStatus.TransferSuccess => $"{Username} TransferSuccess",
-//            EventStatus.WithdrawalFailed => $"{Username} WithdrawalFailed",
-//            EventStatus.WithdrawalSuccess => $"{Username} WithdrawalSuccess",
-//            _ => $"{Username} something has gone terribly wrong"
-//        };
-//    }
-//}
 

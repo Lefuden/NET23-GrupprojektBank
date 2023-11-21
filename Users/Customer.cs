@@ -1,108 +1,130 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Managers;
-using NET23_GrupprojektBank.Managers.Logic;
+using NET23_GrupprojektBank.Managers.Transactions;
+using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserInformation;
+using Newtonsoft.Json;
+using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
 {
     internal class Customer : User
     {
-        protected List<BankAccount> BankAccounts { get; set; }
+        [JsonProperty]
+        public List<BankAccount> BankAccounts { get; set; }
 
         public Customer(string userName, string password, PersonInformation person) : base(userName, password, person)
         {
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
+        public List<BankAccount> GetBankAccounts() => BankAccounts;
+        public void AddBankAccount(BankAccount bankAccount) => BankAccounts.Add(bankAccount);
 
         public void ViewBankAccount()
         {
-            if (BankAccounts.Count != 0)
+            if (BankAccounts is null)
             {
-                foreach (var account in BankAccounts)
+                BankAccounts = new List<BankAccount>();
+            }
+            UserCommunications.ViewBankAccounts(BankAccounts);
+        }
+        public void CreateBankAccount(List<int> existingBankAccountNumbers, BankAccountType bankAccountTypeToBeCreated)
+        {
+            while (true)
+            {
+                Console.Clear();
+                var bankAccountName = AnsiConsole.Ask<string>("[green]Account name[/]:");
+                var currencyType = UserCommunications.ChooseCurrencyType();
+                var bankAccountNr = BankAccount.BankAccountNumberGenerator(existingBankAccountNumbers);
+                Console.Clear();
+
+                double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? UserCommunications.DecideInterestRate(BankAccounts) : 0;
+
+                AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n").LeftJustified());
+
+
+                if (UserCommunications.AskUserYesOrNo("is this information correct?"))
                 {
-                    //amazing interface
-                    Console.WriteLine(account);
-                    Console.ReadKey();
-                    //back to menu
+                    switch (bankAccountTypeToBeCreated)
+                    {
+                        case BankAccountType.Checking:
+                            AddLog(EventStatus.CheckingCreationSuccess);
+                            BankAccounts.Add(new Checking(bankAccountNr, bankAccountName, currencyType, 0.0M));
+                            break;
+
+                        case BankAccountType.Savings:
+                            AddLog(EventStatus.SavingsCreationSuccess);
+                            BankAccounts.Add(new Savings(bankAccountNr, bankAccountName, currencyType, 0.0M, interest));
+                            break;
+                    }
+                    return;
                 }
+            }
+        }
+
+        public Transaction MakeLoan()
+        {
+            if (BankAccounts is not null && BankAccounts.Count <= 0)
+            {
+                AnsiConsole.MarkupLine("[bold red]You do not currently have any accounts with the bank and cannot take a loan![/]");
+                UserCommunications.FakeBackChoice();
+                return null;
+            }
+            decimal totalSum = 0;
+            foreach (var bankAccount in BankAccounts)
+            {
+                totalSum += bankAccount.GetBalance();
+            }
+            if (totalSum <= 0)
+            {
+                AnsiConsole.MarkupLine("[bold red]You do not currently have any balance in the bank and cannot take a loan![/]");
+                UserCommunications.FakeBackChoice();
+                return null;
+            }
+
+            var info = UserCommunications.MakeLoanMenu(BankAccounts);
+            if (info.SourceBankAccount is null)
+            {
+                AddLog(EventStatus.LoanFailed);
+                return null;
             }
             else
             {
-                //amazing interface
-                Console.WriteLine($"no accounts found\nwould you like to open a new account?\n1. yes\n2. no");
-                var input = int.TryParse(Console.ReadLine(), out int choice);
-                switch (choice)
-                {
-                    case 1:
-                        Console.WriteLine("enter account name, account type: checking or savings (1,2), balance, currencytype (0-50)");
-                        Console.ReadLine();
-                        break;
-                    case 2:
-                        break;
-                    default:
-                        break;
-                }
-                //add new? y/n -> call method CreateBankAccount() or back to menu
+                AddLog(EventStatus.LoanCreated);
+                return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Loan, info.Sum);
             }
         }
 
-        public UserChoice CreateBankAccount()
+        public Transaction MakeWithdrawal()
         {
-            return UserChoice.CreateChecking;
-            return UserChoice.CreateSavings;
-            return UserChoice.Back;
+            var info = UserCommunications.MakeWithdrawalMenu(BankAccounts);
+            AddLog(EventStatus.WithdrawalCreated);
 
-            //wanna make checking or savings or go back?
-
-            //BankAccount.cs
-            //string BankAccountNumber, BankAccountName
-            //Enum BankAccountType, CurrencyType
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
         }
 
-        public EventStatus CreateCheckingAccount()
+        public Transaction MakeDeposit()
         {
-            //logic to create account goes here
+            var info = UserCommunications.MakeDepositMenu(BankAccounts);
+            AddLog(EventStatus.DepositCreated);
+
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
+        }
+
+        public Transaction MakeTransfer()
+        {
+            var info = UserCommunications.MakeTransferMenu(BankAccounts);
+            AddLog(EventStatus.TransferCreated);
+
+            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
+        }
+        private Transaction CreateTransaction()
+        {
             throw new NotImplementedException();
         }
 
-        public EventStatus CreateSavingsAccount()
-        {
-            //logic to create account goes here
-            throw new NotImplementedException();
-        }
 
-        private void CreateTransaction() //: Transaction input parameters for various transactions/loans/withdrawals
-        {
-            //take input from various Make-methods to then create the transaction of corresponding type
-        }
 
-        public void MakeLoan()
-        {
-            //BankAccount.GetBalance();
-            //logic to create a loan
-            //send to createtransaction for completion
-        }
-
-        public void MakeWithdrawal()
-        {
-            //BankAccount.GetBalance();
-            //logic to create a withdrawal
-            //send to createtransaction for completion
-        }
-
-        public void MakeDeposit()
-        {
-            //BankAccount.GetBalance();
-            //logic to create a deposit
-            //send to createtransaction for completion
-        }
-
-        public void MakeTransfer()
-        {
-            //BankAccount.GetBalance();
-            //logic to create a transfer
-            //send to createtransaction for completion
-        }
     }
 }

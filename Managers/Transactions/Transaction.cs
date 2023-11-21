@@ -34,14 +34,26 @@ namespace NET23_GrupprojektBank.Managers.Transactions
             TransactionType = transactionType;
             Sum = sum;
         }
-        public Transaction(User sourceUser, User destinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, TransactionType transactionType, decimal sum)
+        public Transaction(User sourceAndDestinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, TransactionType transactionType, decimal sum)
         {
-            SourceUser = sourceUser;
-            DestinationUser = destinationUser;
+            SourceUser = sourceAndDestinationUser;
+            DestinationUser = sourceAndDestinationUser;
             SourceBankAccount = sourceBankAccount;
             DestinationBankAccount = destinationBankAccount;
             SourceCurrencyType = sourceCurrencyType;
             DestinationCurrencyType = destinationCurrencyType;
+            DateAndTime = DateTime.UtcNow;
+            TransactionType = transactionType;
+            Sum = sum;
+        }
+        public Transaction(User sourceAndDestinationUser, BankAccount sourceAndDestinationAccount, CurrencyType sourceAndDestinationCurrencyType, TransactionType transactionType, decimal sum)
+        {
+            SourceUser = sourceAndDestinationUser;
+            DestinationUser = sourceAndDestinationUser;
+            SourceBankAccount = sourceAndDestinationAccount;
+            DestinationBankAccount = sourceAndDestinationAccount;
+            SourceCurrencyType = sourceAndDestinationCurrencyType;
+            DestinationCurrencyType = sourceAndDestinationCurrencyType;
             DateAndTime = DateTime.UtcNow;
             TransactionType = transactionType;
             Sum = sum;

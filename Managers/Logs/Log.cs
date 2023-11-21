@@ -1,36 +1,22 @@
-﻿using NET23_GrupprojektBank.Users;
-
-namespace NET23_GrupprojektBank.Managers.Logs
+﻿namespace NET23_GrupprojektBank.Managers.Logs
 {
+    //[JsonConverter(typeof(LogConverter))]
     internal class Log
     {
+        public int LogId { get; set; }
         public DateTime DateAndTime { get; set; }
-        public User? User { get; set; }
         public string Message { get; set; }
+        private static int LogIdReference { get; set; } = 0;
 
-        public Log(DateTime dateAndTime, User user, string message)
-        {
-            DateAndTime = dateAndTime;
-            User = user;
-            Message = message;
-        }
-        public Log(User user, string message)
-        {
-            DateAndTime = DateTime.UtcNow;
-            User = user;
-            Message = message;
-        }
         public Log(DateTime dateAndTime, string message)
         {
+            LogId = LogIdReference++;
             DateAndTime = dateAndTime;
-            User = default;
             Message = message;
         }
-        public Log(string message)
+        public override string ToString()
         {
-            DateAndTime = DateTime.UtcNow;
-            User = default;
-            Message = message;
+            return $"{LogId} - {Message} - {DateAndTime}";
         }
     }
 }

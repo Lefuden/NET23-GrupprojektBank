@@ -5,13 +5,26 @@ namespace NET23_GrupprojektBank.BankAccounts
 {
     internal class Checking : BankAccount
     {
-        public Checking(string bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0)
+        public Checking(int bankAccountNumber, string bankAccountName, CurrencyType currencyType, decimal balance = 0)
         {
             BankAccountNumber = bankAccountNumber;
             BankAccountName = bankAccountName;
             BankAccountType = BankAccountType.Checking;
             CurrencyType = currencyType;
             Balance = balance;
+        }
+        //public Checking(int bankAccountNumber, string bankAccountName, BankAccountType bankAccountType, CurrencyType currencyType, decimal balance, Guid ownerUserId)
+        //{
+        //    BankAccountNumber = bankAccountNumber;
+        //    BankAccountName = bankAccountName;
+        //    BankAccountType = bankAccountType;
+        //    CurrencyType = currencyType;
+        //    Balance = balance;
+        //    OwnerUserId = ownerUserId;
+        //}
+        public (string Type, string Name, string Number, string Balance, string Currency) GetAccountInformation()
+        {
+            return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), Balance.ToString(), CurrencyType.ToString());
         }
         public override void MakeTransaction(Transaction transaction)
         {

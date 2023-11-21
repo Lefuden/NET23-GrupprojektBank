@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics
 {
@@ -6,17 +7,18 @@ namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Spe
     {
         public string EmailAddress { get; set; }
         public string? WorkEmailAddress { get; set; }
-        public Email(string emailAddress, string workEmailAddress = null)
+        public Email(string emailAddress)
         {
-            EmailAddress = IsEmailValid(emailAddress) ? emailAddress : "AHHERROOOOOONOTWORKING404";
-
-            if (string.IsNullOrEmpty(workEmailAddress) is not true)
-            {
-                WorkEmailAddress = workEmailAddress;
-            }
+            EmailAddress = emailAddress;
         }
 
-        private static bool IsEmailValid(string email)
+        [JsonConstructor]
+        public Email(string emailAddress, string workEmailAddress)
+        {
+            EmailAddress = emailAddress;
+            WorkEmailAddress = workEmailAddress;
+        }
+        public static bool IsEmailValid(string email)
         {
             if (string.IsNullOrEmpty(email))
             {

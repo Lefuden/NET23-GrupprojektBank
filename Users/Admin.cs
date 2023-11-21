@@ -1,6 +1,6 @@
 ﻿using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
-using NET23_GrupprojektBank.Managers.Logic;
+using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
@@ -15,117 +15,126 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Admin;
         }
 
-        public UserChoice CreateUserAccount()
-        {
-            //give option to create customer or admin -> return userchoice.customer or userchoice.admin
-            //UserChoice.CreateCustomer;
-            //UserChoice.CreateAdmin;
-            return UserChoice.Back;
-        }
 
-        public Admin CreateAdminAccount(List<string> existingUserNames)
+        public Admin CreateAdminAccount(List<string> existingUsernames)
         {
-            //call method from usercommunication
-            //return new Admin();
-            throw new NotImplementedException();
-        }
+            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
+            if (username == "-1") return null;
 
-        public Customer CreateCustomerAccount(List<string> existingUserNames)
-        {
-            //return new Customer();
-            //give the choice to cancel everything at some point. eg "-1"
-            //use input list to check if username already exists
-            //after finishing user creation method, move it to usercommunication and then call method here
-
-            while (true)
+            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
             {
-                Console.WriteLine("Enter user details.");
-                var userName = AnsiConsole.Ask<string>("[green]User name[/]:"); //call method IsUserNameAlreadyTaken(username) from logic manager
-                                                                                //       var exisingusernames = GetAllUsernames();
-                                                                                //       var username = AnsiConsole.Ask<string>("Enter username: ");
-                                                                                //       if(exisingusernames.Contains(username))
-                                                                                //       {
-                                                                                //           // Användarnamnet finns, försök igen... (while loop kanske?
-                                                                                //       }
-                                                                                ////Användarnmnet är godkänt, fortsätt...
-
-                var password = AnsiConsole.Prompt(new TextPrompt<string>("[green]Password[/]:")
-                        .PromptStyle("red")
-                        .Secret());
-
-                var firstName = AnsiConsole.Ask<string>("First name: ");
-                var lastName = AnsiConsole.Ask<string>("Last name: ");
-                var dateofBirth = AnsiConsole.Ask<DateTime>("Date of birth: "); //make method to check if at least 6 or 8 digits and correct order (yy/mm/dd or yyyy/mm/dd)
-                var email = AnsiConsole.Ask<string>("Email: "); //use IsEmailValid(string email) from email.cs to validate?
-
-                Console.Clear();
-                Console.WriteLine($"User name: {userName}\nPassword not shown\nFirst name: {firstName}\nLast Name: {lastName}" +
-                                  $"\nBirth date: {dateofBirth}\nemail: {email}\n\nis this information correct?\n1. yes\n2. no");
-                var answer = Console.ReadLine().ToLower();
-                switch (answer)
-                {
-                    case "yes":
-                    case "1":
-                        Console.WriteLine("Would you like to add additional user information?\n1. yes\n2. no");
-                        answer = Console.ReadLine().ToLower();
-
-                        switch (answer)
-                        {
-                            case "yes":
-                            case "1":
-                                var areaCode = AnsiConsole.Ask<string>("First name: ");
-                                var phone = AnsiConsole.Ask<string>("First name: ");
-                                var country = AnsiConsole.Ask<string>("First name: ");
-                                var city = AnsiConsole.Ask<string>("First name: ");
-                                var street = AnsiConsole.Ask<string>("First name: ");
-                                var postalNumber = AnsiConsole.Ask<string>("First name: ");
-
-                                Console.Clear();
-                                Console.WriteLine($"Phone area code: {areaCode}\nPhone number: {phone}\nCountry: {country} \nCity: {city}" +
-                                                  $"\nStreet name: {street}\nPostal code: {postalNumber}\\n\\nis this information correct?\\n1. yes\\n2. no");
-                                answer = Console.ReadLine().ToLower();
-                                switch (answer)
-                                {
-                                    case "yes":
-                                    case "1":
-                                        Console.WriteLine($"User {userName} has been created");
-                                        Addlog(EventStatus.AccountCreationSuccess);
-                                        return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone(phone, areaCode), new Address(country, city, street, postalNumber))));
-
-                                    case "no":
-                                    case "2":
-                                        //loop again
-                                        break;
-                                }
-                                break;
-                            case "no":
-                            case "2":
-                                Console.WriteLine($"User {userName} has been created");
-                                Addlog(EventStatus.AccountCreationSuccess);
-                                return new Customer(userName, password, new PersonInformation(firstName, lastName, dateofBirth, new ContactInformation(new Email(email), new Phone("", ""), new Address("", "", "", ""))));
-                        }
-
-                        break;
-                    case "no":
-                    case "2":
-                        //loop again
-                        break;
-                }
+                AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+                AddLog(EventStatus.AccountCreationSuccess);
+                return new Admin(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(new Email(""))));
             }
+
+            Email email = UserCommunications.GetEmailFromUser();
+            if (email.EmailAddress == "-1") return null;
+
+            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+                AddLog(EventStatus.AccountCreationSuccess);
+                return new Admin(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(email)));
+            }
+
+            Phone phone = UserCommunications.GetPhoneFromUser();
+            if (phone.PhoneNumber == "-1") return null;
+
+            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+                AddLog(EventStatus.AccountCreationSuccess);
+                return new Admin(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(email, phone)));
+            }
+
+            Address adress = UserCommunications.GetAdressFromUser();
+            if (adress.Country == "-1") return null;
+            AnsiConsole.MarkupLine("[green]Admin has been created[/]");
+            AddLog(EventStatus.AccountCreationSuccess);
+            return new Admin(username, password,
+                   new PersonInformation(firstName, lastName, dateOfBirth,
+                   new ContactInformation(email, phone, adress)));
         }
+
+        public Customer CreateCustomerAccount(List<string> existingUsernames)
+        {
+            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
+
+            if (username == "-1")
+            {
+                return null;
+            }
+
+            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                AddLog(EventStatus.AccountCreationSuccess);
+                return new Customer(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(new Email(""))));
+            }
+
+            Email email = UserCommunications.GetEmailFromUser();
+
+            if (email.EmailAddress == "-1")
+            {
+                return null;
+            }
+
+            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                AddLog(EventStatus.AccountCreationSuccess);
+                return new Customer(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(email)));
+            }
+
+            Phone phone = UserCommunications.GetPhoneFromUser();
+
+            if (phone.PhoneNumber == "-1")
+            {
+                return null;
+            }
+
+            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            {
+                AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+                AddLog(EventStatus.AccountCreationSuccess);
+                return new Customer(username, password,
+                       new PersonInformation(firstName, lastName, dateOfBirth,
+                       new ContactInformation(email, phone)));
+            }
+
+            Address adress = UserCommunications.GetAdressFromUser();
+
+            if (adress.Country == "-1")
+            {
+                return null;
+            }
+
+            AnsiConsole.MarkupLine("[green]Customer has been created[/]");
+            AddLog(EventStatus.AccountCreationSuccess);
+            return new Customer(username, password,
+                new PersonInformation(firstName, lastName, dateOfBirth,
+                new ContactInformation(email, phone, adress)));
+        }
+
+
+
 
 
         public void UpdateCurrencyExchangeRate()
         {
-            Task<EventStatus> taskUpdateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
-            //EventStatus eventStatus = taskUpdateStatus.Result;
-            Addlog(taskUpdateStatus.Result);
-
-            //var updateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType);
-            //while (updateStatus.IsCompleted is not true)
-            //{
-            // fake async waiting inside a console application...
-            //}
+            EventStatus taskUpdateStatus = CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType).Result;
+            AddLog(taskUpdateStatus);
         }
     }
 }

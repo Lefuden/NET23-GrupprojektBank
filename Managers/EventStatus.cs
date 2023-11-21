@@ -24,6 +24,7 @@ namespace NET23_GrupprojektBank.Managers
         WithdrawalSuccess,
         WithdrawalFailed,
         WithdrawalFailedInsufficientFunds,
+        WithdrawalFailedNegativeOrZeroSum,
         WithdrawalCreated,
         TransferSuccess,
         TransferReceivedSuccess,

@@ -1,5 +1,6 @@
 ﻿using NET23_GrupprojektBank.Currency.DTO;
 using NET23_GrupprojektBank.Managers;
+using NET23_GrupprojektBank.Managers.Logic;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users;
 using Newtonsoft.Json;
@@ -32,16 +33,17 @@ namespace NET23_GrupprojektBank.Currency
             USDCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
             EURCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
 
-            int choice = HowToUpdateCurrency.AdminUpdateCurrencyOption();
+            UserChoice choice = UserCommunications.AdminUpdateCurrencyOption();
             switch (choice)
             {
-                case 0:
-                    return await UpdateCurrencyExchangeRateAsync(userType);
-                case 1:
+                case UserChoice.Back:
+                    return EventStatus.CurrencyExchangeRateUpdateFailed;
+
+                case UserChoice.FromFile:
                     UpdateFromFile();
                     UpdateDictionaries();
                     return EventStatus.AdminUpdatedCurrencyFromFile;
-                case 2:
+                case UserChoice.FromInternet:
                     await UpdateFromTheWeb();
                     UpdateDictionaries();
                     return EventStatus.AdminUpdatedCurrencyFromWebApi;
@@ -70,12 +72,12 @@ namespace NET23_GrupprojektBank.Currency
 
                         string responseBody = await response.Content.ReadAsStringAsync();
                         File.WriteAllText(filePaths[i], responseBody);
-                        Console.WriteLine($"({i + 1}/{filePaths.Length}) Got the latest currency exchange rates from the API and saved it to file: {filePaths[i]}");
+                        //Console.WriteLine($"({i + 1}/{filePaths.Length}) Got the latest currency exchange rates from the API and saved it to file: {filePaths[i]}");
 
                     }
                     catch (HttpRequestException ex)
                     {
-                        Console.WriteLine($"Error accessing the API: {ex.Message}");
+                        AnsiConsole.WriteException(ex);
                     }
                 }
             }
@@ -99,14 +101,14 @@ namespace NET23_GrupprojektBank.Currency
 
             if (File.Exists(SEKPath))
             {
-                Console.WriteLine(SEKPath + " Existing File, creating object");
+                //Console.WriteLine(SEKPath + " Existing File, creating object");
                 SEKResponse = File.ReadAllText(SEKPath);
                 SEKCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(SEKResponse);
                 SEKUpdatedFromFile = true;
 
                 Type type = SEKCurrencyRate.conversion_rates.GetType();
                 PropertyInfo[] properties = type.GetProperties();
-                Console.WriteLine("SEK Dictionary: ");
+                //Console.WriteLine("SEK Dictionary: ");
                 foreach (var property in properties)
                 {
                     if (property.PropertyType == typeof(double))
@@ -114,23 +116,31 @@ namespace NET23_GrupprojektBank.Currency
                         // Get the property name and value
                         string propertyName = property.Name;
                         double propertyValue = (double)property.GetValue(SEKCurrencyRate.conversion_rates);
-                        CurrencyType currencyType = Enum.Parse<CurrencyType>(propertyName, false);
+                        CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
+
+                        CurrencyType currencyType = currencyTypeFull switch
+                        {
+                            CurrencyTypeFull.SEK => CurrencyType.SEK,
+                            CurrencyTypeFull.EUR => CurrencyType.EUR,
+                            CurrencyTypeFull.USD => CurrencyType.USD,
+                            _ => CurrencyType.INVALID
+                        };
                         CurrentExchangeRatesSEK[currencyType] = propertyValue;
                         // Print the property name and value
-                        Console.WriteLine($"\t{propertyName}: {propertyValue}");
+                        //Console.WriteLine($"\t{propertyName}: {propertyValue}");
                     }
                 }
             }
             if (File.Exists(USDPath))
             {
-                Console.WriteLine(USDPath + " Existing File, creating object");
+                //Console.WriteLine(USDPath + " Existing File, creating object");
                 USDResponse = File.ReadAllText(USDPath);
                 USDCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(USDResponse);
                 USDUpdatedFromFile = true;
 
                 Type type = USDCurrencyRate.conversion_rates.GetType();
                 PropertyInfo[] properties = type.GetProperties();
-                Console.WriteLine("USD Dictionary: ");
+                //Console.WriteLine("USD Dictionary: ");
                 foreach (var property in properties)
                 {
                     if (property.PropertyType == typeof(double))
@@ -138,23 +148,33 @@ namespace NET23_GrupprojektBank.Currency
                         // Get the property name and value
                         string propertyName = property.Name;
                         double propertyValue = (double)property.GetValue(USDCurrencyRate.conversion_rates);
-                        CurrencyType currencyType = Enum.Parse<CurrencyType>(propertyName, false);
+
+                        CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
+
+                        CurrencyType currencyType = currencyTypeFull switch
+                        {
+                            CurrencyTypeFull.SEK => CurrencyType.SEK,
+                            CurrencyTypeFull.EUR => CurrencyType.EUR,
+                            CurrencyTypeFull.USD => CurrencyType.USD,
+                            _ => CurrencyType.INVALID
+                        };
+
                         CurrentExchangeRatesUSD[currencyType] = propertyValue;
                         // Print the property name and value
-                        Console.WriteLine($"\t{propertyName}: {propertyValue}");
+                        //Console.WriteLine($"\t{propertyName}: {propertyValue}");
                     }
                 }
             }
             if (File.Exists(EURPath))
             {
-                Console.WriteLine(EURPath + " Existing File, creating object");
+                //Console.WriteLine(EURPath + " Existing File, creating object");
                 EURResponse = File.ReadAllText(EURPath);
                 EURCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(EURResponse);
                 EURUpdatedFromFile = true;
 
                 Type type = EURCurrencyRate.conversion_rates.GetType();
                 PropertyInfo[] properties = type.GetProperties();
-                Console.WriteLine("EUR Dictionary: ");
+                //Console.WriteLine("EUR Dictionary: ");
                 foreach (var property in properties)
                 {
                     if (property.PropertyType == typeof(double))
@@ -162,10 +182,18 @@ namespace NET23_GrupprojektBank.Currency
                         // Get the property name and value
                         string propertyName = property.Name;
                         double propertyValue = (double)property.GetValue(EURCurrencyRate.conversion_rates);
-                        CurrencyType currencyType = Enum.Parse<CurrencyType>(propertyName, false);
+                        CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
+
+                        CurrencyType currencyType = currencyTypeFull switch
+                        {
+                            CurrencyTypeFull.SEK => CurrencyType.SEK,
+                            CurrencyTypeFull.EUR => CurrencyType.EUR,
+                            CurrencyTypeFull.USD => CurrencyType.USD,
+                            _ => CurrencyType.INVALID
+                        };
                         CurrentExchangeRatesEUR[currencyType] = propertyValue;
                         // Print the property name and value
-                        Console.WriteLine($"\t{propertyName}: {propertyValue}");
+                        // Console.WriteLine($"\t{propertyName}: {propertyValue}");
                     }
                 }
             }
@@ -207,17 +235,13 @@ namespace NET23_GrupprojektBank.Currency
 
         public static Dictionary<CurrencyType, double> GetCurrentCurrencyExchangeRate(CurrencyType currencyType)
         {
-            switch (currencyType)
+            return currencyType switch
             {
-                case CurrencyType.SEK:
-                    return CurrentExchangeRatesSEK;
-                case CurrencyType.USD:
-                    return CurrentExchangeRatesUSD;
-                case CurrencyType.EUR:
-                    return CurrentExchangeRatesEUR;
-                default:
-                    return CurrentExchangeRatesSEK;
-            }
+                CurrencyType.SEK => CurrentExchangeRatesSEK,
+                CurrencyType.USD => CurrentExchangeRatesUSD,
+                CurrencyType.EUR => CurrentExchangeRatesEUR,
+                _ => CurrentExchangeRatesSEK
+            };
         }
     }
 }

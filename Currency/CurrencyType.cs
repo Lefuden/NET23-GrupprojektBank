@@ -2,6 +2,16 @@
 {
     internal enum CurrencyType
     {
+        SEK,
+        EUR,
+        USD,
+        INVALID
+    }
+    internal enum CurrencyTypeFull
+    {
+        SEK,
+        EUR,
+        USD,
         AED,
         ARS,
         AUD,
@@ -17,7 +27,6 @@
         DKK,
         DOP,
         EGP,
-        EUR,
         FJD,
         GBP,
         GTQ,
@@ -44,13 +53,11 @@
         RON,
         RUB,
         SAR,
-        SEK,
         SGD,
         THB,
         TRY,
         TWD,
         UAH,
-        USD,
         UYU,
         ZAR,
     }
