@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics
+﻿namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics
 {
     internal class Address
     {
@@ -9,7 +7,6 @@ namespace NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Spe
         public string Street { get; set; }
         public string PostalNumber { get; set; }
 
-        [JsonConstructor]
         public Address(string country, string city, string street, string postalNumber)
         {
             Country = country;
