@@ -10,29 +10,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeDepositMenu(List<BankAccount> bankAccounts)
         {
             WriteDivider($"Deposit Menu");
-            var accountChoices = new List<string>();
-
-            foreach (var account in bankAccounts)
-            {
-                if (account is Checking checkingAccount)
-                {
-                    var info = checkingAccount.GetAccountInformation();
-                    accountChoices.Add($"[orange1 bold]{info.Type}[/] - [yellow bold]{info.Name}[/] - [red bold]{info.Number}[/] - [green bold]{info.Balance}[/] - [blue bold]{info.Currency}[/]");
-                }
-                else if (account is Savings savingsAccount)
-                {
-                    var info = savingsAccount.GetAccountInformation();
-                    accountChoices.Add($"[orange1 bold]{info.Type}[/] - [yellow bold]{info.Name}[/] - [red bold]{info.Number}[/] - [green bold]{info.Balance}[/] - [blue bold]{info.Currency}[/] - [cyan1 bold]{info.Interest}[/]");
-                }
-            }
-
-            accountChoices.Add("Exit");
+            var accountChoices = GetBankAccountInfo(bankAccounts);
+            accountChoices.AccountInformationList.Add("Back");
             var selectedAccountChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .PageSize(5)
-                    .Title("Select an account to deposit to")
-                    .MoreChoicesText("Scroll down for more options")
-                    .AddChoices(accountChoices)
+                    .PageSize(15)
+                    .Title($"Select an account to deposit to {accountChoices.SelectionPromtTitel}")
+                    .AddChoices(accountChoices.AccountInformationList)
             );
 
             string pattern = @"\[red bold\](\d+)\[/\]";
@@ -45,84 +29,62 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 {
                     return true;
                 }
+
                 return false;
             });
 
-            if (selectedAccount != null)
+            if (selectedAccount == null)
             {
-                string accountName;
-                string balance;
-                string currencyType;
+                AnsiConsole.MarkupLine("[red]Selected account type is not supported for deposits.[/]");
+                return default;
+            }
 
-                switch (selectedAccount)
+            var info = selectedAccount.GetAccountInformation();
+            var accountName = info.Name;
+            var balance = info.Balance;
+            var currencyType = info.Currency;
+
+            AnsiConsole.MarkupLine($"[purple]Account name:[/] [green]{accountName}[/]");
+            AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currencyType}[/]");
+            AnsiConsole.MarkupLine($"[purple]Deposit to:[/]  [green]{accountName}[/]");
+
+            while (true)
+            {
+                string input = AnsiConsole.Ask<string>($"[purple]How much would you like to deposit?[/]");
+
+                if (!decimal.TryParse(input, out decimal depositAmount) || depositAmount <= 0)
                 {
-                    case Checking checkingAccount:
-                    {
-                        var info = checkingAccount.GetAccountInformation();
-                        accountName = info.Name;
-                        balance = info.Balance;
-                        currencyType = info.Currency;
-                        break;
-                    }
-                    case Savings savingsAccount:
-                    {
-                        var info = savingsAccount.GetAccountInformation();
-                        accountName = info.Name;
-                        balance = info.Balance;
-                        currencyType = info.Currency;
-                        break;
-                    }
-                    default:
-                        AnsiConsole.MarkupLine("[red]Selected account type is not supported for deposits.[/]");
-                        return default;
+                    AnsiConsole.MarkupLine($"[red]Please enter a valid deposit amount[/]");
                 }
-
-                AnsiConsole.MarkupLine($"[purple]Account name:[/] [green]{accountName}[/]");
-                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currencyType}[/]");
-                AnsiConsole.MarkupLine($"[purple]Deposit to:[/]  [green]{accountName}[/]");
-
-                while (true)
+                else
                 {
-                    string input = AnsiConsole.Ask<string>($"[purple]How much would you like to deposit?[/]");
+                    decimal currentBalance = decimal.Parse(balance);
+                    currentBalance += depositAmount;
+                    balance = currentBalance.ToString();
 
-                    if (!decimal.TryParse(input, out decimal depositAmount) || depositAmount <= 0)
-                    {
-                        AnsiConsole.MarkupLine($"[red]Please enter a valid desposit amount[/]");
-                    }
-                    else
-                    {
-                        decimal currentBalance = decimal.Parse(balance);
-                        currentBalance += depositAmount;
-                        balance = currentBalance.ToString();
+                    AnsiConsole.MarkupLine(
+                        $"[green]{depositAmount:c} {currencyType}[/] [purple]has been deposited to {accountName}[/]");
 
-                        AnsiConsole.MarkupLine($"[green]{depositAmount:c} {currencyType}[/] [purple]has been deposited to {accountName}[/]");
-
-                        string stringChoice = AnsiConsole.Prompt(
-                            new SelectionPrompt<string>()
-                                .PageSize(3)
-                                .AddChoices(new[]
+                    string stringChoice = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .PageSize(3)
+                            .AddChoices(new[]
                                 {
-                            "Back",
-                            "Exit"
+                                    "Ok"
                                 }
                             ));
 
-                        if (stringChoice == "Back")
-                        {
-                            CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
-                            return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, depositAmount);
-                        }
-                        else if (stringChoice == "Exit")
-                        {
-                            Environment.Exit(0);
-                        }
+                    if (stringChoice == "Ok")
+                    {
+                        CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType),
+                            currencyType ?? CurrencyType.SEK.ToString());
+                        return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, depositAmount);
+                    }
+                    else
+                    {
+                        return default;
                     }
                 }
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[red]Selected account type is not supported for deposit.[/]");
-                return default;
             }
         }
     }
