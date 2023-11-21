@@ -543,12 +543,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 .PageSize(3)
                                 .AddChoices(new[]
                                 {
-                            "Back",
+                            "Ok",
                             "Exit"
                                 }
                             ));
 
-                        if (stringChoice == "Back")
+                        if (stringChoice == "Ok")
                         {
                             CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
                             return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, withdrawalAmount);

@@ -73,7 +73,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         customer.AddLog(EventStatus.CheckingCreationSuccess);
 
                         sum = rng.Next(0, 1001);
-                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, Customer.DecideInterestRate(customer.GetBankAccounts())));
+                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
                         customer.AddLog(EventStatus.SavingsCreationSuccess);
                     }
 
@@ -109,7 +109,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 }
             }
 
-            TransactionsManager.Start();
+            //TransactionsManager.Start();
 
             while (KeepRunning)
             {
@@ -461,7 +461,9 @@ namespace NET23_GrupprojektBank.Managers.Logic
         {
             //Users = await DatabaseManager.GetAllUsersFromDB();
             //await DatabaseManager.UpdateAllUsers(Users);
-            await TransactionsManager.StopAsync();
+
+
+            //await TransactionsManager.StopAsync();
             KeepRunning = false;
             Choice = UserChoice.Exit;
         }
