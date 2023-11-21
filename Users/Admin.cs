@@ -20,7 +20,7 @@ namespace NET23_GrupprojektBank.Users
             var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
             if (username == "-1") return null;
 
-            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            if (!UserCommunications.AskUserYesOrNo("Add email information?"))
             {
                 AnsiConsole.MarkupLine("[green]Admin has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
@@ -40,7 +40,7 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
 
-            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            if (!UserCommunications.AskUserYesOrNo("Add phone information?"))
             {
                 AnsiConsole.MarkupLine("[green]Admin has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
@@ -60,7 +60,7 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
 
-            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            if (!UserCommunications.AskUserYesOrNo("Add adress information?"))
             {
                 AnsiConsole.MarkupLine("[green]Admin has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
@@ -93,7 +93,7 @@ namespace NET23_GrupprojektBank.Users
             var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
             if (username == "-1") return null;
 
-            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            if (!UserCommunications.AskUserYesOrNo("Add email information?"))
             {
                 AnsiConsole.MarkupLine("[green]Customer has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
@@ -113,7 +113,7 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
 
-            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            if (!UserCommunications.AskUserYesOrNo("Add phone information?"))
             {
                 AnsiConsole.MarkupLine("[green]Customer has been created[/]");
                 AddLog(EventStatus.AccountCreationSuccess);
@@ -133,7 +133,7 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
 
-            if (!UserCommunications.AskUserYesOrNo("Add more information?"))
+            if (!UserCommunications.AskUserYesOrNo("Add adress information?"))
             {
                 AnsiConsole.MarkupLine("[green]Customer has been created[/]");
                 UserCommunications.FakeBackChoice("Ok");
