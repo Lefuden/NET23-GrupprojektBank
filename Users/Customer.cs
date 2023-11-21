@@ -68,7 +68,7 @@ namespace NET23_GrupprojektBank.Users
             if (BankAccounts is not null && BankAccounts.Count <= 0)
             {
                 AnsiConsole.MarkupLine("[bold red]You do not currently have any accounts with the bank and cannot take a loan![/]");
-                UserCommunications.FakeBackChoice();
+                UserCommunications.FakeBackChoice("Back");
                 return null;
             }
             decimal totalSum = 0;
@@ -79,7 +79,7 @@ namespace NET23_GrupprojektBank.Users
             if (totalSum <= 0)
             {
                 AnsiConsole.MarkupLine("[bold red]You do not currently have any balance in the bank and cannot take a loan![/]");
-                UserCommunications.FakeBackChoice();
+                UserCommunications.FakeBackChoice("Back");
                 return null;
             }
 
