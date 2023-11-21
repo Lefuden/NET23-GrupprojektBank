@@ -72,48 +72,30 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             foreach (var account in bankAccounts)
             {
                 totalSumOnAccounts += account.GetBalance();
-
-                if (account is Checking checkingAccount)
-                {
-                    var info = checkingAccount.GetAccountInformation();
-                    maxName = info.Name.Length > maxName ? info.Name.Length : maxName;
-                    maxNumber = info.Number.Length > maxNumber ? info.Number.Length : maxNumber;
-                    maxBalance = info.Balance.Length > maxBalance ? info.Balance.Length : maxBalance;
-                }
-                else if (account is Savings savingsAccount)
-                {
-                    var info = savingsAccount.GetAccountInformation();
-                    maxName = info.Name.Length > maxName ? info.Name.Length : maxName;
-                    maxNumber = info.Number.Length > maxNumber ? info.Number.Length : maxNumber;
-                    maxBalance = info.Balance.Length > maxBalance ? info.Balance.Length : maxBalance;
-
-                }
+                var info = account.GetAccountInformation();
+                maxName = info.Name.Length > maxName ? info.Name.Length : maxName;
+                maxNumber = info.Number.Length > maxNumber ? info.Number.Length : maxNumber;
+                maxBalance = info.Balance.Length > maxBalance ? info.Balance.Length : maxBalance;
             }
-            //" + $"{(maxName > 12 ? -(maxName / 2) + (maxName - 12) : "")}" + "
-            //, " + -((maxName - 12) / 2) + "
+
             int accountNamePadding = ((maxName - "Account Name".Length) / 2) - ("Account Name".Length / 2);
             int accountNumberPadding = ("Number".Length / 2) - ((maxNumber - "Number".Length) / 2);
             string questionTitel = string.Format("  {0," + accountNamePadding + "}[yellow bold]{1, " + -(maxName - accountNamePadding) + "}[/] - {0, " + (accountNumberPadding + accountNumberPadding % 2) + "}[red bold]{2, " + -(maxNumber - accountNumberPadding - accountNumberPadding % 2) + "}[/] - [green bold]{3, " + maxBalance + "}[/] - [blue bold]{4, " + maxCurrency + "}[/] - [orange1 bold]{5, " + -maxType + "}[/] - [cyan1 bold]{6, " + maxInterest + "}[/]", "", "Account Name", "Number", "Balance", "Cur", "Type", "Interest");
 
             foreach (var account in bankAccounts)
             {
-                if (account is Checking checkingAccount)
-                {
-                    var info = checkingAccount.GetAccountInformation();
-                    string text = string.Format("[yellow bold]{0, " + -maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + -maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, "");
-                    accountInfoList.Add(text);
-                }
-                else if (account is Savings savingsAccount)
-                {
-                    var info = savingsAccount.GetAccountInformation();
-                    string text = string.Format("[yellow bold]{0, " + -maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + -maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, info.Interest);
-                    accountInfoList.Add(text);
-                }
-
+                var info = account.GetAccountInformation();
+                string text = string.Format("[yellow bold]{0, " + -maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + -maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, info.Interest);
+                accountInfoList.Add(text);
             }
 
             return (questionTitel, accountInfoList, totalSumOnAccounts);
         }
+
+
+
+
+
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeLoanMenu(List<BankAccount> bankAccounts)
         {
             WriteDivider($"Loan Menu");
@@ -203,7 +185,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 .AddChoices(new[]
                                 {
                                     "Ok",
-                                    "Exit"
+                                    "Back"
                                 }
                             ));
 
@@ -212,9 +194,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                             CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
                             return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, loanAmount);
                         }
-                        else if (stringChoice == "Exit")
+                        else if (stringChoice == "Back")
                         {
-                            Environment.Exit(0);
+                            return default;
                         }
 
                     }
