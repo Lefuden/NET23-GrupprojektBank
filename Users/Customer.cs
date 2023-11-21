@@ -41,7 +41,6 @@ namespace NET23_GrupprojektBank.Users
 
                 AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n").LeftJustified());
 
-
                 if (UserCommunications.AskUserYesOrNo("is this information correct?"))
                 {
                     switch (bankAccountTypeToBeCreated)

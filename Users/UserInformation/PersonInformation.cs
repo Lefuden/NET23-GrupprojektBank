@@ -1,5 +1,5 @@
 ﻿using NET23_GrupprojektBank.Users.UserContactInformation;
-using Newtonsoft.Json;
+
 namespace NET23_GrupprojektBank.Users.UserInformation
 {
     internal class PersonInformation
@@ -9,7 +9,6 @@ namespace NET23_GrupprojektBank.Users.UserInformation
         public DateTime DateOfBirth { get; set; }
         public ContactInformation ContactInformation { get; set; }
 
-        [JsonConstructor]
         public PersonInformation(string firstName, string lastName, DateTime dateOfBirth, ContactInformation contactInformation)
         {
             FirstName = firstName;

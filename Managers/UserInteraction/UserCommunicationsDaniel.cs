@@ -16,7 +16,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .Title($"Select an account to deposit to\n{accountChoices.SelectionPromptTitle}")
                     .AddChoices(accountChoices.AccountInformationList));
 
-
             int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
             var selectedAccount = bankAccounts.FirstOrDefault(account => account.GetAccountNumber() == chosenAccountNumber);
 
