@@ -14,7 +14,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             accountChoices.AccountInformationList.Add("Back");
             var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
                     .PageSize(15)
-                    .Title($"Select an account to deposit to {accountChoices.SelectionPromtTitel}")
+                    .Title($"Select an account to deposit to {accountChoices.SelectionPromptTitle}")
                     .AddChoices(accountChoices.AccountInformationList));
 
             string pattern = @"\[red bold\](\d+)\[/\]";
@@ -31,7 +31,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             var info = selectedAccount.GetAccountInformation();
             WriteTransactionInformation(info);
-            
+
             while (true)
             {
                 decimal depositAmount = AnsiConsole.Ask<decimal>($"[purple]How much would you like to deposit?[/]");
@@ -44,7 +44,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                     AnsiConsole.MarkupLine($"[green]{depositAmount:c} {info.Currency}[/] [purple]has been deposited to {info.Name}[/]\n");
                     FakeBackChoice("Ok");
-                    
+
                     CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), info.Currency ?? CurrencyType.SEK.ToString());
                     return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, depositAmount);
                 }
