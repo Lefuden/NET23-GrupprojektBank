@@ -44,6 +44,7 @@ namespace NET23_GrupprojektBank.Users
         }
 
         public Guid GetUserId() => UserId;
+        public List<Log> GetLogs() => new(Logs);
         internal string GetUsername() => Username;
 
         internal bool CompareUserPassword(string userPassword)
@@ -65,7 +66,7 @@ namespace NET23_GrupprojektBank.Users
             {
                 Logs = new List<Log>();
             }
-            UserCommunications.ShowLogs(Logs, Username);
+            UserCommunications.ShowLogs(GetLogs(), Username);
         }
 
         public string GetLogMessage(EventStatus eventStatus)

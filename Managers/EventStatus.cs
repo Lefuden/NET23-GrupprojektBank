@@ -1,6 +1,6 @@
-﻿namespace NET23_GrupprojektBank.Managers
+namespace NET23_GrupprojektBank.Managers
 {
-        public enum EventStatus
+    public enum EventStatus
     {
         LoginSuccess,
         LoginFailed,
@@ -34,6 +34,10 @@
         LoanFailed,
         LoanFailedNegativeOrZeroSum,
         LoanCreated,
+        AdminAccountCreationSuccess,
+        AdminAccountCreationFailed,
+        CustomerAccountCreationSuccess,
+        CustomerAccountCreationFailed,
         ValidUsername,
         InvalidUsername,
         ValidPassword,

@@ -19,7 +19,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             foreach (CurrencyType type in CurrencyType.GetValuesAsUnderlyingType<CurrencyType>())
             {
-                currencyChoices.AddChoice($"{type}");
+                if (type is not CurrencyType.INVALID)
+                {
+                    currencyChoices.AddChoice($"{type}");
+                }
             }
 
             var choice = AnsiConsole.Prompt(currencyChoices);
@@ -204,7 +207,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     if (existingUsernames.Contains(username))
                     {
                         Console.WriteLine($"{username} already exists, enter a valid username:");
-                    }else if (username.Length < 5)
+                    }
+                    else if (username.Length < 5)
                     {
                         Console.WriteLine($"{username} is too short, enter a valid username:");
                     }
@@ -374,7 +378,32 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {
                 return default;
             }
+            // TA BORT HÄRIFRÅN
+            bankAccounts.Remove(selectedAccount);
+            while (bankAccounts.Count > 0)
+            {
+                accountChoices = GetBankAccountInfo(bankAccounts);
 
+                accountChoices.AccountInformationList.Add("Back");
+
+                selectedAccountChoice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .PageSize(20)
+                        .Title("Select an Account to Withdraw from\n" + accountChoices.SelectionPromptTitle)
+                        .AddChoices(accountChoices.AccountInformationList)
+                    );
+
+                chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
+
+                selectedAccount = bankAccounts.FirstOrDefault(account => account.GetAccountNumber() == chosenAccountNumber);
+
+                if (selectedAccount == null)
+                {
+                    return default;
+                }
+                bankAccounts.Remove(selectedAccount);
+            }
+            // TILL HIT
             var info = selectedAccount.GetAccountInformation();
             WriteTransactionInformation(info);
 

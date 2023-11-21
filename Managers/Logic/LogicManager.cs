@@ -37,67 +37,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
             CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType.Admin, true).Wait();
         }
 
-        private List<User> InitializeTestUsers()
-        {
-            List<User> users = new()
-                {
-                    new Admin("ATobias",   "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
-                    new Admin("ADaniel",   "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel.admin@edugrade.com")))),
-                    new Admin("AWille",    "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille.admin@edugrade.com")))),
-                    new Admin("AEfrem",    "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem.admin@edugrade.com")))),
-                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
-                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
-                    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
-                };
-            foreach (var user in users)
-            {
-                user.AddLog(EventStatus.AccountCreationSuccess);
-            }
-            return users;
-        }
-        private void CreateBankAccountsForTestUsers()
-        {
-            foreach (var user in Users)
-            {
-                user.AddLog(EventStatus.AccountCreationSuccess);
-                Random rng = new Random();
-                if (user is Customer customer)
-                {
-                    decimal sum;
-                    int amountOfAccounts = rng.Next(2, 6);
-                    for (int i = 0; i < amountOfAccounts; i++)
-                    {
-                        sum = rng.Next(0, 1001);
-                        customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum));
-                        customer.AddLog(EventStatus.CheckingCreationSuccess);
 
-                        sum = rng.Next(0, 1001);
-                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
-                        customer.AddLog(EventStatus.SavingsCreationSuccess);
-                    }
-
-                }
-            }
-        }
-        private string CreateAmazingAccountName(int i, string name)
-        {
-            return i switch
-            {
-                0 => $"{name}'s Hemliga Godis Konto",
-                1 => $"{name}'s Semester Konto",
-                2 => $"{name}'s Mat Konto",
-                3 => $"{name}'s Reservdels Konto för Ockelbon",
-                4 => $"{name}'s Tomma Konto",
-                5 => $"{name}'s Hemliga Honungs Konto",
-                _ => $"{name}'s Något Blev Fel Konto"
-            };
-        }
 
         public void GetUserChoice()
         {
             //Users = await DatabaseManager.GetAllUsersFromDB();
-
             TransactionsManager.Start();
 
             while (KeepRunning)
@@ -123,12 +67,14 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     {
                                         CurrentCustomer = customer;
                                         CurrentCustomer.AddLog(info.EventStatus);
+                                        BankLoggo.LoginLoadingScreen();
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
                                     else if (info.User is Admin admin)
                                     {
                                         CurrentAdmin = admin;
                                         CurrentAdmin.AddLog(info.EventStatus);
+                                        BankLoggo.LoginLoadingScreen();
                                         Choice = UserChoice.ViewAdminMenu;
                                     }
                                     else
@@ -453,6 +399,71 @@ namespace NET23_GrupprojektBank.Managers.Logic
             //await TransactionsManager.StopAsync();
             KeepRunning = false;
             Choice = UserChoice.Exit;
+        }
+
+        private List<User> InitializeTestUsers()
+        {
+            List<User> users = new()
+                {
+                    new Admin("ATobias",   "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
+                    new Admin("ADaniel",   "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel.admin@edugrade.com")))),
+                    new Admin("AWille",    "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille.admin@edugrade.com")))),
+                    new Admin("AEfrem",    "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem.admin@edugrade.com")))),
+                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
+                };
+            foreach (var user in users)
+            {
+                if (user is Customer customer)
+                {
+                    customer.AddLog(EventStatus.CustomerAccountCreationSuccess);
+                }
+                if (user is Admin admin)
+                {
+                    admin.AddLog(EventStatus.AdminAccountCreationSuccess);
+
+                }
+            }
+            return users;
+        }
+        private void CreateBankAccountsForTestUsers()
+        {
+            foreach (var user in Users)
+            {
+                user.AddLog(EventStatus.AdminAccountCreationSuccess);
+                Random rng = new Random();
+                if (user is Customer customer)
+                {
+                    decimal sum;
+                    int amountOfAccounts = rng.Next(2, 6);
+                    for (int i = 0; i < amountOfAccounts; i++)
+                    {
+                        sum = rng.Next(0, 1001);
+                        customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum));
+                        customer.AddLog(EventStatus.CheckingCreationSuccess);
+
+                        sum = rng.Next(0, 1001);
+                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
+                        customer.AddLog(EventStatus.SavingsCreationSuccess);
+                    }
+
+                }
+            }
+        }
+        private string CreateAmazingAccountName(int i, string name)
+        {
+            return i switch
+            {
+                0 => $"{name}'s Hemliga Godis Konto",
+                1 => $"{name}'s Semester Konto",
+                2 => $"{name}'s Mat Konto",
+                3 => $"{name}'s Reservdels Konto för Ockelbon",
+                4 => $"{name}'s Tomma Konto",
+                5 => $"{name}'s Hemliga Honungs Konto",
+                _ => $"{name}'s Något Blev Fel Konto"
+            };
         }
     }
 }
