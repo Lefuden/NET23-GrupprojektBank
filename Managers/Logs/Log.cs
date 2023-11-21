@@ -1,6 +1,5 @@
 ﻿namespace NET23_GrupprojektBank.Managers.Logs
 {
-    //[JsonConverter(typeof(LogConverter))]
     internal class Log
     {
         public int LogId { get; set; }
@@ -12,6 +11,12 @@
         {
             LogId = LogIdReference++;
             DateAndTime = dateAndTime;
+            Message = message;
+        }
+        public Log(string message)
+        {
+            LogId = LogIdReference++;
+            DateAndTime = DateTime.UtcNow;
             Message = message;
         }
         public override string ToString()

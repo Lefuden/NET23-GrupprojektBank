@@ -1,7 +1,6 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Currency;
 using Spectre.Console;
-using System.Text.RegularExpressions;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
@@ -17,8 +16,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .Title($"Select an account to deposit to\n{accountChoices.SelectionPromptTitle}")
                     .AddChoices(accountChoices.AccountInformationList));
 
-            string pattern = @"\[red bold\](\d+)\[/\]";
-            Regex regex = new Regex(pattern);
 
             int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
             var selectedAccount = bankAccounts.FirstOrDefault(account => account.GetAccountNumber() == chosenAccountNumber);

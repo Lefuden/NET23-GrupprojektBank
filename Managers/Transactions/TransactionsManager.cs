@@ -73,7 +73,7 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                         {
                             if (transaction.SourceBankAccount.GetBalance() >= transaction.Sum)
                             {
-                                transaction.SourceBankAccount.Remove(transaction.Sum);
+                                transaction.SourceBankAccount.RemoveBalance(transaction.Sum);
                                 transaction.SourceUser.AddLog(EventStatus.WithdrawalSuccess);
                             }
                             else
@@ -94,8 +94,8 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                             {
                                 if (sameCurrencyType)
                                 {
-                                    transaction.SourceBankAccount.Remove(transaction.Sum);
-                                    transaction.DestinationBankAccount.Add(transaction.Sum);
+                                    transaction.SourceBankAccount.RemoveBalance(transaction.Sum);
+                                    transaction.DestinationBankAccount.AddBalance(transaction.Sum);
                                     transaction.SourceUser.AddLog(EventStatus.TransferSuccess);
                                     transaction.DestinationUser.AddLog(EventStatus.TransferReceivedSuccess);
                                 }
@@ -103,8 +103,8 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                                 {
 
                                     decimal convertedSumToTransfer = transaction.SourceBankAccount.ConvertToCurrencyRate(transaction.DestinationCurrencyType, transaction.Sum);
-                                    transaction.SourceBankAccount.Remove(transaction.Sum);
-                                    transaction.DestinationBankAccount.Add(convertedSumToTransfer);
+                                    transaction.SourceBankAccount.RemoveBalance(transaction.Sum);
+                                    transaction.DestinationBankAccount.AddBalance(convertedSumToTransfer);
                                     transaction.SourceUser.AddLog(EventStatus.TransferSuccess);
                                     transaction.DestinationUser.AddLog(EventStatus.TransferReceivedSuccess);
 
@@ -127,7 +127,8 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                     case (TransactionType.Loan):
                         if (transaction.Sum > 0)
                         {
-                            transaction.SourceBankAccount.Add(transaction.Sum);
+                            transaction.SourceBankAccount.AddBalance(transaction.Sum);
+                            transaction.SourceBankAccount.AddLoanAndInterest(transaction.Sum, transaction.InterestRate);
                             transaction.SourceUser.AddLog(EventStatus.LoanSuccess);
                         }
                         else
@@ -139,7 +140,7 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                     case (TransactionType.Deposit):
                         if (transaction.Sum > 0)
                         {
-                            transaction.SourceBankAccount.Add(transaction.Sum);
+                            transaction.SourceBankAccount.AddBalance(transaction.Sum);
                             transaction.SourceUser.AddLog(EventStatus.DepositSuccess);
                         }
                         else

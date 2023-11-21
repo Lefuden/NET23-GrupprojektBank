@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.Currency;
-using System.Transactions;
 
 namespace NET23_GrupprojektBank.BankAccounts
 {
@@ -16,10 +15,12 @@ namespace NET23_GrupprojektBank.BankAccounts
         protected BankAccountType BankAccountType { get; set; }
         protected CurrencyType CurrencyType { get; set; }
         protected decimal Balance { get; set; }
+        protected decimal LoanAmount { get; set; }
+        protected double LoanInterestRate { get; set; }
 
-
-        public abstract void MakeTransaction(Transaction transaction);
-        public virtual decimal GetBalance() => Balance;
+        public decimal GetBalance() => Balance;
+        public decimal GetLoanAmount() => LoanAmount;
+        public double GetLoanInterestRate() => LoanInterestRate;
         public int GetAccountNumber() => BankAccountNumber;
         public decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
         {
@@ -27,14 +28,22 @@ namespace NET23_GrupprojektBank.BankAccounts
 
             return (decimal)convertRate[currencyType] * sum;
         }
-        public void Add(decimal sum)
+        public void AddLoanAndInterest(decimal loanAmount, double loanInterestRate)
+        {
+            if (loanAmount >= 0 && loanInterestRate >= 0)
+            {
+                LoanAmount = loanAmount;
+                LoanInterestRate = loanInterestRate;
+            }
+        }
+        public void AddBalance(decimal sum)
         {
             if (sum > 0)
             {
                 Balance += sum;
             }
         }
-        public void Remove(decimal sum)
+        public void RemoveBalance(decimal sum)
         {
             if (Balance >= sum)
             {

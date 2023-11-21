@@ -97,18 +97,6 @@ namespace NET23_GrupprojektBank.Managers.Logic
         public void GetUserChoice()
         {
             //Users = await DatabaseManager.GetAllUsersFromDB();
-            // IF you want to test the currency exchange rate uncomment these 2 lines
-
-            //UserCommunications.TestCurrencyExchangeRate();
-
-            foreach (var user in Users)
-            {
-                if (user is Customer customer)
-                {
-                    var transaction = new Transaction(customer, customer, customer.BankAccounts[0], customer.BankAccounts[1], CurrencyType.SEK, CurrencyType.EUR, DateTime.UtcNow, TransactionType.Transfer, 250);
-                    TransactionsManager.AddTransaction(transaction);
-                }
-            }
 
             TransactionsManager.Start();
 

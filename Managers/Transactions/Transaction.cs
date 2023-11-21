@@ -19,10 +19,11 @@ namespace NET23_GrupprojektBank.Managers.Transactions
         public BankAccount DestinationBankAccount { get; set; }
         public CurrencyType SourceCurrencyType { get; set; }
         public CurrencyType DestinationCurrencyType { get; set; }
+        public double InterestRate { get; set; }
         public DateTime DateAndTime { get; set; }
         public TransactionType TransactionType { get; set; }
         public decimal Sum { get; set; }
-        public Transaction(User sourceUser, User destinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, DateTime dateAndTime, TransactionType transactionType, decimal sum)
+        public Transaction(User sourceUser, User destinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, DateTime dateAndTime, TransactionType transactionType, decimal sum, double interestRate = 0)
         {
             SourceUser = sourceUser;
             DestinationUser = destinationUser;
@@ -33,8 +34,9 @@ namespace NET23_GrupprojektBank.Managers.Transactions
             DateAndTime = dateAndTime;
             TransactionType = transactionType;
             Sum = sum;
+            InterestRate = interestRate;
         }
-        public Transaction(User sourceAndDestinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, TransactionType transactionType, decimal sum)
+        public Transaction(User sourceAndDestinationUser, BankAccount sourceBankAccount, BankAccount destinationBankAccount, CurrencyType sourceCurrencyType, CurrencyType destinationCurrencyType, TransactionType transactionType, decimal sum, double interestRate = 0)
         {
             SourceUser = sourceAndDestinationUser;
             DestinationUser = sourceAndDestinationUser;
@@ -45,8 +47,9 @@ namespace NET23_GrupprojektBank.Managers.Transactions
             DateAndTime = DateTime.UtcNow;
             TransactionType = transactionType;
             Sum = sum;
+            InterestRate = interestRate;
         }
-        public Transaction(User sourceAndDestinationUser, BankAccount sourceAndDestinationAccount, CurrencyType sourceAndDestinationCurrencyType, TransactionType transactionType, decimal sum)
+        public Transaction(User sourceAndDestinationUser, BankAccount sourceAndDestinationAccount, CurrencyType sourceAndDestinationCurrencyType, TransactionType transactionType, decimal sum, double interestRate = 0)
         {
             SourceUser = sourceAndDestinationUser;
             DestinationUser = sourceAndDestinationUser;
@@ -57,6 +60,7 @@ namespace NET23_GrupprojektBank.Managers.Transactions
             DateAndTime = DateTime.UtcNow;
             TransactionType = transactionType;
             Sum = sum;
+            InterestRate = interestRate;
         }
     }
 }
