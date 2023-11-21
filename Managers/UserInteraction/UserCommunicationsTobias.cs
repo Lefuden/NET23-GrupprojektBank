@@ -16,13 +16,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             var table = GetLogTables(logs);
             table.Expand();
             AnsiConsole.Write(table);
-            FakeBackChoice();
+            FakeBackChoice("Back");
         }
 
-        public static void FakeBackChoice()
+        public static void FakeBackChoice(string text)
         {
             AnsiConsole.Cursor.Show(false);
-            AnsiConsole.MarkupLine($"[#bd93f9]> Back[/]");
+            AnsiConsole.MarkupLine($"[#bd93f9]> {text}[/]");
             Console.ReadKey();
             AnsiConsole.Cursor.Show(true);
         }
@@ -64,7 +64,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return interest;
         }
-        private static (string SelectionPromtTitel, List<string> AccountInformationList, decimal TotalSumOnAccounts) GetBankAccountInfo(List<BankAccount> bankAccounts)
+        private static (string SelectionPromptTitle, List<string> AccountInformationList, decimal TotalSumOnAccounts) GetBankAccountInfo(List<BankAccount> bankAccounts)
         {
             var accountInfoList = new List<string>();
             int maxName = 12, maxNumber = 10, maxBalance = 7, maxCurrency = 3, maxType = 8, maxInterest = 8;
@@ -92,10 +92,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             return (questionTitel, accountInfoList, totalSumOnAccounts);
         }
 
-
-
-
-
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeLoanMenu(List<BankAccount> bankAccounts)
         {
             WriteDivider($"Loan Menu");
@@ -110,108 +106,75 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 case true:
                     break;
             }
+
             Console.Clear();
+
             WriteDivider($"Loan Menu");
 
             var accountChoices = GetBankAccountInfo(bankAccounts);
+            accountChoices.AccountInformationList.Add("Back");
             var selectedAccountChoice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-
-                .Title(accountChoices.SelectionPromtTitel)
+                .PageSize(20)
+                .Title("What account would like to deposit the loan to?\n" + accountChoices.SelectionPromptTitle)
                 .AddChoices(accountChoices.AccountInformationList)
              );
 
             string pattern = @"\[red bold\](\d+)\[/\]";
             Regex regex = new Regex(pattern);
 
-            int choosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice.ToString());
+            int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice.ToString());
 
             var selectedAccount = bankAccounts.FirstOrDefault(account =>
             {
-                if (account.GetAccountNumber() == choosenAccountNumber)
+                if (account.GetAccountNumber() == chosenAccountNumber)
                 {
                     return true;
                 }
                 return false;
             });
 
-            if (selectedAccount != null)
+            if (selectedAccount == null)
             {
-                string accountName;
-                string balance;
-                string currencyType;
+                return default;
+            }
 
-                if (selectedAccount is Checking)
+            var info = selectedAccount.GetAccountInformation();
+            WriteTransactionInformation(info);
+
+            while (true)
+            {
+                decimal loanAmount = AnsiConsole.Ask<decimal>($"[purple]How Much Would You Like To Loan?[/] [gold1](Maximum: {accountChoices.TotalSumOnAccounts * 5})[/]");
+
+                if (loanAmount >= 0 || loanAmount <= accountChoices.TotalSumOnAccounts * 5)
                 {
-                    var checkingAccount = selectedAccount as Checking;
-                    var info = checkingAccount.GetAccountInformation();
-                    accountName = info.Name;
-                    balance = info.Balance;
-                    currencyType = info.Currency;
-                }
-                else if (selectedAccount is Savings)
-                {
-                    var savingsAccount = selectedAccount as Savings;
-                    var info = savingsAccount.GetAccountInformation();
-                    accountName = info.Name;
-                    balance = info.Balance;
-                    currencyType = info.Currency;
-                }
-                else
-                {
-                    return default;
-                }
+                    AnsiConsole.MarkupLine($"[green]{loanAmount:c} {info.Currency}[/] [purple]has been added to {info.Name}[/]");
 
-                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{accountName}[/]");
-                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currencyType}[/]");
-                AnsiConsole.MarkupLine($"[purple]Withdraw from[/]  [green]{accountName}[/]");
+                    string stringChoice = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .PageSize(3)
+                            .AddChoices(new[]
+                            {
+                                    "Ok"
+                            }
+                        ));
 
-
-                while (true)
-                {
-                    string input = AnsiConsole.Ask<string>($"[purple]How Much Would You Like To Loan?[/] [gold1](Maximum: {accountChoices.TotalSumOnAccounts * 5})[/]");
-
-                    if (decimal.TryParse(input, out decimal loanAmount) || loanAmount <= 0 || loanAmount > accountChoices.TotalSumOnAccounts * 5)
+                    if (stringChoice == "Ok")
                     {
-                        decimal currentBalance = decimal.Parse(balance);
-                        currentBalance += loanAmount;
-                        balance = currentBalance.ToString();
-
-                        AnsiConsole.MarkupLine($"[green]{loanAmount:c} {currencyType}[/] [purple]has been added to {accountName}[/]");
-
-                        string stringChoice = AnsiConsole.Prompt(
-                            new SelectionPrompt<string>()
-                                .PageSize(3)
-                                .AddChoices(new[]
-                                {
-                                    "Ok",
-                                    "Back"
-                                }
-                            ));
-
-                        if (stringChoice == "Ok")
-                        {
-                            CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
-                            return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, loanAmount);
-                        }
-                        else if (stringChoice == "Back")
-                        {
-                            return default;
-                        }
-
+                        CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), info.Currency ?? CurrencyType.SEK.ToString());
+                        return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, loanAmount);
                     }
                     else
                     {
-                        AnsiConsole.MarkupLine($"[red]Please enter a valid amount between 0 and {accountChoices.TotalSumOnAccounts * 5}.[/]");
+                        return default;
                     }
                 }
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[red]Selected account type is not supported for loans.[/]");
-                return default;
+
+                AnsiConsole.MarkupLine($"[red]Please enter a valid amount between 0 and {accountChoices.TotalSumOnAccounts * 5}.[/]");
             }
         }
+
+
 
         public static UserChoice AdminUpdateCurrencyOption()
         {
