@@ -64,10 +64,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return interest;
         }
-        private static (List<string> AccountInformationList, decimal TotalSumOnAccounts) GetBankAccountInfo(List<BankAccount> bankAccounts)
+        private static (string SelectionPromtTitel, List<string> AccountInformationList, decimal TotalSumOnAccounts) GetBankAccountInfo(List<BankAccount> bankAccounts)
         {
             var accountInfoList = new List<string>();
-            int maxName = 0, maxNumber = 0, maxBalance = 0, maxCurrency = 3, maxType = 8, maxInterest = 6;
+            int maxName = 12, maxNumber = 10, maxBalance = 7, maxCurrency = 3, maxType = 8, maxInterest = 8;
             decimal totalSumOnAccounts = 0;
             foreach (var account in bankAccounts)
             {
@@ -89,24 +89,30 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 }
             }
+            //" + $"{(maxName > 12 ? -(maxName / 2) + (maxName - 12) : "")}" + "
+            //, " + -((maxName - 12) / 2) + "
+            int accountNamePadding = ((maxName - "Account Name".Length) / 2) - ("Account Name".Length / 2);
+            int accountNumberPadding = ("Number".Length / 2) - ((maxNumber - "Number".Length) / 2);
+            string questionTitel = string.Format("  {0," + accountNamePadding + "}[yellow bold]{1, " + -(maxName - accountNamePadding) + "}[/] - {0, " + (accountNumberPadding + accountNumberPadding % 2) + "}[red bold]{2, " + -(maxNumber - accountNumberPadding - accountNumberPadding % 2) + "}[/] - [green bold]{3, " + maxBalance + "}[/] - [blue bold]{4, " + maxCurrency + "}[/] - [orange1 bold]{5, " + -maxType + "}[/] - [cyan1 bold]{6, " + maxInterest + "}[/]", "", "Account Name", "Number", "Balance", "Cur", "Type", "Interest");
 
             foreach (var account in bankAccounts)
             {
                 if (account is Checking checkingAccount)
                 {
                     var info = checkingAccount.GetAccountInformation();
-                    string text = string.Format("[yellow bold]{0, " + maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, "");
+                    string text = string.Format("[yellow bold]{0, " + -maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + -maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, "");
                     accountInfoList.Add(text);
                 }
                 else if (account is Savings savingsAccount)
                 {
                     var info = savingsAccount.GetAccountInformation();
-                    string text = string.Format("[yellow bold]{0, " + maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, info.Interest);
+                    string text = string.Format("[yellow bold]{0, " + -maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + -maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, info.Interest);
                     accountInfoList.Add(text);
                 }
+
             }
 
-            return (accountInfoList, totalSumOnAccounts);
+            return (questionTitel, accountInfoList, totalSumOnAccounts);
         }
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeLoanMenu(List<BankAccount> bankAccounts)
         {
@@ -122,12 +128,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 case true:
                     break;
             }
+            Console.Clear();
+            WriteDivider($"Loan Menu");
 
             var accountChoices = GetBankAccountInfo(bankAccounts);
             var selectedAccountChoice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .PageSize(5)
-                .Title("Select an Account you want to add the loaned sum to")
+
+                .Title(accountChoices.SelectionPromtTitel)
                 .AddChoices(accountChoices.AccountInformationList)
              );
 

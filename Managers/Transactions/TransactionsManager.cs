@@ -9,6 +9,7 @@ namespace NET23_GrupprojektBank.Managers.Transactions
         private List<Log> TransactionLogs { get; set; }
         public TransactionsManager()
         {
+            Transactions = new();
             TransactionLogs = new();
         }
 

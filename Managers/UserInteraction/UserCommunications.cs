@@ -574,10 +574,17 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             AnsiConsole.Write(new Rule(content));
         }
-        private static void WriteDivider(string text)
+        private static void WriteDivider(string text = "")
         {
+            if (text == "")
+            {
+                AnsiConsole.Write(new Rule().RuleStyle("grey").LeftJustified());
+            }
+            else
+            {
+                AnsiConsole.Write(new Rule($"[gold1]{text}[/]").RuleStyle("grey").LeftJustified());
+            }
 
-            AnsiConsole.Write(new Rule($"[gold1]{text}[/]").RuleStyle("grey").LeftJustified());
             AnsiConsole.WriteLine();
         }
         private static UserChoice ConvertStringToUserChoice(string input)
