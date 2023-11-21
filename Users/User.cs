@@ -66,7 +66,7 @@ namespace NET23_GrupprojektBank.Users
             {
                 Logs = new List<Log>();
             }
-            UserCommunications.ShowLogs(Logs);
+            UserCommunications.ShowLogs(Logs, Username);
         }
 
         //make better log messages, humans need to read it
