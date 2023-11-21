@@ -3,21 +3,19 @@ using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserInformation;
-using Newtonsoft.Json;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
 {
     internal class Customer : User
     {
-        [JsonProperty]
-        public List<BankAccount> BankAccounts { get; set; }
-
+        protected List<BankAccount> BankAccounts { get; set; }
         public Customer(string userName, string password, PersonInformation person) : base(userName, password, person)
         {
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
+
         public List<BankAccount> GetBankAccounts() => BankAccounts;
         public void AddBankAccount(BankAccount bankAccount) => BankAccounts.Add(bankAccount);
 
@@ -91,7 +89,7 @@ namespace NET23_GrupprojektBank.Users
             else
             {
                 AddLog(EventStatus.LoanCreated);
-                return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Loan, info.Sum);
+                return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Loan, info.Sum, info.InterestRate);
             }
         }
 

@@ -80,7 +80,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             int accountNamePadding = ((maxName - "Account Name".Length) / 2) - ("Account Name".Length / 2);
             int accountNumberPadding = ("Number".Length / 2) - ((maxNumber - "Number".Length) / 2);
-            string questionTitel = string.Format("  {0," + accountNamePadding + "}[yellow bold]{1, " + -(maxName - accountNamePadding) + "}[/] - {0, " + (accountNumberPadding + accountNumberPadding % 2) + "}[red bold]{2, " + -(maxNumber - accountNumberPadding - accountNumberPadding % 2) + "}[/] - [green bold]{3, " + maxBalance + "}[/] - [blue bold]{4, " + maxCurrency + "}[/] - [orange1 bold]{5, " + -maxType + "}[/] - [cyan1 bold]{6, " + maxInterest + "}[/]", "", "Account Name", "Number", "Balance", "Cur", "Type", "Interest");
+            string questionTitle = string.Format("  {0," + accountNamePadding + "}[yellow bold]{1, " + -(maxName - accountNamePadding) + "}[/] - {0, " + (accountNumberPadding + accountNumberPadding % 2) + "}[red bold]{2, " + -(maxNumber - accountNumberPadding - accountNumberPadding % 2) + "}[/] - [green bold]{3, " + maxBalance + "}[/] - [blue bold]{4, " + maxCurrency + "}[/] - [orange1 bold]{5, " + -maxType + "}[/] - [cyan1 bold]{6, " + maxInterest + "}[/]", "", "Account Name", "Number", "Balance", "Cur", "Type", "Interest");
 
             foreach (var account in bankAccounts)
             {
@@ -88,11 +88,42 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 string text = string.Format("[yellow bold]{0, " + -maxName + "}[/] - [red bold]{1, " + maxNumber + "}[/] - [green bold]{2, " + maxBalance + "}[/] - [blue bold]{3, " + maxCurrency + "}[/] - [orange1 bold]{4, " + -maxType + "}[/] - [cyan1 bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, info.Interest);
                 accountInfoList.Add(text);
             }
-
-            return (questionTitel, accountInfoList, totalSumOnAccounts);
+            accountInfoList.Add("Back");
+            return (questionTitle, accountInfoList, totalSumOnAccounts);
         }
 
-        public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeLoanMenu(List<BankAccount> bankAccounts)
+        public static Table GetBankAccountsAsTable(List<BankAccount> bankAccounts)
+        {
+            var table = new Table();
+
+            table.AddColumns(new TableColumn("Account Name").Centered(), new TableColumn("Number").Centered(), new TableColumn("Balance").Centered(), new TableColumn("Cur").Centered(), new TableColumn("Type").Centered(), new TableColumn("Interest").Centered());
+
+            foreach (var account in bankAccounts)
+            {
+                var info = account.GetAccountInformation();
+                table.AddRow(
+                    $"{info.Name}",
+                    $"{info.Number}",
+                    $"{info.Balance}",
+                    $"{info.Currency}",
+                    $"{info.Type}",
+                    $"{info.Interest}");
+            }
+            table.Border(TableBorder.Rounded);
+            return table;
+        }
+        public static decimal GetMaximumLoanAllowedWithInterestCalculated(List<BankAccount> bankAccounts)
+        {
+
+            decimal currentLoanWithInterestRateCalculated = 0;
+            foreach (var account in bankAccounts)
+            {
+                currentLoanWithInterestRateCalculated += account.GetLoanAmount() * (decimal)account.GetLoanInterestRate() * 100;
+            }
+
+            return currentLoanWithInterestRateCalculated;
+        }
+        public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum, double InterestRate) MakeLoanMenu(List<BankAccount> bankAccounts)
         {
             WriteDivider($"Loan Menu");
 
@@ -112,7 +143,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             WriteDivider($"Loan Menu");
 
             var accountChoices = GetBankAccountInfo(bankAccounts);
-            accountChoices.AccountInformationList.Add("Back");
+
             var selectedAccountChoice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .PageSize(20)
@@ -125,14 +156,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice.ToString());
 
-            var selectedAccount = bankAccounts.FirstOrDefault(account =>
-            {
-                if (account.GetAccountNumber() == chosenAccountNumber)
-                {
-                    return true;
-                }
-                return false;
-            });
+            var selectedAccount = bankAccounts.FirstOrDefault(account => (account.GetAccountNumber() == chosenAccountNumber));
 
             if (selectedAccount == null)
             {
@@ -140,37 +164,31 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
 
             var info = selectedAccount.GetAccountInformation();
+            var currentLoanWithInterest = GetMaximumLoanAllowedWithInterestCalculated(bankAccounts);
+            var maximumAmountAllowedToLoan = (accountChoices.TotalSumOnAccounts * 5) - currentLoanWithInterest;
+            if (maximumAmountAllowedToLoan <= 0)
+            {
+                AnsiConsole.MarkupLine($"[red]You have too many loans and too little balance on your accounts to make a new loan.\nYour current maximum allowed loan limit is: {maximumAmountAllowedToLoan:.##}-{info.Currency}.[/]\n");
+                FakeBackChoice("Ok");
+                return default;
+            }
             WriteTransactionInformation(info);
 
             while (true)
             {
-                decimal loanAmount = AnsiConsole.Ask<decimal>($"[purple]How Much Would You Like To Loan?[/] [gold1](Maximum: {accountChoices.TotalSumOnAccounts * 5})[/]");
-
-                if (loanAmount >= 0 || loanAmount <= accountChoices.TotalSumOnAccounts * 5)
+                decimal loanAmount = AnsiConsole.Ask<decimal>($"[purple]How Much Would You Like To Loan?[/] [gold1] (Maximum: {maximumAmountAllowedToLoan:.##})[/]");
+                decimal controlValueForMaximumAmountAllowedToLoan = maximumAmountAllowedToLoan < 0 ? maximumAmountAllowedToLoan * -1 : maximumAmountAllowedToLoan;
+                if (loanAmount >= 0 && loanAmount <= controlValueForMaximumAmountAllowedToLoan)
                 {
-                    AnsiConsole.MarkupLine($"[green]{loanAmount:c} {info.Currency}[/] [purple]has been added to {info.Name}[/]");
+                    AnsiConsole.MarkupLine($"[green]You have successfully applied for a loan for:[/] [purple]{loanAmount:.##}-{info.Currency}[/]");
 
-                    string stringChoice = AnsiConsole.Prompt(
-                        new SelectionPrompt<string>()
-                            .PageSize(3)
-                            .AddChoices(new[]
-                            {
-                                    "Ok"
-                            }
-                        ));
+                    FakeBackChoice("Ok");
+                    CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), info.Currency ?? CurrencyType.SEK.ToString());
+                    return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, loanAmount, interest);
 
-                    if (stringChoice == "Ok")
-                    {
-                        CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), info.Currency ?? CurrencyType.SEK.ToString());
-                        return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, loanAmount);
-                    }
-                    else
-                    {
-                        return default;
-                    }
                 }
 
-                AnsiConsole.MarkupLine($"[red]Please enter a valid amount between 0 and {accountChoices.TotalSumOnAccounts * 5}.[/]");
+                AnsiConsole.MarkupLine($"[red]Please enter a valid amount between 0 and {maximumAmountAllowedToLoan}.[/]");
             }
         }
 

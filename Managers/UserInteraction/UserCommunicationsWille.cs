@@ -1,7 +1,6 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Currency;
 using Spectre.Console;
-using System.Text.RegularExpressions;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
@@ -36,9 +35,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .MoreChoicesText("Scroll down for more options")
                     .AddChoices(accountChoices)
             );
-
-            string pattern = @"\[red bold\](\d+)\[/\]";
-            Regex regex = new Regex(pattern);
 
             int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
 

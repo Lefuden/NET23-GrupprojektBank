@@ -9,6 +9,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
+        private static readonly string pattern = @"\[red bold\](\d+)\[/\]";
         public static CurrencyType ChooseCurrencyType()
         {
             WriteDivider("Choose Currency Type");
@@ -175,7 +176,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                         return validDateFormat;
                     }
 
-                    AnsiConsole.MarkupLine("[red]User is below the age retriction[/]");
+                    AnsiConsole.MarkupLine("[red]User is below the age restriction[/]");
                     return DateTime.MinValue;
                 }
                 AnsiConsole.MarkupLine("[red]invalid date format, try again[/]");
@@ -244,11 +245,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]Welcome Menu[/]")
-                    .PageSize(3)
                     .AddChoices(new[]
                     {
-                 "Login",
-                 "Exit"
+                        "Login",
+                        "Exit"
                     }
                 ));
 
@@ -264,12 +264,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .PageSize(10)
                     .AddChoices(new[]
                     {
-                 "Create Customer Account",
-                 "Create Admin Account",
-                 "Update Currency ExchangeRate",
-                 "View Logs",
-                 "Logout",
-                 "Exit"
+                        "Create Customer Account",
+                        "Create Admin Account",
+                        "Update Currency ExchangeRate",
+                        "View Logs",
+                        "Logout",
+                        "Exit"
                     }
                 ));
 
@@ -285,15 +285,15 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .PageSize(10)
                     .AddChoices(new[]
                     {
-                 "View Account Balance",
-                 "Create Bank Account",
-                 "Transfer",
-                 "Deposit",
-                 "Withdraw",
-                 "Loan",
-                 "View Logs",
-                 "Logout",
-                 "Exit"
+                        "View Account Balance",
+                        "Create Bank Account",
+                        "Transfer",
+                        "Deposit",
+                        "Withdraw",
+                        "Loan",
+                        "View Logs",
+                        "Logout",
+                        "Exit"
                     }
                 ));
 
@@ -306,13 +306,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]What would you like to do today?[/]")
-                    .PageSize(5)
                     .AddChoices(new[]
                     {
-                 "Create Checkings Account",
-                 "Create Savings Account",
-                 "Back",
-                 "Exit"
+                        "Create Checkings Account",
+                        "Create Savings Account",
+                        "Back",
+                        "Exit"
                     }
                 ));
 
@@ -320,101 +319,20 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static void ViewBankAccounts(List<BankAccount> bankAccounts)
         {
-            if (bankAccounts.Count != 0)
+            if (bankAccounts.Count == 0)
             {
-                var table = new Table().Centered();
-
-
-                AnsiConsole.Live(table)
-                    .AutoClear(false)
-                    .Overflow(VerticalOverflow.Ellipsis)
-                    .Cropping(VerticalOverflowCropping.Top)
-                    .Start(ctx =>
-                    {
-                        void Update(int delay, Action action)
-                        {
-                            action();
-                            ctx.Refresh();
-                            Thread.Sleep(delay);
-                        }
-
-
-                        Update(230, () => table.AddColumn("Account Type"));
-                        Update(230, () => table.AddColumn("Account Name"));
-                        Update(230, () => table.AddColumn("Account Number"));
-                        Update(230, () => table.AddColumn("Balance"));
-                        Update(230, () => table.AddColumn("Currency"));
-                        Update(230, () => table.AddColumn("Interest"));
-
-                        Update(70, () => table.Columns[0].Header("[orange1 bold]Account Type[/]"));
-                        Update(70, () => table.Columns[1].Header("[yellow bold]Account Name[/]"));
-                        Update(70, () => table.Columns[2].Header("[red bold]Account Number[/]"));
-                        Update(70, () => table.Columns[3].Header("[green bold]Balance[/]"));
-                        Update(70, () => table.Columns[4].Header("[blue bold]Currency[/]"));
-                        Update(70, () => table.Columns[5].Header("[cyan1 bold]Interest[/]"));
-
-
-
-                        foreach (var account in bankAccounts)
-                        {
-
-
-                            if (account is Checking checking)
-                            {
-                                var info = checking.GetAccountInformation();
-                                Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", "[cyan1][/]"));
-
-                            }
-                            if (account is Savings savings)
-                            {
-                                var info = savings.GetAccountInformation();
-                                Update(100, () => table.AddRow($"[orange1]{info.Type}[/]", $"[yellow]{info.Name}[/]", $"[red]{info.Number}[/]", $"[green]{info.Balance}[/]", $"[blue]{info.Currency}[/]", $"[cyan1]{info.Interest:p}[/]"));
-                            }
-
-
-                            Update(100, () => table.BorderColor(Color.Purple));
-
-                            Update(0, () => table.Columns[0].Centered());
-                            Update(0, () => table.Columns[1].Centered());
-                            Update(0, () => table.Columns[2].Centered());
-                            Update(0, () => table.Columns[3].Centered());
-                            Update(0, () => table.Columns[4].Centered());
-
-
-                        }
-                        Update(500, () => table.Title("Bank Accounts"));
-                        Update(400, () => table.Title("[[ [Purple]Bank Accounts[/] ]]"));
-
-
-                        {
-                            return;
-                        }
-                    });
-
+                AnsiConsole.MarkupLine("[bold red] You have no accounts in the bank![/]");
                 FakeBackChoice("Back");
-
                 return;
             }
-            else
-            {
-                static UserChoice Something()
-                {
-                    DrawRuler($"No Bank Account");
+            var table = GetBankAccountsAsTable(bankAccounts);
+            table.Title("[Purple]Bank Accounts[/]");
+            table.BorderColor(Color.Purple);
 
-                    string stringChoice = AnsiConsole.Prompt(
-                        new SelectionPrompt<string>()
-                            .Title("[purple]Would you like to Create one or go back[/]")
-                            .PageSize(3)
-                            .AddChoices(new[]
-                            {
-                         "Create Bank Account",
-                         "Back",
-                            }
-                        ));
-                    return ConvertStringToUserChoice(stringChoice);
-                }
-            }
+            AnsiConsole.Write(table);
+            FakeBackChoice("Back");
         }
+
         private static int GetSingleMatch(string pattern, string input)
         {
             Regex regex = new Regex(pattern);
@@ -423,10 +341,15 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             if (match.Success)
             {
                 // The captured number is in the first capturing group (index 1).
-                return int.Parse(match.Groups[1].Value);
+                if (int.TryParse(match.Groups[1].Value, out int convertedValue))
+                {
+                    return convertedValue;
+                }
+
+                return -1;
             }
 
-            return 0; // Return null if no match is found.
+            return -1;
         }
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeWithdrawalMenu(List<BankAccount> bankAccounts)
         {
@@ -441,10 +364,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .PageSize(20)
                     .Title("Select an Account to Withdraw from\n" + accountChoices.SelectionPromptTitle)
                     .AddChoices(accountChoices.AccountInformationList)
-            );
-
-            string pattern = @"\[red bold\](\d+)\[/\]";
-            Regex regex = new Regex(pattern);
+                );
 
             int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
 
@@ -465,6 +385,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
 
             decimal withdrawalAmount = AnsiConsole.Ask<decimal>($"[purple]How Much Would You Like To Withdraw?[/] [gold1](Maximum: {accountBalance})[/]");
+
             while (withdrawalAmount < 0 || withdrawalAmount > accountBalance)
             {
                 AnsiConsole.MarkupLine($"[red]Invalid withdrawal amount. Please enter a valid amount between 0 and {accountBalance}.[/]");

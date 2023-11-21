@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.Currency;
-using System.Transactions;
 
 namespace NET23_GrupprojektBank.BankAccounts
 {
@@ -14,15 +13,13 @@ namespace NET23_GrupprojektBank.BankAccounts
             CurrencyType = currencyType;
             Balance = balance;
             Interest = interest;
+            LoanAmount = 0;
+            LoanInterestRate = 0;
         }
 
         public override (string Type, string Name, string Number, string Balance, string Currency, string Interest) GetAccountInformation()
         {
             return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), $"{Balance:.00}", CurrencyType.ToString(), $"{Interest:p}".ToString());
-        }
-        public override void MakeTransaction(Transaction transaction)
-        {
-            throw new NotImplementedException();
         }
     }
 }
