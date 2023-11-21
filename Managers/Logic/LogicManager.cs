@@ -8,6 +8,7 @@ using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Spectre.Console;
+using Transaction = NET23_GrupprojektBank.Managers.Transactions.Transaction;
 
 namespace NET23_GrupprojektBank.Managers.Logic
 {
@@ -30,6 +31,14 @@ namespace NET23_GrupprojektBank.Managers.Logic
             KeepRunning = true;
             CurrentCustomer = default;
             CurrentAdmin = default;
+            Users = InitializeTestUsers();
+            CreateBankAccountsForTestUsers();
+            LoginManager = new(Users);
+
+        }
+
+        private List<User> InitializeTestUsers()
+        {
             List<User> users = new()
                 {
                     new Admin("ATobias",   "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
@@ -44,27 +53,63 @@ namespace NET23_GrupprojektBank.Managers.Logic
             foreach (var user in users)
             {
                 user.AddLog(EventStatus.AccountCreationSuccess);
+            }
+            return users;
+        }
+        private void CreateBankAccountsForTestUsers()
+        {
+            foreach (var user in Users)
+            {
+                user.AddLog(EventStatus.AccountCreationSuccess);
                 Random rng = new Random();
                 if (user is Customer customer)
                 {
-                    decimal sum = rng.Next(0, 1000001);
+                    decimal sum;
+                    int amountOfAccounts = rng.Next(2, 6);
+                    for (int i = 0; i < amountOfAccounts; i++)
+                    {
+                        sum = rng.Next(0, 1001);
+                        customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum));
+                        customer.AddLog(EventStatus.CheckingCreationSuccess);
 
-                    customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(new List<int>() { 982375871, 2982385, 92835782, 92837529 }), $"{user.GetUsername()}'s Konto", CurrencyType.SEK, sum));
-                    customer.AddLog(EventStatus.CheckingCreationSuccess);
+                        sum = rng.Next(0, 1001);
+                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, Customer.DecideInterestRate(customer.GetBankAccounts())));
+                        customer.AddLog(EventStatus.SavingsCreationSuccess);
+                    }
+
                 }
             }
-
-
-            Users = users;
-            LoginManager = new(Users);
         }
-
-
+        private string CreateAmazingAccountName(int i, string name)
+        {
+            return i switch
+            {
+                0 => $"{name}'s Hemliga Godis Konto",
+                1 => $"{name}'s Semester Konto",
+                2 => $"{name}'s Mat Konto",
+                3 => $"{name}'s Reservdels Konto för Ockelbon",
+                4 => $"{name}'s Tomma Konto",
+                5 => $"{name}'s Hemliga Honungs Konto",
+                _ => $"{name}'s Något Blev Fel Konto"
+            };
+        }
 
         public void GetUserChoice()
         {
             //Users = await DatabaseManager.GetAllUsersFromDB();
+            // IF you want to test the currency exchange rate uncomment these 2 lines
+            CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType.Admin).Wait();
+            UserCommunications.TestCurrencyExchangeRate();
+            foreach (var user in Users)
+            {
+                if (user is Customer customer)
+                {
+                    var transaction = new Transaction(customer, customer, customer.BankAccounts[0], customer.BankAccounts[1], CurrencyType.SEK, CurrencyType.EUR, DateTime.UtcNow, TransactionType.Transfer, 250);
+                    TransactionsManager.AddTransaction(transaction);
+                }
+            }
 
+            TransactionsManager.Start();
 
             while (KeepRunning)
             {
@@ -132,7 +177,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         break;
 
                     case UserChoice.Exit:
-                        Exit();
+                        Exit().Wait();
                         break;
 
                     case UserChoice.ViewAdminMenu:
@@ -412,10 +457,11 @@ namespace NET23_GrupprojektBank.Managers.Logic
             CurrentCustomer = null;
 
         }
-        private void Exit()
+        private async Task Exit()
         {
             //Users = await DatabaseManager.GetAllUsersFromDB();
             //await DatabaseManager.UpdateAllUsers(Users);
+            await TransactionsManager.StopAsync();
             KeepRunning = false;
             Choice = UserChoice.Exit;
         }

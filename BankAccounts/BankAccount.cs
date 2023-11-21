@@ -47,6 +47,11 @@ namespace NET23_GrupprojektBank.BankAccounts
             var nrGenerator = new Random();
             var accountNr = nrGenerator.Next(1000000000, 2000000001);
 
+            if (existingBankAccountNumbers is null || existingBankAccountNumbers.Count == 0)
+            {
+                return accountNr;
+            }
+
             while (existingBankAccountNumbers.Contains(accountNr))
             {
                 nrGenerator = new Random();

@@ -10,7 +10,7 @@ namespace NET23_GrupprojektBank.BankAccounts
         {
             BankAccountNumber = bankAccountNumber;
             BankAccountName = bankAccountName;
-            BankAccountType = BankAccountType.Checking;
+            BankAccountType = BankAccountType.Savings;
             CurrencyType = currencyType;
             Balance = balance;
             Interest = interest;

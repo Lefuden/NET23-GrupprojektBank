@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
-using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
@@ -12,7 +11,7 @@ namespace NET23_GrupprojektBank.Users
     internal class Customer : User
     {
         [JsonProperty]
-        protected List<BankAccount> BankAccounts { get; set; }
+        public List<BankAccount> BankAccounts { get; set; }
 
         public Customer(string userName, string password, PersonInformation person) : base(userName, password, person)
         {
@@ -40,9 +39,9 @@ namespace NET23_GrupprojektBank.Users
                 var bankAccountNr = BankAccount.BankAccountNumberGenerator(existingBankAccountNumbers);
                 Console.Clear();
 
-                double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? DecideInterestRate() : 0;
+                double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? UserCommunications.DecideInterestRate(BankAccounts) : 0;
 
-                AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n", Style.WithDecoration(Decoration.RapidBlink)).LeftJustified());
+                AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n").LeftJustified());
 
 
                 if (UserCommunications.AskUserYesOrNo("is this information correct?"))
@@ -63,51 +62,38 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
         }
-        private double DecideInterestRate(bool isMakingLoan = false)
+
+        public Transaction MakeLoan()
         {
-            Random rng = new();
-            int highestValue = 0;
-            decimal totalAmountOfMoneyOnBankAccounts = 0;
-            double interest = 0;
+            if (BankAccounts is not null && BankAccounts.Count <= 0)
+            {
+                AnsiConsole.MarkupLine("[bold red]You do not currently have any accounts with the bank and cannot take a loan![/]");
+                UserCommunications.FakeBackChoice();
+                return null;
+            }
+            decimal totalSum = 0;
             foreach (var bankAccount in BankAccounts)
             {
-                totalAmountOfMoneyOnBankAccounts += bankAccount.GetBalance();
+                totalSum += bankAccount.GetBalance();
             }
-            if (isMakingLoan)
+            if (totalSum <= 0)
             {
-                highestValue = totalAmountOfMoneyOnBankAccounts <= 0 ? 100 : totalAmountOfMoneyOnBankAccounts <= 10000 ? 80 : totalAmountOfMoneyOnBankAccounts <= 25000 ? 60 : totalAmountOfMoneyOnBankAccounts <= 50000 ? 40 : totalAmountOfMoneyOnBankAccounts <= 100000 ? 30 : totalAmountOfMoneyOnBankAccounts <= 500000 ? 20 : 10;
-                interest = rng.Next(0, highestValue + 1);
-                interest *= 0.01;
+                AnsiConsole.MarkupLine("[bold red]You do not currently have any balance in the bank and cannot take a loan![/]");
+                UserCommunications.FakeBackChoice();
+                return null;
+            }
+
+            var info = UserCommunications.MakeLoanMenu(BankAccounts);
+            if (info.SourceBankAccount is null)
+            {
+                AddLog(EventStatus.LoanFailed);
+                return null;
             }
             else
             {
-                interest = rng.NextDouble() / 100;
+                AddLog(EventStatus.LoanCreated);
+                return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Loan, info.Sum);
             }
-
-            return interest;
-        }
-        public Transaction MakeLoan()
-        {
-            //BankAccount.GetBalance();
-            //logic to create a loan
-            //send to createtransaction for completion
-            AddLog(EventStatus.LoanCreated);
-            while (true)
-            {
-                Console.WriteLine("make loan.");
-                CurrencyType currencyType = UserCommunications.ChooseCurrencyType();
-                Console.WriteLine($"{currencyType}\n\n");
-                //switch (Admin.AskUserYesOrNo("is this information correct?"))
-                //{
-                //    case true:
-                //        Console.Clear();
-                //        break;
-                //    case false:
-                //        Console.Clear();
-                //        break;
-                //}
-            }
-            return CreateTransaction(); //return transaction. return null if cancelled.
         }
 
         public Transaction MakeWithdrawal()

@@ -302,7 +302,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[purple]What would you like to do today?[/]")
-                    .PageSize(3)
+                    .PageSize(5)
                     .AddChoices(new[]
                     {
                  "Create Checkings Account",
@@ -340,7 +340,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                         Update(230, () => table.AddColumn("Account Number"));
                         Update(230, () => table.AddColumn("Balance"));
                         Update(230, () => table.AddColumn("Currency"));
-                        Update(230, () => table.AddColumn("Intrest"));
+                        Update(230, () => table.AddColumn("Interest"));
 
                         Update(70, () => table.Columns[0].Header("[orange1 bold]Account Type[/]"));
                         Update(70, () => table.Columns[1].Header("[yellow bold]Account Name[/]"));
@@ -576,6 +576,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         private static void WriteDivider(string text)
         {
+
             AnsiConsole.Write(new Rule($"[gold1]{text}[/]").RuleStyle("grey").LeftJustified());
             AnsiConsole.WriteLine();
         }
@@ -600,6 +601,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 "View Logs" => UserChoice.ViewLogs,//inte sub
                 "Back" => UserChoice.Back,
                 "Logout" => UserChoice.Logout,
+                "From File" => UserChoice.FromFile,
+                "From The Intrawebbs" => UserChoice.FromInternet,
                 _ => UserChoice.Invalid
 
             };
@@ -635,11 +638,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             return timeRemaining switch
             {
-                > 30 => Color.Red,
-                > 20 => Color.Orange1,
-                > 10 => Color.Gold1,
-                > 3 => Color.GreenYellow,
-                <= 3 => Color.Green,
+                > 10 => Color.Red,
+                > 5 => Color.Orange1,
+                > 3 => Color.Gold1,
+                > 2 => Color.GreenYellow,
+                <= 2 => Color.Green,
             }; ;
         }
 

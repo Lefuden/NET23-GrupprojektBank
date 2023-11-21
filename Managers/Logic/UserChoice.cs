@@ -23,6 +23,8 @@
         CreateCustomer,
         CreateAdmin,
         UpdateCurrencyExchange,
+        FromFile,
+        FromInternet,
         Invalid,
     }
 }
