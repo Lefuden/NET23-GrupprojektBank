@@ -44,6 +44,7 @@ namespace NET23_GrupprojektBank.Users
         }
 
         public Guid GetUserId() => UserId;
+        public List<Log> GetLogs() => new(Logs);
         internal string GetUsername() => Username;
 
         internal bool CompareUserPassword(string userPassword)
@@ -65,7 +66,7 @@ namespace NET23_GrupprojektBank.Users
             {
                 Logs = new List<Log>();
             }
-            UserCommunications.ShowLogs(Logs, Username);
+            UserCommunications.ShowLogs(GetLogs(), Username);
         }
 
         public string GetLogMessage(EventStatus eventStatus)
@@ -73,8 +74,6 @@ namespace NET23_GrupprojektBank.Users
             {
                 return eventStatus switch
                 {
-                    EventStatus.AccountCreationFailed => $"{Username} failed to create account",
-                    EventStatus.AccountCreationSuccess => $"{Username} created an account",
                     EventStatus.AdressFailed => $"{Username} failed to add address",
                     EventStatus.AdressSuccess => $"{Username} added an address",
                     EventStatus.CheckingCreationFailed => $"{Username} failed to create a checking account",
