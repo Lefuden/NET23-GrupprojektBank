@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.Managers.Logs;
+using Spectre.Console;
 
 
 namespace NET23_GrupprojektBank.Managers.Transactions
@@ -7,12 +8,42 @@ namespace NET23_GrupprojektBank.Managers.Transactions
     {
         private Queue<Transaction> Transactions { get; set; }
         private List<Log> TransactionLogs { get; set; }
-        public TransactionsManager()
+        private Task? _timerTask;
+        private readonly PeriodicTimer _timer;
+        private readonly CancellationTokenSource _cts = new();
+        public TransactionsManager(int timeInSeconds = 10)
         {
+            _timer = new(TimeSpan.FromSeconds(timeInSeconds));
             Transactions = new();
             TransactionLogs = new();
         }
-
+        public void Start()
+        {
+            _timerTask = DoWorkAsync();
+        }
+        public async Task StopAsync()
+        {
+            if (_timerTask is null)
+            {
+                return;
+            }
+            _cts.Cancel();
+            await _timerTask;
+            _cts.Dispose();
+        }
+        private async Task DoWorkAsync()
+        {
+            try
+            {
+                while (await _timer.WaitForNextTickAsync(_cts.Token))
+                {
+                    HandleQueuedTransactions();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
         public void AddTransaction(Transaction transaction)
         {
             if (transaction is not null)
@@ -24,11 +55,10 @@ namespace NET23_GrupprojektBank.Managers.Transactions
             {
                 TransactionLogs.Add(new Log(DateTime.UtcNow, "Transaction Manager Failed To Add Transaction To Queue"));
             }
-
-            HandleQueuedTransactions();
         }
         private void HandleQueuedTransactions()
         {
+            AnsiConsole.MarkupLine("[green]Taking care of transactions woop woop[/]");
 
             while (Transactions.Count > 0)
             {
@@ -77,6 +107,9 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                                     transaction.DestinationBankAccount.Add(convertedSumToTransfer);
                                     transaction.SourceUser.AddLog(EventStatus.TransferSuccess);
                                     transaction.DestinationUser.AddLog(EventStatus.TransferReceivedSuccess);
+
+                                    AnsiConsole.MarkupLine($"[bold green]ORIGINAL SUM: {transaction.Sum}[/] [bold orange1]CONVERTED SUM: {convertedSumToTransfer}[/]");
+
                                 }
 
                             }

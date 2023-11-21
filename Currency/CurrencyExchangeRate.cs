@@ -16,14 +16,14 @@ namespace NET23_GrupprojektBank.Currency
         private static Dictionary<CurrencyType, double> CurrentExchangeRatesEUR { get; set; } = new();
         private const string SupportedCurrencyTypes = "SEK,USD,EUR";
         private const string SupportedCurrencyFilePaths = "SEKResponse.txt,USDResponse.txt,EURResponse.txt";
-
+        private static bool _isUpdatedFromFile = false;
         private static string SEKResponse { get; set; }
         private static string USDResponse { get; set; }
         private static string EURResponse { get; set; }
         public static DTOForCurrencyExchangeRateAPI SEKCurrencyRate { get; set; } = new();
         public static DTOForCurrencyExchangeRateAPI USDCurrencyRate { get; set; } = new();
         public static DTOForCurrencyExchangeRateAPI EURCurrencyRate { get; set; } = new();
-        public static async Task<EventStatus> UpdateCurrencyExchangeRateAsync(UserType userType)
+        public static async Task<EventStatus> UpdateCurrencyExchangeRateAsync(UserType userType, bool startup = false)
         {
             if (userType is not UserType.Admin)
             {
@@ -32,7 +32,12 @@ namespace NET23_GrupprojektBank.Currency
             SEKCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
             USDCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
             EURCurrencyRate ??= new DTOForCurrencyExchangeRateAPI();
-
+            if (startup)
+            {
+                UpdateFromFile();
+                UpdateDictionaries();
+                return EventStatus.AdminUpdatedCurrencyFromFile;
+            }
             UserChoice choice = UserCommunications.AdminUpdateCurrencyOption();
             switch (choice)
             {
@@ -198,7 +203,7 @@ namespace NET23_GrupprojektBank.Currency
                 }
             }
 
-
+            _isUpdatedFromFile = SEKUpdatedFromFile == USDUpdatedFromFile == EURUpdatedFromFile;
             if (SEKUpdatedFromFile is not true)
             {
                 InitializeBaseValuesToADictionary(CurrentExchangeRatesSEK);
@@ -235,6 +240,15 @@ namespace NET23_GrupprojektBank.Currency
 
         public static Dictionary<CurrencyType, double> GetCurrentCurrencyExchangeRate(CurrencyType dictionaryCurrencyType)
         {
+            if (CurrentExchangeRatesSEK.Count <= 0 || CurrentExchangeRatesUSD.Count <= 0 || CurrentExchangeRatesEUR.Count <= 0)
+            {
+                if (_isUpdatedFromFile is not true)
+                {
+                    UpdateFromTheWeb().Wait();
+                    UpdateDictionaries();
+                }
+            }
+
             return dictionaryCurrencyType switch
             {
                 CurrencyType.SEK => CurrentExchangeRatesSEK,

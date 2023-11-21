@@ -34,7 +34,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
             Users = InitializeTestUsers();
             CreateBankAccountsForTestUsers();
             LoginManager = new(Users);
-
+            CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType.Admin, true).Wait();
         }
 
         private List<User> InitializeTestUsers()
@@ -98,8 +98,9 @@ namespace NET23_GrupprojektBank.Managers.Logic
         {
             //Users = await DatabaseManager.GetAllUsersFromDB();
             // IF you want to test the currency exchange rate uncomment these 2 lines
-            CurrencyExchangeRate.UpdateCurrencyExchangeRateAsync(UserType.Admin).Wait();
-            UserCommunications.TestCurrencyExchangeRate();
+
+            //UserCommunications.TestCurrencyExchangeRate();
+
             foreach (var user in Users)
             {
                 if (user is Customer customer)
@@ -109,7 +110,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 }
             }
 
-            //TransactionsManager.Start();
+            TransactionsManager.Start();
 
             while (KeepRunning)
             {
