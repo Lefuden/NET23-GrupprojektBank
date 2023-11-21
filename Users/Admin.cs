@@ -67,6 +67,7 @@ namespace NET23_GrupprojektBank.Users
                         phone = UserCommunications.GetPhoneFromUser();
                         if (phone.PhoneNumber == "-1")
                         {
+                            choices.Remove("Phone");
                             Console.Clear();
                             if (!UserCommunications.AskUserYesOrNo("Continue account creation without phone number?"))
                             {
@@ -171,6 +172,7 @@ namespace NET23_GrupprojektBank.Users
                         phone = UserCommunications.GetPhoneFromUser();
                         if (phone.PhoneNumber == "-1")
                         {
+                            choices.Remove("Phone");
                             Console.Clear();
                             if (!UserCommunications.AskUserYesOrNo("Continue account creation without phone number?"))
                             {
