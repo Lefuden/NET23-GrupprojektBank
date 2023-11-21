@@ -14,7 +14,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             accountChoices.AccountInformationList.Add("Back");
             var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
                     .PageSize(15)
-                    .Title($"Select an account to deposit to {accountChoices.SelectionPromptTitle}")
+                    .Title($"Select an account to deposit to\n{accountChoices.SelectionPromptTitle}")
                     .AddChoices(accountChoices.AccountInformationList));
 
             string pattern = @"\[red bold\](\d+)\[/\]";
