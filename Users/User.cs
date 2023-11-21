@@ -97,6 +97,7 @@ namespace NET23_GrupprojektBank.Users
                     EventStatus.LoginFailed => $"{Username} failed to login",
                     EventStatus.LoginSuccess => $"{Username} successfully logged in",
                     EventStatus.LoginLocked => $"{Username} has been locked out",
+                    EventStatus.LoginUnlocked => $"{Username} login has been unlocked",
                     EventStatus.PhoneFailed => $"{Username} failed to add phone number",
                     EventStatus.PhoneSuccess => $"{Username} added a phone number",
                     EventStatus.SavingsCreationFailed => $"{Username} failed to create a savings account",
@@ -111,14 +112,20 @@ namespace NET23_GrupprojektBank.Users
                     EventStatus.TransferFailedNegativeOrZeroSum => $"{Username} failed to make a transfer, negative or zero input",
                     EventStatus.TransferSuccess => $"{Username} transfer approved",
                     EventStatus.TransferCreated => $"{Username} made a transfer",
+                    EventStatus.TransferReceivedSuccess => $"{Username} has received a transfer",
                     EventStatus.WithdrawalCreated => $"{Username} made a withdrawal",
                     EventStatus.WithdrawalFailed => $"{Username} failed to make a withdrawal",
                     EventStatus.WithdrawalFailedInsufficientFunds => $"{Username} failed to make a withdrawal, insufficient funds",
+                    EventStatus.WithdrawalFailedNegativeOrZeroSum => $"{Username} failed to make a withdrawal, negative or zero input",
                     EventStatus.WithdrawalSuccess => $"{Username} withdrawal approved",
                     EventStatus.ValidUsername => $"{Username} entered a valid username",
                     EventStatus.InvalidUsername => $"{Username} entered an invalid username",
                     EventStatus.ValidPassword => $"{Username} entered a valid password",
                     EventStatus.InvalidPassword => $"{Username} entered an invalid password",
+                    EventStatus.NonAdminUser => $"{Username} is not an Administrator",
+                    EventStatus.AdminUpdatedCurrencyFromFile => $"{Username} updated currency rate from file",
+                    EventStatus.AdminUpdatedCurrencyFromWebApi => $"{Username} updated currency rate from Web API",
+                    EventStatus.AdminInvalidInput => $"{Username} invalid input",
                     _ => $"{Username} something has gone terribly wrong"
                 };
             }
