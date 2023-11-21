@@ -233,9 +233,9 @@ namespace NET23_GrupprojektBank.Currency
 
         }
 
-        public static Dictionary<CurrencyType, double> GetCurrentCurrencyExchangeRate(CurrencyType currencyType)
+        public static Dictionary<CurrencyType, double> GetCurrentCurrencyExchangeRate(CurrencyType dictionaryCurrencyType)
         {
-            return currencyType switch
+            return dictionaryCurrencyType switch
             {
                 CurrencyType.SEK => CurrentExchangeRatesSEK,
                 CurrencyType.USD => CurrentExchangeRatesUSD,

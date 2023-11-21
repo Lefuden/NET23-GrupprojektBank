@@ -21,9 +21,9 @@ namespace NET23_GrupprojektBank.BankAccounts
         public abstract void MakeTransaction(Transaction transaction);
         public virtual decimal GetBalance() => Balance;
         public int GetAccountNumber() => BankAccountNumber;
-        protected virtual decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
+        public decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
         {
-            var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(currencyType);
+            var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(CurrencyType);
 
             return (decimal)convertRate[currencyType] * sum;
         }
