@@ -61,8 +61,7 @@ namespace NET23_GrupprojektBank.Currency
             string apiKey = AnsiConsole.Ask<string>("Enter your api key: ");
             string baseApiUrl = "https://v6.exchangerate-api.com/v6";
 
-            // Option for the admin to choose what the main currency exchange rate is based on our CurrencyType Enum > 
-            // Converting Enum Value ToString().ToUpper() since the API request requires all caps
+
             string[] currencyTypes = SupportedCurrencyTypes.Split(',');
             string[] filePaths = SupportedCurrencyFilePaths.Split(',');
             for (int i = 0; i < currencyTypes.Length; i++)
@@ -77,8 +76,6 @@ namespace NET23_GrupprojektBank.Currency
 
                         string responseBody = await response.Content.ReadAsStringAsync();
                         File.WriteAllText(filePaths[i], responseBody);
-                        //Console.WriteLine($"({i + 1}/{filePaths.Length}) Got the latest currency exchange rates from the API and saved it to file: {filePaths[i]}");
-
                     }
                     catch (HttpRequestException ex)
                     {
@@ -97,113 +94,86 @@ namespace NET23_GrupprojektBank.Currency
         }
         private static void UpdateDictionaries()
         {
-            Console.WriteLine("Updating the dictionaries...");
             bool SEKUpdatedFromFile = false, USDUpdatedFromFile = false, EURUpdatedFromFile = false;
             string[] filePaths = SupportedCurrencyFilePaths.Split(',');
-            string SEKPath = filePaths[0];
-            string USDPath = filePaths[1];
-            string EURPath = filePaths[2];
 
-            if (File.Exists(SEKPath))
+            for (int i = 0; i < filePaths.Length; i++)
             {
-                //Console.WriteLine(SEKPath + " Existing File, creating object");
-                SEKResponse = File.ReadAllText(SEKPath);
-                SEKCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(SEKResponse);
-                SEKUpdatedFromFile = true;
-
-                Type type = SEKCurrencyRate.conversion_rates.GetType();
-                PropertyInfo[] properties = type.GetProperties();
-                //Console.WriteLine("SEK Dictionary: ");
-                foreach (var property in properties)
+                Type type = null;
+                if (File.Exists(filePaths[i]))
                 {
-                    if (property.PropertyType == typeof(double))
-                    {
-                        // Get the property name and value
-                        string propertyName = property.Name;
-                        double propertyValue = (double)property.GetValue(SEKCurrencyRate.conversion_rates);
-                        CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
 
-                        CurrencyType currencyType = currencyTypeFull switch
+                    switch (i)
+                    {
+                        case 0:
+                            SEKResponse = File.ReadAllText(filePaths[i]);
+                            SEKCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(SEKResponse);
+                            SEKUpdatedFromFile = true;
+                            type = SEKCurrencyRate.conversion_rates.GetType();
+
+                            break;
+
+                        case 1:
+                            USDResponse = File.ReadAllText(filePaths[i]);
+                            USDCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(USDResponse);
+                            USDUpdatedFromFile = true;
+                            type = USDCurrencyRate.conversion_rates.GetType();
+
+                            break;
+
+                        case 2:
+                            EURResponse = File.ReadAllText(filePaths[i]);
+                            EURCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(EURResponse);
+                            EURUpdatedFromFile = true;
+                            type = EURCurrencyRate.conversion_rates.GetType();
+
+                            break;
+
+                        default:
+                            return;
+                    }
+                    PropertyInfo[] properties = type.GetProperties();
+                    foreach (var property in properties)
+                    {
+                        if (property.PropertyType == typeof(double))
                         {
-                            CurrencyTypeFull.SEK => CurrencyType.SEK,
-                            CurrencyTypeFull.EUR => CurrencyType.EUR,
-                            CurrencyTypeFull.USD => CurrencyType.USD,
-                            _ => CurrencyType.INVALID
-                        };
-                        CurrentExchangeRatesSEK[currencyType] = propertyValue;
-                        // Print the property name and value
-                        //Console.WriteLine($"\t{propertyName}: {propertyValue}");
+                            string propertyName = property.Name;
+                            double propertyValue = (double)property.GetValue(SEKCurrencyRate.conversion_rates);
+                            CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
+
+                            CurrencyType currencyType = currencyTypeFull switch
+                            {
+                                CurrencyTypeFull.SEK => CurrencyType.SEK,
+                                CurrencyTypeFull.EUR => CurrencyType.EUR,
+                                CurrencyTypeFull.USD => CurrencyType.USD,
+                                _ => CurrencyType.INVALID
+                            };
+
+                            switch (i)
+                            {
+                                case 0:
+                                    CurrentExchangeRatesSEK[currencyType] = propertyValue;
+                                    break;
+
+                                case 1:
+                                    CurrentExchangeRatesUSD[currencyType] = propertyValue;
+                                    break;
+
+                                case 2:
+                                    CurrentExchangeRatesEUR[currencyType] = propertyValue;
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
                     }
                 }
             }
-            if (File.Exists(USDPath))
-            {
-                //Console.WriteLine(USDPath + " Existing File, creating object");
-                USDResponse = File.ReadAllText(USDPath);
-                USDCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(USDResponse);
-                USDUpdatedFromFile = true;
 
-                Type type = USDCurrencyRate.conversion_rates.GetType();
-                PropertyInfo[] properties = type.GetProperties();
-                //Console.WriteLine("USD Dictionary: ");
-                foreach (var property in properties)
-                {
-                    if (property.PropertyType == typeof(double))
-                    {
-                        // Get the property name and value
-                        string propertyName = property.Name;
-                        double propertyValue = (double)property.GetValue(USDCurrencyRate.conversion_rates);
-
-                        CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
-
-                        CurrencyType currencyType = currencyTypeFull switch
-                        {
-                            CurrencyTypeFull.SEK => CurrencyType.SEK,
-                            CurrencyTypeFull.EUR => CurrencyType.EUR,
-                            CurrencyTypeFull.USD => CurrencyType.USD,
-                            _ => CurrencyType.INVALID
-                        };
-
-                        CurrentExchangeRatesUSD[currencyType] = propertyValue;
-                        // Print the property name and value
-                        //Console.WriteLine($"\t{propertyName}: {propertyValue}");
-                    }
-                }
-            }
-            if (File.Exists(EURPath))
-            {
-                //Console.WriteLine(EURPath + " Existing File, creating object");
-                EURResponse = File.ReadAllText(EURPath);
-                EURCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(EURResponse);
-                EURUpdatedFromFile = true;
-
-                Type type = EURCurrencyRate.conversion_rates.GetType();
-                PropertyInfo[] properties = type.GetProperties();
-                //Console.WriteLine("EUR Dictionary: ");
-                foreach (var property in properties)
-                {
-                    if (property.PropertyType == typeof(double))
-                    {
-                        // Get the property name and value
-                        string propertyName = property.Name;
-                        double propertyValue = (double)property.GetValue(EURCurrencyRate.conversion_rates);
-                        CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
-
-                        CurrencyType currencyType = currencyTypeFull switch
-                        {
-                            CurrencyTypeFull.SEK => CurrencyType.SEK,
-                            CurrencyTypeFull.EUR => CurrencyType.EUR,
-                            CurrencyTypeFull.USD => CurrencyType.USD,
-                            _ => CurrencyType.INVALID
-                        };
-                        CurrentExchangeRatesEUR[currencyType] = propertyValue;
-                        // Print the property name and value
-                        // Console.WriteLine($"\t{propertyName}: {propertyValue}");
-                    }
-                }
-            }
 
             _isUpdatedFromFile = SEKUpdatedFromFile == USDUpdatedFromFile == EURUpdatedFromFile;
+
             if (SEKUpdatedFromFile is not true)
             {
                 InitializeBaseValuesToADictionary(CurrentExchangeRatesSEK);
@@ -251,11 +221,70 @@ namespace NET23_GrupprojektBank.Currency
 
             return dictionaryCurrencyType switch
             {
-                CurrencyType.SEK => CurrentExchangeRatesSEK,
-                CurrencyType.USD => CurrentExchangeRatesUSD,
-                CurrencyType.EUR => CurrentExchangeRatesEUR,
-                _ => CurrentExchangeRatesSEK
+                CurrencyType.SEK => new(CurrentExchangeRatesSEK),
+                CurrencyType.USD => new(CurrentExchangeRatesUSD),
+                CurrencyType.EUR => new(CurrentExchangeRatesEUR),
+                _ => new(CurrentExchangeRatesSEK)
             };
         }
     }
 }
+
+
+
+//if (File.Exists(USDPath))
+//{
+//    USDResponse = File.ReadAllText(USDPath);
+//    USDCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(USDResponse);
+//    USDUpdatedFromFile = true;
+
+//    Type type = USDCurrencyRate.conversion_rates.GetType();
+//    PropertyInfo[] properties = type.GetProperties();
+//    foreach (var property in properties)
+//    {
+//        if (property.PropertyType == typeof(double))
+//        {
+//            string propertyName = property.Name;
+//            double propertyValue = (double)property.GetValue(USDCurrencyRate.conversion_rates);
+
+//            CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
+
+//            CurrencyType currencyType = currencyTypeFull switch
+//            {
+//                CurrencyTypeFull.SEK => CurrencyType.SEK,
+//                CurrencyTypeFull.EUR => CurrencyType.EUR,
+//                CurrencyTypeFull.USD => CurrencyType.USD,
+//                _ => CurrencyType.INVALID
+//            };
+
+//            CurrentExchangeRatesUSD[currencyType] = propertyValue;
+//        }
+//    }
+//}
+//if (File.Exists(EURPath))
+//{
+//    EURResponse = File.ReadAllText(EURPath);
+//    EURCurrencyRate = JsonConvert.DeserializeObject<DTOForCurrencyExchangeRateAPI>(EURResponse);
+//    EURUpdatedFromFile = true;
+
+//    Type type = EURCurrencyRate.conversion_rates.GetType();
+//    PropertyInfo[] properties = type.GetProperties();
+//    foreach (var property in properties)
+//    {
+//        if (property.PropertyType == typeof(double))
+//        {
+//            string propertyName = property.Name;
+//            double propertyValue = (double)property.GetValue(EURCurrencyRate.conversion_rates);
+//            CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
+
+//            CurrencyType currencyType = currencyTypeFull switch
+//            {
+//                CurrencyTypeFull.SEK => CurrencyType.SEK,
+//                CurrencyTypeFull.EUR => CurrencyType.EUR,
+//                CurrencyTypeFull.USD => CurrencyType.USD,
+//                _ => CurrencyType.INVALID
+//            };
+//            CurrentExchangeRatesEUR[currencyType] = propertyValue;
+//        }
+//    }
+//}

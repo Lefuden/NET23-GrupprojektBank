@@ -9,6 +9,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
+
         public static void ShowLogs(List<Log> logs, string username)
         {
 

@@ -15,8 +15,7 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
-
-        public List<BankAccount> GetBankAccounts() => BankAccounts;
+        public List<BankAccount> GetBankAccounts() => new(BankAccounts);
         public void AddBankAccount(BankAccount bankAccount) => BankAccounts.Add(bankAccount);
 
         public void ViewBankAccount()
@@ -25,7 +24,7 @@ namespace NET23_GrupprojektBank.Users
             {
                 BankAccounts = new List<BankAccount>();
             }
-            UserCommunications.ViewBankAccounts(BankAccounts);
+            UserCommunications.ViewBankAccounts(GetBankAccounts());
         }
         public void CreateBankAccount(List<int> existingBankAccountNumbers, BankAccountType bankAccountTypeToBeCreated)
         {
@@ -37,7 +36,7 @@ namespace NET23_GrupprojektBank.Users
                 var bankAccountNr = BankAccount.BankAccountNumberGenerator(existingBankAccountNumbers);
                 Console.Clear();
 
-                double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? UserCommunications.DecideInterestRate(BankAccounts) : 0;
+                double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? UserCommunications.DecideInterestRate(GetBankAccounts()) : 0;
 
                 AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n").LeftJustified());
 
@@ -80,7 +79,7 @@ namespace NET23_GrupprojektBank.Users
                 return null;
             }
 
-            var info = UserCommunications.MakeLoanMenu(BankAccounts);
+            var info = UserCommunications.MakeLoanMenu(GetBankAccounts());
             if (info.SourceBankAccount is null)
             {
                 AddLog(EventStatus.LoanFailed);
@@ -95,7 +94,7 @@ namespace NET23_GrupprojektBank.Users
 
         public Transaction MakeWithdrawal()
         {
-            var info = UserCommunications.MakeWithdrawalMenu(BankAccounts);
+            var info = UserCommunications.MakeWithdrawalMenu(GetBankAccounts());
             AddLog(EventStatus.WithdrawalCreated);
 
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
@@ -103,7 +102,7 @@ namespace NET23_GrupprojektBank.Users
 
         public Transaction MakeDeposit()
         {
-            var info = UserCommunications.MakeDepositMenu(BankAccounts);
+            var info = UserCommunications.MakeDepositMenu(GetBankAccounts());
             AddLog(EventStatus.DepositCreated);
 
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Deposit, info.Sum);
@@ -111,7 +110,7 @@ namespace NET23_GrupprojektBank.Users
 
         public Transaction MakeTransfer()
         {
-            var info = UserCommunications.MakeTransferMenu(BankAccounts);
+            var info = UserCommunications.MakeTransferMenu(GetBankAccounts());
             AddLog(EventStatus.TransferCreated);
 
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Transfer, info.Sum);
