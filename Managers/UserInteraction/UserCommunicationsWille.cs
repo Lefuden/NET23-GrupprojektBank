@@ -6,13 +6,12 @@ using System.Text.RegularExpressions;
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
-    {
+    {//10 bokstäver på konto, Gör om till grid, minska från ett konto till ett annat kan inte vara mer än vad man har på kontot och de kan inte vara mindre än vad man har.
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeTransferMenu(List<BankAccount> bankAccounts)
         {
-            WriteDivider($"Withdrawal Menu");
+            WriteDivider("Transfer Menu");
 
             var accountChoices = new List<string>();
-            // (string Type, string Name, string Number, string Balance, string Currency, string Interest) info = new();
 
             foreach (var account in bankAccounts)
             {
@@ -33,24 +32,19 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             var selectedAccountChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .PageSize(5)
-                    .Title("Select an Account to Withdraw from")
+                    .Title("Select an Account to Transfer from")
                     .MoreChoicesText("Scroll down for more options")
                     .AddChoices(accountChoices)
             );
 
-
-
-
             string pattern = @"\[red bold\](\d+)\[/\]";
             Regex regex = new Regex(pattern);
 
-
-            int choosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
-
+            int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
 
             var selectedAccount = bankAccounts.FirstOrDefault(account =>
             {
-                if (account.GetAccountNumber() == choosenAccountNumber)
+                if (account.GetAccountNumber() == chosenAccountNumber)
                 {
                     return true;
                 }
@@ -59,85 +53,65 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             if (selectedAccount != null)
             {
-                string accountName;
-                string balance;
-                string currencyType;
+                var sourceAccountInfo = selectedAccount.GetAccountInformation();
+                string sourceAccountName = sourceAccountInfo.Name;
+                string sourceBalance = sourceAccountInfo.Balance;
+                string sourceCurrencyType = sourceAccountInfo.Currency;
+                decimal maxTransferAmount = decimal.Parse(sourceBalance);
 
-                if (selectedAccount is Checking)
-                {
-                    var checkingAccount = selectedAccount as Checking;
-                    var info = checkingAccount.GetAccountInformation();
-                    accountName = info.Name;
-                    balance = info.Balance;
-                    currencyType = info.Currency;
-                }
-                else if (selectedAccount is Savings)
-                {
-                    var savingsAccount = selectedAccount as Savings;
-                    var info = savingsAccount.GetAccountInformation();
-                    accountName = info.Name;
-                    balance = info.Balance;
-                    currencyType = info.Currency;
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
-                    return default;
-                }
-
-                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{accountName}[/]");
-                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{balance}[/] [gold1]{currencyType}[/]");
-                AnsiConsole.MarkupLine($"[purple]Withdraw from[/]  [green]{accountName}[/]");
-
-                decimal withdrawalAmount;
-                decimal maxWithdrawal;
-
-                if (!decimal.TryParse(balance, out maxWithdrawal))
-                {
-                    AnsiConsole.MarkupLine("[red]Invalid balance value.[/]");
-                }
+                AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{sourceAccountName}[/]");
+                AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{sourceBalance}[/] [gold1]{sourceCurrencyType}[/]");
+                AnsiConsole.MarkupLine($"[purple]Transfer from[/]  [green]{sourceAccountName}[/]");
 
                 while (true)
                 {
-                    string input = AnsiConsole.Ask<string>($"[purple]How Much Would You Like To Withdraw?[/] [gold1](Maximum: {maxWithdrawal})[/]");
+                    string inputAccountNumber = AnsiConsole.Ask<string>("Enter the destination account number (10 letters long):");
 
-                    if (!decimal.TryParse(input, out withdrawalAmount) || withdrawalAmount <= 0 || withdrawalAmount > maxWithdrawal)
+                    if (inputAccountNumber.Length != 10)
                     {
-                        AnsiConsole.MarkupLine($"[red]Please enter a valid withdrawal amount between 0 and {maxWithdrawal}.[/]");
+                        AnsiConsole.MarkupLine("[red]Destination account number must be exactly 10 letters long.[/]");
+                        continue;
                     }
-                    else
+
+                    int destinationAccountNumber;
+
+                    if (!int.TryParse(inputAccountNumber, out destinationAccountNumber))
                     {
-                        decimal currentBalance = decimal.Parse(balance);
-                        currentBalance -= withdrawalAmount;
-                        balance = currentBalance.ToString();
-
-                        AnsiConsole.MarkupLine($"[green]{withdrawalAmount:c} {currencyType}[/] [purple]has been withdrawn from {accountName}[/]");
-
-                        string stringChoice = AnsiConsole.Prompt(
-                            new SelectionPrompt<string>()
-                                .PageSize(3)
-                                .AddChoices(new[]
-                                {
-                            "Back",
-                            "Exit"
-                                }
-                            ));
-
-                        if (stringChoice == "Back")
-                        {
-                            CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), currencyType ?? CurrencyType.SEK.ToString());
-                            return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, withdrawalAmount);
-                        }
-                        else if (stringChoice == "Exit")
-                        {
-                            Environment.Exit(0);
-                        }
+                        AnsiConsole.MarkupLine("[red]Invalid destination account number.[/]");
+                        continue;
                     }
+
+                    var destinationAccount = bankAccounts.FirstOrDefault(account => account.GetAccountNumber() == destinationAccountNumber);
+
+                    if (destinationAccount == null)
+                    {
+                        AnsiConsole.MarkupLine("[red]Destination account not found.[/]");
+                        continue;
+                    }
+
+                    string inputAmount = AnsiConsole.Ask<string>($"Enter the amount to transfer (Maximum: {maxTransferAmount}):");
+
+                    decimal transferAmount;
+
+                    if (!decimal.TryParse(inputAmount, out transferAmount) || transferAmount <= 0 || transferAmount > maxTransferAmount)
+                    {
+                        AnsiConsole.MarkupLine($"[red]Please enter a valid transfer amount between 0 and {maxTransferAmount}.[/]");
+                        continue;
+                    }
+
+                    decimal sourceCurrentBalance = decimal.Parse(sourceBalance);
+                    sourceCurrentBalance -= transferAmount;
+                    sourceBalance = sourceCurrentBalance.ToString();
+
+                    AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
+
+                    CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
+                    return (selectedAccount, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
                 }
             }
             else
             {
-                AnsiConsole.MarkupLine("[red]Selected account type is not supported for withdrawal.[/]");
+                AnsiConsole.MarkupLine("[red]Selected account type is not supported for transfer.[/]");
                 return default;
             }
         }
