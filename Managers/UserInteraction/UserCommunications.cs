@@ -430,7 +430,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         private static UserChoice ConvertStringToUserChoice(string input)
         {
-            return input switch
+            var cleanInput = Markup.Remove(input);
+            return cleanInput switch
             {
 
                 "Login" => UserChoice.Login,

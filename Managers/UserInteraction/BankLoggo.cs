@@ -33,6 +33,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 remainingDuration++;
                 Thread.Sleep(10);
             }
+
+            AnsiConsole.Cursor.Show();
+        }
+
+        public static void StartUpAppLoadingScreen()
+        {
+            AnsiConsole.Cursor.Hide();
+            int i = 0;
             while (i < 20)
             {
                 AnsiConsole.Clear();
@@ -51,7 +59,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 i++;
                 Thread.Sleep(150);
             }
-
             AnsiConsole.Cursor.Show();
         }
         private static void WriteLogoAnimation(int currentProgress)
