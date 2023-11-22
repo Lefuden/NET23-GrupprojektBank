@@ -18,7 +18,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             if (transferDirection == "Transfer to Own Account")
             {
-                var accountChoices = GetBankAccountInfo(allBankAccounts);
+                var accountChoices = GetBankAccountInfo(bankAccounts);
                 var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
                     .Title("Select Your Account")
                     .AddChoices(accountChoices.AccountInformationList)
@@ -26,7 +26,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
 
-                var selectedAccount = allBankAccounts.FirstOrDefault(account =>
+                var selectedAccount = bankAccounts.FirstOrDefault(account =>
                 {
                     if (account.GetAccountNumber() == chosenAccountNumber)
                     {
@@ -86,7 +86,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 sourceBalance = sourceCurrentBalance.ToString();
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
 
-                                var confirmation = AskUserYesOrNo("Do you want to deposit this amount to the account? (Yes/No): ");
+                                var confirmation = AskUserYesOrNo($"Do you want to deposit this {transferAmount:c} to {destinationAccount.GetAccountInformation().Name}? (Yes/No): ");
 
                                 if (confirmation)
                                 {
@@ -144,6 +144,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     AnsiConsole.MarkupLine($"[purple]Balance:[/] [blue]{sourceBalance}[/] [gold1]{sourceCurrencyType}[/]");
                     AnsiConsole.MarkupLine($"[purple]Transfer from[/]  [green]{sourceAccountName}[/]");
 
+                   
                     var transferAccountsExcludingSelected = allBankAccounts.Where(acc => acc.GetAccountNumber() != chosenAccountNumber).ToList();
                     string destinationAccountNumber;
 
@@ -188,7 +189,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 sourceBalance = sourceCurrentBalance.ToString();
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
 
-                                var confirmation = AskUserYesOrNo("Do you want to deposit this amount to the account? (Yes/No): ");
+                                var confirmation = AskUserYesOrNo($"Do you want to deposit this {transferAmount:c} to {destinationAccount.GetAccountInformation().Name}? (Yes/No): ");
 
                                 if (confirmation)
                                 {
