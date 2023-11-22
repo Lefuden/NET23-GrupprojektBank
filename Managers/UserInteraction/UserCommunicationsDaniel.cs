@@ -10,7 +10,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             WriteDivider($"Deposit Menu");
             var accountChoices = GetBankAccountInfo(bankAccounts);
-            accountChoices.AccountInformationList.Add("Back");
             var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
                     .PageSize(15)
                     .Title($"Select an account to deposit to\n{accountChoices.SelectionPromptTitle}")

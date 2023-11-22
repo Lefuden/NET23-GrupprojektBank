@@ -1,4 +1,5 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
+using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
 using NET23_GrupprojektBank.Managers.Transactions;
 using NET23_GrupprojektBank.Managers.UserInteraction;
@@ -108,12 +109,19 @@ namespace NET23_GrupprojektBank.Users
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Deposit, info.Sum);
         }
 
-        public Transaction MakeTransfer(List<BankAccount> allBankAccounts)
+        public (BankAccount SourceBankAccount, BankAccount DestinationBankAccount, CurrencyType SourceCurrencyType, CurrencyType DestinationCurrencyType, DateTime DateAndTime, decimal Sum) MakeTransfer(List<BankAccount> allBankAccounts)
         {
             var info = UserCommunications.MakeTransferMenu(BankAccounts, allBankAccounts);
-            AddLog(EventStatus.TransferCreated);
-
-            return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Transfer, info.Sum);
+            if (info.SourceBankAccount is not null)
+            {
+                AddLog(EventStatus.TransferCreated);
+                return info;
+            }
+            else
+            {
+                AddLog(EventStatus.TransferFailed);
+                return default;
+            }
         }
     }
 }
