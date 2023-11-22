@@ -13,14 +13,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             var transferDirection = AnsiConsole.Prompt(new SelectionPrompt<string>()
                 .Title("Choose were to Transfer")
                 .PageSize(3)
-                .AddChoices(new[] { "Transfer to Own Account", "Transfer to Other Account" })
+                .AddChoices(new[] { "Transfer between personal accounts", "Transfer to other account" })
             );
 
-            if (transferDirection == "Transfer to Own Account")
+            if (transferDirection == "Transfer between personal accounts")
             {
                 var accountChoices = GetBankAccountInfo(bankAccounts);
                 var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .Title("Select Your Account")
+                    .Title("Select account to transfer from")
                     .AddChoices(accountChoices.AccountInformationList)
                 );
 
@@ -70,28 +70,28 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     {
                         while (true)
                         {
-                            decimal transferAmount;
+                            decimal transferAmount = AnsiConsole.Ask<decimal>($"Enter the amount to transfer (Maximum: {maxTransferAmount}):");
 
-                            string inputAmount = AnsiConsole.Ask<string>($"Enter the amount to transfer (Maximum: {maxTransferAmount}):");
-
-                            if (!decimal.TryParse(inputAmount, out transferAmount) || transferAmount < 0 || transferAmount > maxTransferAmount)
+                            if (transferAmount < 0 || transferAmount > maxTransferAmount)
                             {
                                 AnsiConsole.MarkupLine($"[red]Please enter a valid transfer amount between 0 and {maxTransferAmount}.[/]");
                                 continue;
                             }
                             else
                             {
+                                var destinationAccountInfo = destinationAccount.GetAccountInformation();
                                 decimal sourceCurrentBalance = decimal.Parse(sourceBalance);
                                 sourceCurrentBalance -= transferAmount;
                                 sourceBalance = sourceCurrentBalance.ToString();
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
+                                CurrencyType destinationCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), destinationAccountInfo.Currency ?? CurrencyType.SEK.ToString());
 
-                                var confirmation = AskUserYesOrNo($"Do you want to deposit this {transferAmount:c} to {destinationAccount.GetAccountInformation().Name}? (Yes/No): ");
+                                var confirmation = AskUserYesOrNo($"Do you want to deposit this {transferAmount:c} to {destinationAccount.GetAccountInformation().Name}?");
 
                                 if (confirmation)
                                 {
                                     AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
-                                    return (selectedAccount, destinationAccount, sourceCurrencyTypeParsed, destinationCurrencyType, DateTime.UtcNow, transferAmount);
+                                    return (selectedAccount, destinationAccount, sourceCurrencyTypeParsed, destinationCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
                                 }
                                 else
                                 {
@@ -113,7 +113,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     return default;
                 }
             }
-            else if (transferDirection == "Transfer to Other Account")
+            else if (transferDirection == "Transfer to other account")
             {
                 var accountChoices = GetBankAccountInfo(bankAccounts);
                 var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
@@ -173,33 +173,32 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     {
                         while (true)
                         {
-                            decimal transferAmount;
+                            decimal transferAmount = AnsiConsole.Ask<decimal>($"Enter the amount to transfer (Maximum: {maxTransferAmount}):");
 
-                            string inputAmount = AnsiConsole.Ask<string>($"Enter the amount to transfer (Maximum: {maxTransferAmount}):");
-
-                            if (!decimal.TryParse(inputAmount, out transferAmount) || transferAmount < 0 || transferAmount > maxTransferAmount)
+                            if (transferAmount < 0 || transferAmount > maxTransferAmount)
                             {
                                 AnsiConsole.MarkupLine($"[red]Please enter a valid transfer amount between 0 and {maxTransferAmount}.[/]");
                                 continue;
                             }
                             else
                             {
+                                var destinationAccountInfo = destinationAccount.GetAccountInformation();
                                 decimal sourceCurrentBalance = decimal.Parse(sourceBalance);
                                 sourceCurrentBalance -= transferAmount;
                                 sourceBalance = sourceCurrentBalance.ToString();
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
+                                CurrencyType destinationCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), destinationAccountInfo.Currency ?? CurrencyType.SEK.ToString());
 
                                 var confirmation = AskUserYesOrNo($"Do you want to deposit this {transferAmount:c} to {destinationAccount.GetAccountInformation().Name}? (Yes/No): ");
 
                                 if (confirmation)
                                 {
                                     AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
-                                    return (selectedAccount, destinationAccount, sourceCurrencyTypeParsed, destinationCurrencyType, DateTime.UtcNow, transferAmount);
+                                    return (selectedAccount, destinationAccount, sourceCurrencyTypeParsed, destinationCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
                                 }
                                 else
                                 {
                                     AnsiConsole.MarkupLine("[yellow]Transfer canceled. Please re-enter the amount to transfer.[/]");
-                                    continue;
                                 }
                             }
                         }
