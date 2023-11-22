@@ -6,6 +6,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
+
         public static (BankAccount SourceBankAccount, BankAccount DestinationBankAccount, CurrencyType SourceCurrencyType, CurrencyType DestinationCurrencyType, DateTime DateAndTime, decimal Sum) MakeTransferMenu(List<BankAccount> bankAccounts, List<BankAccount> allBankAccounts)
         {
             WriteDivider("Transfer Menu");
@@ -83,6 +84,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 decimal sourceCurrentBalance = decimal.Parse(sourceBalance);
                                 sourceCurrentBalance -= transferAmount;
                                 sourceBalance = sourceCurrentBalance.ToString();
+
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
                                 CurrencyType destinationCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), destinationAccountInfo.Currency ?? CurrencyType.SEK.ToString());
 
@@ -225,5 +227,5 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
        
     }
-        
+
 }

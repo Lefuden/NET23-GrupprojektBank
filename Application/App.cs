@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.Managers.Logic;
-using NET23_GrupprojektBank.Managers.UserInteraction;
 
 namespace NET23_GrupprojektBank.Application
 {
@@ -13,7 +12,7 @@ namespace NET23_GrupprojektBank.Application
 
         public void Run()
         {
-            BankLoggo.StartUpAppLoadingScreen();
+            //BankLoggo.StartUpAppLoadingScreen();
             LogicManager.GetUserChoice();
         }
     }

@@ -50,9 +50,10 @@ namespace NET23_GrupprojektBank.BankAccounts
                 Balance -= sum;
             }
         }
-        public virtual (string Type, string Name, string Number, string Balance, string Currency, string Interest) GetAccountInformation()
+        public virtual (string BankAccountType, string BankAccountName, string BankAccountNumber, string Balance, string CurrencyType, string Interest) GetAccountInformation()
         {
-            return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), $"{Balance:.00}", CurrencyType.ToString(), "");
+            //.PadLeft(BankAccountType.ToString().Length)
+            return (BankAccountType.ToString(), BankAccountName, BankAccountNumber.ToString(), $"{Balance:0.00}", CurrencyType.ToString(), "");
         }
         public static int BankAccountNumberGenerator(List<int> existingBankAccountNumbers)
         {
