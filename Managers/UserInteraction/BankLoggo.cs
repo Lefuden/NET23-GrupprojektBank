@@ -231,30 +231,5 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
               ''  ''         ''  ''
 ";
 
-
-        public static string HHHHHHHHHHHHH() =>
-            @"
-[lightgoldenrod2]H[/][gold1]yper Hedgehogs Fundings
-H[/][lightgoldenrod2]y[/][gold1]per Hedgehogs Fundings
-Hyp[/][lightgoldenrod2]e[/][gold1]r Hedgehogs Fundings
-Hype[/][lightgoldenrod2]r[/][gold1] Hedgehogs Fundings
-Hyper[/][lightgoldenrod2] [/][gold1]Hedgehogs Fundings
-Hyper H[/][lightgoldenrod2]e[/][gold1]dgehogs Fundings
-Hyper He[/][lightgoldenrod2]d[/][gold1]gehogs Fundings
-Hyper Hed[/][lightgoldenrod2]g[/][gold1]ehogs Fundings
-Hyper Hedg[/][lightgoldenrod2]e[/][gold1]hogs Fundings
-Hyper Hedge[/][lightgoldenrod2]h[/][gold1]ogs Fundings
-Hyper Hedgeh[/][lightgoldenrod2]o[/][gold1]gs Fundings
-Hyper Hedgeho[/][lightgoldenrod2]g[/][gold1]s Fundings
-Hyper Hedgehog[/][lightgoldenrod2]s[/][gold1] Fundings
-Hyper Hedgehogs [/][lightgoldenrod2]F[/][gold1]undings
-Hyper Hedgehogs F[/][lightgoldenrod2]u[/][gold1]ndings
-Hyper Hedgehogs Fu[/][lightgoldenrod2]n[/][gold1]dings
-Hyper Hedgehogs Fun[/][lightgoldenrod2]d[/][gold1]ings
-Hyper Hedgehogs Fund[/][lightgoldenrod2]i[/][gold1]ngs
-Hyper Hedgehogs Fundi[/][lightgoldenrod2]n[/][gold1]gs
-Hyper Hedgehogs Fundin[/][lightgoldenrod2]g[/][gold1]s
-Hyper Hedgehogs Funding[/][lightgoldenrod2]s[/]
-";
     }
 }

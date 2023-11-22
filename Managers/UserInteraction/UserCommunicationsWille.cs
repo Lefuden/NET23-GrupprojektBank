@@ -6,7 +6,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
-        public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeTransferMenu(List<BankAccount> bankAccounts)
+        public static (BankAccount SourceBankAccount, BankAccount DestinationBankAccount, CurrencyType SourceCurrencyType, CurrencyType DestinationCurrencyType, DateTime DateAndTime, decimal Sum) MakeTransferMenu(List<BankAccount> bankAccounts, List<BankAccount> bankAccounts2)
         {
             WriteDivider("Transfer Menu");
 
@@ -89,7 +89,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
 
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
-                                return (selectedAccount, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
+                                return (selectedAccount, selectedAccount, sourceCurrencyTypeParsed, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
                             }
                         }
                     }
@@ -146,7 +146,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
 
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
-                                return (selectedAccount, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
+                                return (selectedAccount, selectedAccount, sourceCurrencyTypeParsed, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
                             }
                         }
                     }
@@ -169,5 +169,5 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
     }
-        
+
 }

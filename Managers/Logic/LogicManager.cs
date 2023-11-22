@@ -67,14 +67,14 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     {
                                         CurrentCustomer = customer;
                                         CurrentCustomer.AddLog(info.EventStatus);
-                                        BankLoggo.LoginLoadingScreen();
+                                        //BankLoggo.LoginLoadingScreen();
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
                                     else if (info.User is Admin admin)
                                     {
                                         CurrentAdmin = admin;
                                         CurrentAdmin.AddLog(info.EventStatus);
-                                        BankLoggo.LoginLoadingScreen();
+                                        //BankLoggo.LoginLoadingScreen();
                                         Choice = UserChoice.ViewAdminMenu;
                                     }
                                     else
