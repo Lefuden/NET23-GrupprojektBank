@@ -42,67 +42,25 @@ namespace NET23_GrupprojektBank.Users
                     .Title($"[purple]Select field[/]")
                     .PageSize(5)
                     .AddChoices(choices));
-                
+                string switchArgument;
                 switch (stringChoice)
                 {
                     case "Email":
-                        email = UserCommunications.GetEmailFromUser();
                         choices.Remove("Email");
-                        Console.Clear();
-                        switch (email.EmailAddress)
-                        {
-                            case "-1":
-                                AddLog(EventStatus.EmailFailed);
-                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an email?"))
-                                {
-                                    StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
-                                    return null;
-                                }
-                                break;
-                            default:
-                                AddLog(EventStatus.EmailSuccess);
-                                break;
-                        }
+                        (email, switchArgument) = UserCommunications.GetEmailFromUser();
+                        if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
                         break;
 
                     case "Phone":
-                        phone = UserCommunications.GetPhoneFromUser();
                         choices.Remove("Phone");
-                        Console.Clear();
-                        switch (phone.PhoneNumber)
-                        {
-                            case "-1":
-                                AddLog(EventStatus.PhoneFailed);
-                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without a phone number?"))
-                                {
-                                    StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
-                                    return null;
-                                }
-                                break;
-                            default:
-                                AddLog(EventStatus.PhoneSuccess);
-                                break;
-                        }
+                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser();
+                        if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
                         break;
 
                     case "Adress":
-                        adress = UserCommunications.GetAdressFromUser();
                         choices.Remove("Adress");
-                        Console.Clear();
-                        switch (adress.Country)
-                        {
-                            case "-1":
-                                AddLog(EventStatus.AdressFailed);
-                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an adress?"))
-                                {
-                                    StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
-                                    return null;
-                                }
-                                break;
-                            default:
-                                AddLog(EventStatus.AdressSuccess);
-                                break;
-                        }
+                        (adress, switchArgument) = UserCommunications.GetAdressFromUser();
+                        if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
                         break;
 
                     case "Complete":
@@ -153,67 +111,26 @@ namespace NET23_GrupprojektBank.Users
                     .Title($"[purple]Select field[/]")
                     .PageSize(5)
                     .AddChoices(choices));
-                
+
+                string switchArgument;
                 switch (stringChoice)
                 {
                     case "Email":
-                        email = UserCommunications.GetEmailFromUser();
                         choices.Remove("Email");
-                        Console.Clear();
-                        switch (email.EmailAddress)
-                        {
-                            case "-1":
-                                AddLog(EventStatus.EmailFailed);
-                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an email?"))
-                                {
-                                    StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
-                                    return null;
-                                }
-                                break;
-                            default:
-                                AddLog(EventStatus.EmailSuccess);
-                                break;
-                        }
+                        (email, switchArgument) = UserCommunications.GetEmailFromUser();
+                        if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
                         break;
 
                     case "Phone":
-                        phone = UserCommunications.GetPhoneFromUser();
                         choices.Remove("Phone");
-                        Console.Clear();
-                        switch (phone.PhoneNumber)
-                        {
-                            case "-1":
-                                AddLog(EventStatus.PhoneFailed);
-                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without a phone number?"))
-                                {
-                                    StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
-                                    return null;
-                                }
-                                break;
-                            default:
-                                AddLog(EventStatus.PhoneSuccess);
-                                break;
-                        }
+                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser();
+                        if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
                         break;
 
                     case "Adress":
-                        adress = UserCommunications.GetAdressFromUser();
                         choices.Remove("Adress");
-                        Console.Clear();
-                        switch (adress.Country)
-                        {
-                            case "-1":
-                                AddLog(EventStatus.AdressFailed);
-                                if (!UserCommunications.AskUserYesOrNo("Continue account creation without an adress?"))
-                                {
-                                    StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
-                                    return null;
-                                }
-                                break;
-                            default:
-                                AddLog(EventStatus.AdressSuccess);
-                                break;
-                        }
+                        (adress, switchArgument) = UserCommunications.GetAdressFromUser();
+                        if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
                         break;
 
                     case "Complete":
@@ -237,6 +154,35 @@ namespace NET23_GrupprojektBank.Users
             }
         }
 
+        public bool CancelOrProceedUserCreation(string selectedChoice, string adminOrCustomer, string switchArgument)
+        {
+            Console.Clear();
+            switch (switchArgument)
+            {
+                case "-1":
+                    if (Enum.TryParse($"{selectedChoice}Failed", out EventStatus eventFailed))
+                    {
+                        AddLog(eventFailed);
+                    }
+                    
+                    if (!UserCommunications.AskUserYesOrNo($"Continue account creation without {selectedChoice}?"))
+                    {
+                        if (Enum.TryParse($"{adminOrCustomer}AccountCreationFailed", out EventStatus userFailed))
+                        {
+                            StopUserCreation($"{adminOrCustomer} creation cancelled", userFailed);
+                            return true;
+                        }
+                    }
+                    break;
+                default:
+                    if (Enum.TryParse($"{selectedChoice}Success", out EventStatus eventSuccess))
+                    {
+                        AddLog(eventSuccess);
+                    }
+                    break;
+            }
+            return false;
+        }
         public void StopUserCreation(string message, EventStatus status)
         {
             AnsiConsole.MarkupLine($"[green]{message}[/]");
