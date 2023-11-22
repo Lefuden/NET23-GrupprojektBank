@@ -63,7 +63,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {"Back",            $"[{_back}]"},
             {"DividerText",     $"{_goldDividerText}"},
             {"DividerLine",     $"{_goldDividerLine}"},
-            {"Warning",         $"[{_redWarning}]" }
+            {"Warning",         $"[{_redWarning}]" },
+            {"Highlight",       $"[{_purpleHighlight}]"}
         };
         private static readonly Dictionary<string, string> BankAccountColors = new()
         {
@@ -92,11 +93,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {"Back",            $"[{_back}]"},
             {"DividerText",     $"{_goldDividerText}"},
             {"DividerLine",     $"{_goldDividerLine}"},
-            {"Border",          $"[{_choice}]"},
             {"Message",         $"[{_title}]"},
             {"DateAndTime",     $"[{_title}]"},
             {"LogId",           $"[{_purpleHighlight}]"},
-            {"Warning",         $"[{_redWarning}]" }
+            {"Warning",         $"[{_redWarning}]"}
         };
 
         private static UserChoice ConvertStringToUserChoice(string input)
@@ -132,23 +132,22 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         public static void FakeBackChoice(string text)
         {
             AnsiConsole.Cursor.Show(false);
-            AnsiConsole.MarkupLine($"{MenuColors["Back"]}> {text}[/]");
+            AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}> {text}[/]");
             Console.ReadKey();
             AnsiConsole.Cursor.Show(true);
         }
         private static (string SelectionPromptTitle, List<string> AccountInformationList, decimal TotalSumOnAccounts) GetBankAccountInfo(List<BankAccount> bankAccounts)
         {
             var accountInfoList = new List<string>();
-            int maxName = 12, maxNumber = 10, maxBalance = 7, maxCurrency = 3, maxType = 8, maxInterest = 8;
-            decimal totalSumOnAccounts = 0;
-            foreach (var account in bankAccounts)
-            {
-                totalSumOnAccounts += account.GetBalance();
-                var info = account.GetAccountInformation();
-                maxName = info.BankAccountName.Length > maxName ? info.BankAccountName.Length : maxName;
-                maxNumber = info.BankAccountNumber.Length > maxNumber ? info.BankAccountNumber.Length : maxNumber;
-                maxBalance = info.Balance.Length > maxBalance ? info.Balance.Length : maxBalance;
-            }
+
+            int maxCurrency = 3, maxType = 8, maxInterest = 8;
+            decimal totalSumOnAccounts = bankAccounts.Sum(account => account.GetBalance());
+            int maxName = bankAccounts.Select(account => account.GetAccountInformation().BankAccountName.Length).Max();
+            int maxNumber = bankAccounts.Select(account => account.GetAccountInformation().BankAccountNumber.Length).Max();
+            int maxBalance = bankAccounts.Select(account => account.GetAccountInformation().Balance.Length).Max();
+            maxName = maxName < 12 ? 12 : maxName;
+            maxNumber = maxNumber < 10 ? 10 : maxNumber;
+            maxBalance = maxBalance < 7 ? 7 : maxBalance;
 
             int accountNamePadding = ((maxName - "Account Name".Length) / 2) - ("Account Name".Length / 2);
             int accountNumberPadding = ("Number".Length / 2) - ((maxNumber - "Number".Length) / 2);
@@ -167,43 +166,42 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         public static Table GetBankAccountsAsTable(List<BankAccount> bankAccounts)
         {
             var table = new Table();
-
-            table.AddColumns(new TableColumn($"[{BankAccountColors["AccountName"]}]Account Name[/]").Centered(), new TableColumn($"[{BankAccountColors["Number"]}]Number[/]").Centered(), new TableColumn($"[{BankAccountColors["Balance"]}]Balance[/]").Centered(), new TableColumn($"[{BankAccountColors["CurrencyType"]}]Cur[/]").Centered(), new TableColumn($"[{BankAccountColors["AccountType"]}]Type[/]").Centered(), new TableColumn($"[{BankAccountColors["Interest"]}]Interest[/]").Centered());
-
-            int maxNameLength = bankAccounts.Select(account => account.GetAccountInformation().BankAccountName.Length).Max();
-
+            int maxName = bankAccounts.Select(account => account.GetAccountInformation().BankAccountName.Length).Max();
+            int accountNamePadding = (((maxName < 12 ? 12 : maxName) - "Account Name".Length) / 2);
+            string nameTextColumn = string.Format("{0," + accountNamePadding + "}[" + BankAccountColors["AccountName"] + " bold]{1, " + -(maxName - accountNamePadding) + "}[/]", "", "Account Name");
+            table.AddColumns(new TableColumn(nameTextColumn).LeftAligned(), new TableColumn($"[{BankAccountColors["Number"]}]Number[/]").Centered(), new TableColumn($"[{BankAccountColors["Balance"]}]Balance[/]").Centered(), new TableColumn($"[{BankAccountColors["CurrencyType"]}]Cur[/]").Centered(), new TableColumn($"[{BankAccountColors["AccountType"]}]Type[/]").Centered(), new TableColumn($"[{BankAccountColors["Interest"]}]Interest[/]").Centered());
             foreach (var account in bankAccounts)
             {
                 var info = account.GetAccountInformation();
                 table.AddRow(
-                    $"[{BankAccountColors["AccountName"]}]{info.BankAccountName}[/]",
-                    $"[{BankAccountColors["Number"]}]{info.BankAccountNumber}[/]",
-                    $"[{BankAccountColors["Balance"]}]{info.Balance}[/]",
-                    $"[{BankAccountColors["CurrencyType"]}]{info.CurrencyType}[/]",
-                    $"[{BankAccountColors["AccountType"]}]{info.BankAccountType}[/]",
-                    $"[{BankAccountColors["Interest"]}]{info.Interest}[/]");
+                    new Markup($"[{BankAccountColors["AccountName"]}]{info.BankAccountName}[/]").LeftJustified(),
+                    new Markup($"[{BankAccountColors["Number"]}]{info.BankAccountNumber}[/]").RightJustified(),
+                    new Markup($"[{BankAccountColors["Balance"]}]{info.Balance}[/]").RightJustified(),
+                    new Markup($"[{BankAccountColors["CurrencyType"]}]{info.CurrencyType}[/]").LeftJustified(),
+                    new Markup($"[{BankAccountColors["AccountType"]}]{info.BankAccountType}[/]").LeftJustified(),
+                    new Markup($"[{BankAccountColors["Interest"]}]{info.Interest}[/]").RightJustified()
+                    ).LeftAligned();
             }
-
             table.Border(TableBorder.Rounded);
             table.BorderColor(BorderColor);
             return table;
         }
 
-        private static Table GetLogTables(List<Log> logs)
+        private static void WriteLogTables(List<Log> logs)
         {
             var table = new Table();
-            table.AddColumns(new TableColumn($"{LogsColors["Message"]}Message[/]").Centered(), new TableColumn($"{LogsColors["DateAndTime"]}Date and Time[/]").Centered(), new TableColumn($"{LogsColors["LogId"]}Log Id[/]").RightAligned());
-
+            table.AddColumns(new TableColumn($"{LogsColors["Title"]}Message[/]").LeftAligned(), new TableColumn($"{LogsColors["Title"]}Date and Time[/]").Centered(), new TableColumn($"{LogsColors["Title"]}Log Id[/]").Centered());
             foreach (var log in logs)
             {
                 table.AddRow(
-                    $"{LogsColors["Message"]}{log.Message}[/]",
-                    $"{LogsColors["DateAndTime"]}{log.DateAndTime}[/]",
+                    $"{LogsColors["Choice"]}{log.Message}[/]",
+                    $"{LogsColors["Choice"]}{log.DateAndTime}[/]",
                     $"{LogsColors["LogId"]}{log.LogId}[/]");
             }
             table.Border(TableBorder.Rounded);
             table.BorderColor(BorderColor);
-            return table;
+            AnsiConsole.Write(table);
+
         }
         public static double DecideInterestRate(List<BankAccount> bankAccounts, bool isMakingLoan = false)
         {
@@ -246,24 +244,21 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 TransactionType.Withdrawal => "Withdrawal amount:",
                 _ => ""
             };
-            transactionAmount = transactionType == TransactionType.Transfer ? -1 * transactionAmount :
-                transactionType == TransactionType.Withdrawal ? -1 * transactionAmount :
-                transactionAmount;
+            decimal inversionMultiplier = transactionType == TransactionType.Transfer ? -1 * transactionAmount : transactionType == TransactionType.Withdrawal ? -1 * transactionAmount : transactionAmount;
 
             var content = new Markup(
                 $"[{BankAccountColors["Highlight"]}]Account Name: [/][{BankAccountColors["Choice"]}]{info.Name}[/]\n" +
                 $"[{BankAccountColors["Highlight"]}]{descriptionText}[/] [{BankAccountColors["Balance"]}]{transactionAmount:0.##} {info.Currency}[/]\n" +
-                $"[{BankAccountColors["Highlight"]}]New Balance:[/] [{(balance + transactionAmount > 0 ? BankAccountColors["Balance"] : BankAccountColors["Warning"])}]{balance + transactionAmount:0.##} {info.Currency}[/]"
+                $"[{BankAccountColors["Highlight"]}]New Balance:[/] [{(inversionMultiplier + balance >= 0 ? BankAccountColors["Balance"] : BankAccountColors["Warning"])}]{balance + transactionAmount:0.##} {info.Currency}[/]"
                 ).LeftJustified();
             var panel = new Panel(content)
                 .RoundedBorder()
                 .Header($"[{BankAccountColors["Info"]}]{transactionText} {info.Name}[/]")
                 .HeaderAlignment(Justify.Left);
             AnsiConsole.Write(panel);
-            //AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Account Name:[/] [{BankAccountColors["AccountName"]}]{info.Name}[/]");
-            //AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Balance:[/] [blue]{info.Balance}[/] [{BankAccountColors["Balance"]}]{info.Currency}[/]");
-            //AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}{transactionText}[/]  [{BankAccountColors["Highlight"]}]{info.Name}[/]");
+
         }
+
         private static void AddThisAmountOfNewLines(int amountOfNewLines)
         {
             for (int i = 1; i <= amountOfNewLines; i++)

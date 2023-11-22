@@ -93,9 +93,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
 
             WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], $"Display Logs | {username}");
-            var table = GetLogTables(logs);
-            table.Expand();
-            AnsiConsole.Write(table);
+            WriteLogTables(logs);
             FakeBackChoice("Back");
         }
 
