@@ -7,18 +7,108 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
+        public static (BankAccount SourceBankAccount, BankAccount DestinationBankAccount, CurrencyType SourceCurrencyType, CurrencyType DestinationCurrencyType, DateTime DateAndTime, decimal Sum) MakeTransferMenu(List<BankAccount> bankAccounts, List<BankAccount> allBankAccounts)
+        {
+            AnsiConsole.Clear();
+            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
+            BankAccount destinationAccount;
+            List<BankAccount> transferAccountListExcludingSelected;
+            decimal transferAmount = 0;
+            var transferDirection = AskUserWhereToTransferTo();
+
+            var sourceAccount = GetBankAccountFromUserPrompt(bankAccounts, TransactionType.Transfer);
+
+            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
+
+            if (sourceAccount == null)
+            {
+                return default;
+            }
+
+            var sourceAccountInfo = sourceAccount.GetAccountInformation();
+
+            switch (transferDirection)
+            {
+                case TransferTo.Personal:
+                    transferAccountListExcludingSelected = bankAccounts.Where(acc => acc.GetAccountNumber() != sourceAccount.GetAccountNumber()).ToList();
+                    destinationAccount = GetBankAccountFromUserPrompt(transferAccountListExcludingSelected, TransactionType.Transfer, true);
+
+                    if (destinationAccount == null)
+                    {
+                        return default;
+                    }
+                    break;
+
+                case TransferTo.Other:
+                    transferAccountListExcludingSelected = allBankAccounts.Where(acc => acc.GetAccountNumber() != sourceAccount.GetAccountNumber()).ToList();
+
+                    var destinationTransferInfo = FindDestinationTransferAccountWithAccountNumber(transferAccountListExcludingSelected);
+                    while (destinationTransferInfo.FoundAccount is not true)
+                    {
+                        AnsiConsole.Clear();
+                        WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
+
+                        if (AskUserYesOrNo("Did not find an account with given account number, try again?") is not true)
+                        {
+                            return default;
+                        }
+                        destinationTransferInfo = FindDestinationTransferAccountWithAccountNumber(transferAccountListExcludingSelected);
+                    }
+                    if (destinationTransferInfo.DestinationAccount == null)
+                    {
+                        return default;
+                    }
+                    destinationAccount = destinationTransferInfo.DestinationAccount;
+                    break;
+
+                default:
+                    return default;
+            }
+
+            while (true)
+            {
+                AnsiConsole.Clear();
+                WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
+                transferAmount = AnsiConsole.Ask<decimal>($"[{BankAccountColors["Title"]}]Enter the amount to transfer (Maximum:[/][{BankAccountColors["Balance"]}] {sourceAccount.GetBalance()}[/][{BankAccountColors["Title"]}])[/]:");
+
+                if (transferAmount > 0 || transferAmount < sourceAccount.GetBalance())
+                {
+                    break;
+                }
+                AnsiConsole.MarkupLine($"[{BankAccountColors["Warning"]}]Please enter a valid transfer amount between 0 and {sourceAccount.GetBalance()}.[/]");
+                if (AskUserYesOrNo("Try again?") is not true)
+                {
+                    return default;
+                }
+            }
+
+            var destinationAccountInfo = destinationAccount.GetAccountInformation();
+
+
+            CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceAccountInfo.CurrencyType ?? CurrencyType.SEK.ToString());
+            CurrencyType destinationCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), destinationAccountInfo.CurrencyType ?? CurrencyType.SEK.ToString());
+
+            AnsiConsole.Clear();
+            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
+
+            if (AskUserYesOrNo($"Do you want to deposit this {transferAmount:0.##} {sourceAccountInfo.CurrencyType}to {destinationAccount.GetAccountInformation().BankAccountName}? (Yes/No): ") is not true)
+            {
+                return default;
+            }
+            AnsiConsole.Clear();
+            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
+            sourceAccountInfo.BankAccountName = destinationAccountInfo.BankAccountName;
+            WriteTransactionInformation(sourceAccountInfo, TransactionType.Transfer, transferAmount, sourceAccount.GetBalance());
+            AddThisAmountOfNewLines(1);
+            FakeBackChoice("Ok");
+
+            return (sourceAccount, destinationAccount, sourceCurrencyTypeParsed, destinationCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
+
+        }
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeDepositMenu(List<BankAccount> bankAccounts)
         {
             WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Deposit Menu");
-            var accountChoices = GetBankAccountInfo(bankAccounts);
-            var selectedAccountChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .PageSize(15)
-                    .HighlightStyle(HHStyle)
-                    .Title($"[{BankAccountColors["Title"]}]Select an account to deposit to[/]\n\n{accountChoices.SelectionPromptTitle}")
-                    .AddChoices(accountChoices.AccountInformationList));
-
-            int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
-            var selectedAccount = bankAccounts.FirstOrDefault(account => account.GetAccountNumber() == chosenAccountNumber);
+            var selectedAccount = GetBankAccountFromUserPrompt(bankAccounts, TransactionType.Deposit);
 
             if (selectedAccount == null)
             {
@@ -39,8 +129,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     AnsiConsole.Clear();
                     WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Deposit Menu");
                     WriteTransactionInformation(info, TransactionType.Deposit, depositAmount, currentBalance);
-                    // Vi skriver ut ett table just innan med denna info fint!
-                    //AnsiConsole.MarkupLine($"[{BankAccountColors["Balance"]}]{depositAmount:c} {info.Currency}[/] [{BankAccountColors["Choice"]}]has been deposited to:[/] [{BankAccountColors["AccountName"]}] {info.Name}[/]\n");
+                    // Vi skriver ut ett table just innan med denna sourceAccountInfo fint!
+                    //AnsiConsole.MarkupLine($"[{BankAccountColors["Balance"]}]{depositAmount:c} {sourceAccountInfo.Currency}[/] [{BankAccountColors["Choice"]}]has been deposited to:[/] [{BankAccountColors["AccountName"]}] {sourceAccountInfo.Name}[/]\n");
 
                     AddThisAmountOfNewLines(1);
                     FakeBackChoice("Ok");
@@ -76,34 +166,26 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             AnsiConsole.Clear();
 
+
+            var selectedAccount = GetBankAccountFromUserPrompt(bankAccounts, TransactionType.Loan);
+
+            AnsiConsole.Clear();
             WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Loan Menu");
-            var accountChoices = GetBankAccountInfo(bankAccounts);
-
-            var selectedAccountChoice = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .HighlightStyle(HHStyle)
-                .PageSize(20)
-                .Title($"[{BankAccountColors["Title"]}]What account would like to deposit the loan to?[/]\n\n" + accountChoices.SelectionPromptTitle)
-                .AddChoices(accountChoices.AccountInformationList)
-             );
-
-            int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice.ToString());
-
-            var selectedAccount = bankAccounts.FirstOrDefault(account => (account.GetAccountNumber() == chosenAccountNumber));
 
             if (selectedAccount == null)
             {
                 return default;
             }
 
+            var allAccountInformation = GetBankAccountInfo(bankAccounts);
             var info = selectedAccount.GetAccountInformation();
             var currentLoanWithInterest = GetMaximumLoanAllowedWithInterestCalculated(bankAccounts);
-            var maximumAmountAllowedToLoan = (accountChoices.TotalSumOnAccounts * 5) - currentLoanWithInterest;
+            var maximumAmountAllowedToLoan = (allAccountInformation.TotalSumOnAccounts * 5) - currentLoanWithInterest;
             if (maximumAmountAllowedToLoan <= 0)
             {
 
-                // Vi skriver ut ett table just innan med denna info fint!
-                //AnsiConsole.MarkupLine($"[{BankAccountColors["Warning"]}]You have too many loans and too little balance on your accounts to make a new loan.\nYour current maximum allowed loan limit is:[/][{BankAccountColors["Balance"]} {maximumAmountAllowedToLoan:.##} {info.Currency}.[/]\n");
+                // Vi skriver ut ett table just innan med denna sourceAccountInfo fint!
+                //AnsiConsole.MarkupLine($"[{BankAccountColors["Warning"]}]You have too many loans and too little balance on your accounts to make a new loan.\nYour current maximum allowed loan limit is:[/][{BankAccountColors["Balance"]} {maximumAmountAllowedToLoan:.##} {sourceAccountInfo.Currency}.[/]\n");
 
                 FakeBackChoice("Ok");
                 return default;
@@ -118,8 +200,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     AnsiConsole.Clear();
                     WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Loan Menu");
                     WriteTransactionInformation(info, TransactionType.Loan, loanAmount, loanAmount);
-                    // Vi skriver ut ett table just innan med denna info fint!
-                    //AnsiConsole.MarkupLine($"[{BankAccountColors["Success"]}]You have successfully applied for a loan for:[/] [{BankAccountColors["Balance"]}]{loanAmount:.##} {info.Currency}[/]");
+                    // Vi skriver ut ett table just innan med denna sourceAccountInfo fint!
+                    //AnsiConsole.MarkupLine($"[{BankAccountColors["Success"]}]You have successfully applied for a loan for:[/] [{BankAccountColors["Balance"]}]{loanAmount:.##} {sourceAccountInfo.Currency}[/]");
 
                     AddThisAmountOfNewLines(1);
                     FakeBackChoice("Ok");
@@ -133,26 +215,18 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static (BankAccount SourceBankAccount, CurrencyType SourceCurrencyType, DateTime DateAndTime, decimal Sum) MakeWithdrawalMenu(List<BankAccount> bankAccounts)
         {
+            AnsiConsole.Clear();
             WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Withdrawal Menu");
 
-            var accountChoices = GetBankAccountInfo(bankAccounts);
+            var selectedAccount = GetBankAccountFromUserPrompt(bankAccounts, TransactionType.Withdrawal);
 
-            var selectedAccountChoice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .PageSize(20)
-                    .HighlightStyle(HHStyle)
-                    .Title($"[{BankAccountColors["Title"]}]Select an Account to Withdraw from[/]\n\n" + accountChoices.SelectionPromptTitle)
-                    .AddChoices(accountChoices.AccountInformationList)
-                );
-
-            int chosenAccountNumber = GetSingleMatch(pattern, selectedAccountChoice);
-
-            var selectedAccount = bankAccounts.FirstOrDefault(account => account.GetAccountNumber() == chosenAccountNumber);
 
             if (selectedAccount == null)
             {
                 return default;
             }
+
+            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Withdrawal Menu");
 
             var info = selectedAccount.GetAccountInformation();
 
@@ -160,7 +234,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {
                 return default;
             }
-
 
             decimal withdrawalAmount = AnsiConsole.Ask<decimal>($"[{BankAccountColors["Title"]}]How Much Would You Like To Withdraw?[/] [{BankAccountColors["Balance"]}](Maximum: {accountBalance})[/]");
 
@@ -172,15 +245,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             AnsiConsole.Clear();
             WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Withdrawal Menu");
             WriteTransactionInformation(info, TransactionType.Withdrawal, withdrawalAmount, accountBalance);
-            // Vi skriver ut ett table just innan med denna info fint!
-            //AnsiConsole.MarkupLine($"[{BankAccountColors["Balance"]}]{withdrawalAmount:c} {info.Currency}[/] [{BankAccountColors["Title"]}]has been withdrawn from {info.Name}[/]\n");
+            // Vi skriver ut ett table just innan med denna sourceAccountInfo fint!
+            //AnsiConsole.MarkupLine($"[{BankAccountColors["Balance"]}]{withdrawalAmount:c} {sourceAccountInfo.Currency}[/] [{BankAccountColors["Title"]}]has been withdrawn from {sourceAccountInfo.Name}[/]\n");
 
             AddThisAmountOfNewLines(1);
             FakeBackChoice("Ok");
             CurrencyType currencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), info.CurrencyType ?? CurrencyType.SEK.ToString());
             return (selectedAccount, currencyTypeParsed, DateTime.UtcNow, withdrawalAmount);
         }
-
 
 
 
