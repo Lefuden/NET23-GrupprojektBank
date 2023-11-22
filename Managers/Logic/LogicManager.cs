@@ -129,9 +129,22 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Transaction newTransaction = CurrentCustomer.MakeTransfer(GetAllBankAccounts());
-                            if (newTransaction is not null)
+                            var transactionInfo = CurrentCustomer.MakeTransfer(GetAllBankAccounts());
+                            if (transactionInfo.SourceBankAccount is not null)
                             {
+                                var destinationUser = Users.First(user =>
+                                {
+                                    if (user is Customer customer)
+                                    {
+                                        var userAccounts = customer.GetBankAccounts();
+                                        if (userAccounts.Contains(transactionInfo.DestinationBankAccount))
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                });
+                                Transaction newTransaction = new(CurrentCustomer, destinationUser, transactionInfo.SourceBankAccount, transactionInfo.DestinationBankAccount, transactionInfo.SourceCurrencyType, transactionInfo.DestinationCurrencyType, transactionInfo.DateAndTime, TransactionType.Transfer, transactionInfo.Sum);
                                 TransactionsManager.AddTransaction(newTransaction);
                             }
                             Choice = UserChoice.ViewCustomerMenu;
