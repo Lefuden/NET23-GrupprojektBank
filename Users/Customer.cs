@@ -15,7 +15,7 @@ namespace NET23_GrupprojektBank.Users
             UserType = UserType.Customer;
             BankAccounts = new List<BankAccount>();
         }
-        public List<BankAccount> GetBankAccounts() => new(BankAccounts);
+        public List<BankAccount> GetBankAccounts() => BankAccounts;
         public void AddBankAccount(BankAccount bankAccount) => BankAccounts.Add(bankAccount);
 
         public void ViewBankAccount()
@@ -24,7 +24,7 @@ namespace NET23_GrupprojektBank.Users
             {
                 BankAccounts = new List<BankAccount>();
             }
-            UserCommunications.ViewBankAccounts(GetBankAccounts());
+            UserCommunications.ViewBankAccounts(BankAccounts);
         }
         public void CreateBankAccount(List<int> existingBankAccountNumbers, BankAccountType bankAccountTypeToBeCreated)
         {
@@ -79,7 +79,7 @@ namespace NET23_GrupprojektBank.Users
                 return null;
             }
 
-            var info = UserCommunications.MakeLoanMenu(GetBankAccounts());
+            var info = UserCommunications.MakeLoanMenu(BankAccounts);
             if (info.SourceBankAccount is null)
             {
                 AddLog(EventStatus.LoanFailed);
@@ -94,7 +94,7 @@ namespace NET23_GrupprojektBank.Users
 
         public Transaction MakeWithdrawal()
         {
-            var info = UserCommunications.MakeWithdrawalMenu(GetBankAccounts());
+            var info = UserCommunications.MakeWithdrawalMenu(BankAccounts);
             AddLog(EventStatus.WithdrawalCreated);
 
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Withdrawal, info.Sum);
@@ -102,15 +102,15 @@ namespace NET23_GrupprojektBank.Users
 
         public Transaction MakeDeposit()
         {
-            var info = UserCommunications.MakeDepositMenu(GetBankAccounts());
+            var info = UserCommunications.MakeDepositMenu(BankAccounts);
             AddLog(EventStatus.DepositCreated);
 
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Deposit, info.Sum);
         }
 
-        public Transaction MakeTransfer()
+        public Transaction MakeTransfer(List<BankAccount> allBankAccounts)
         {
-            var info = UserCommunications.MakeTransferMenu(GetBankAccounts());
+            var info = UserCommunications.MakeTransferMenu(BankAccounts, allBankAccounts);
             AddLog(EventStatus.TransferCreated);
 
             return new Transaction(this, info.SourceBankAccount, info.SourceCurrencyType, TransactionType.Transfer, info.Sum);

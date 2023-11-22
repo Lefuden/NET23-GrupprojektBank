@@ -129,7 +129,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         if (CurrentCustomer is not null)
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
-                            Transaction newTransaction = CurrentCustomer.MakeTransfer();
+                            Transaction newTransaction = CurrentCustomer.MakeTransfer(GetAllBankAccounts());
                             if (newTransaction is not null)
                             {
                                 TransactionsManager.AddTransaction(newTransaction);
@@ -356,6 +356,21 @@ namespace NET23_GrupprojektBank.Managers.Logic
             }
 
             return bankAccountNumbers;
+        }
+        private List<BankAccount> GetAllBankAccounts()
+        {
+
+            List<BankAccount> bankAccounts = new();
+            foreach (var user in Users)
+            {
+                if (user is Customer customer)
+                {
+                    bankAccounts.AddRange(customer.GetBankAccounts());
+                }
+            }
+
+            return bankAccounts;
+
         }
         private void AddNewUser(User newUser)
         {
