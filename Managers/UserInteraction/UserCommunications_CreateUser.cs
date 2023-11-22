@@ -1,23 +1,26 @@
-﻿using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+﻿using NET23_GrupprojektBank.Users;
+using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
-        public static Email GetEmailFromUser()
+        public static (Email, string switchArgument) GetEmailFromUser()
         {
+            string switchArgument = "-1";
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Email Information");
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter email information.[/]");
                 var email = AnsiConsole.Ask<string>($"{AdminColors["Title"]}Email[/]:");
-                if (email == "-1") return new Email("-1", "");
+                if (email == "-1") return (new Email("-1", ""),switchArgument);
                 while (true)
                 {
                     if (!Email.IsEmailValid(email))
                     {
                         email = AnsiConsole.Ask<string>($"{AdminColors["Warning"]}invalid email format, try again:[/]");
+                        if (email == "-1") return (new Email("-1", ""),switchArgument);
                     }
                     else
                     {
@@ -26,12 +29,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 }
 
                 var workEmail = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Work email[/]:");
-                if (workEmail == "-1") return new Email("-1", "");
+                if (workEmail == "-1") return (new Email("-1", ""), switchArgument);
                 while (true)
                 {
                     if (!Email.IsEmailValid(workEmail))
                     {
                         workEmail = AnsiConsole.Ask<string>($"{AdminColors["Warning"]}invalid email format, try again:[/]");
+                        if (workEmail == "-1") return (new Email("-1", ""), switchArgument);
                     }
                     else
                     {
@@ -41,10 +45,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
                 AnsiConsole.Clear();
 
-                var content = new Markup(
-                $"{AdminColors["Choice"]}Email: [/]{AdminColors["Highlight"]}{email}[/]\n" +
-                $"{AdminColors["Choice"]}Work email:[/] {AdminColors["Highlight"]}{workEmail}[/]"
-                ).LeftJustified();
+                var content = new Markup($"{AdminColors["Choice"]}Email: [/]{AdminColors["Highlight"]}{email}[/]\n" +
+                                         $"{AdminColors["Choice"]}Work email:[/] {AdminColors["Highlight"]}{workEmail}[/]").LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
                     .BorderColor(BorderColor)
@@ -58,7 +60,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 {
                     case true:
                         Console.Clear();
-                        return new Email(email, workEmail);
+                        switchArgument = "+1";
+                        return (new Email(email, workEmail), switchArgument);
                     case false:
                         Console.Clear();
                         break;
@@ -66,17 +69,18 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static Phone GetPhoneFromUser()
+        public static (Phone, string switchArgument) GetPhoneFromUser()
         {
 
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Phone Information");
             while (true)
             {
+                string switchArgument = "-1";
                 string? phone;
                 while (true)
                 {
                     phone = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Phone number (10 digits)[/]:");
-                    if (phone == "-1") return new Phone("-1");
+                    if (phone == "-1") return (new Phone("-1"), switchArgument);
                     if (phone.Length != 10)
                     {
                         AnsiConsole.MarkupLine($"{AdminColors["Warning"]}Invalid number length! You wrote:[/] {AdminColors["Highlight"]}{phone.Length}[/].\n{AdminColors["Warning"]}Try again with 10 digits[/]");
@@ -92,8 +96,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                 }
 
-                var content = new Markup(
-                $"{AdminColors["Choice"]}Phone number: [/]{AdminColors["Highlight"]}{phone}[/]\n")
+                var content = new Markup($"{AdminColors["Choice"]}Phone number: [/]{AdminColors["Highlight"]}{phone}[/]\n")
                     .LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
@@ -108,7 +111,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 {
                     case true:
                         Console.Clear();
-                        return new Phone(phone);
+                        switchArgument = "+1";
+                        return (new Phone(phone), switchArgument);
                     case false:
                         Console.Clear();
                         break;
@@ -116,23 +120,24 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static Address GetAdressFromUser()
+        public static (Address, string switchArgument) GetAdressFromUser()
         {
+            string switchArgument = "-1";
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Adress Information");
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter adress information.[/]");
                 var country = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Country[/]:");
-                if (country == "-1") return new Address("-1", "", "", "");
+                if (country == "-1") return (new Address("-1", "", "", ""), switchArgument);
 
                 var city = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}City[/]:");
-                if (city == "-1") return new Address("-1", "", "", "");
+                if (city == "-1") return (new Address("-1", "", "", ""), switchArgument);
 
                 var street = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Street name[/]:");
-                if (street == "-1") return new Address("-1", "", "", "");
+                if (street == "-1") return (new Address("-1", "", "", ""), switchArgument);
 
                 var postalNumber = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Postal/zip code[/]:");
-                if (postalNumber == "-1") return new Address("-1", "", "", "");
+                if (postalNumber == "-1") return (new Address("-1", "", "", ""), switchArgument);
 
                 AnsiConsole.Clear();
                 var content = new Markup(
@@ -154,7 +159,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 {
                     case true:
                         Console.Clear();
-                        return new Address(country, city, street, postalNumber);
+                        switchArgument = "+1";
+                        return (new Address(country, city, street, postalNumber), switchArgument);
                     case false:
                         Console.Clear();
                         break;
