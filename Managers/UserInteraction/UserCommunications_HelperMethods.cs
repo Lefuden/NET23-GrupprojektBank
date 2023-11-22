@@ -1,6 +1,7 @@
 ﻿using NET23_GrupprojektBank.BankAccounts;
 using NET23_GrupprojektBank.Managers.Logic;
 using NET23_GrupprojektBank.Managers.Logs;
+using NET23_GrupprojektBank.Managers.Transactions;
 using Spectre.Console;
 using Color = Spectre.Console.Color;
 
@@ -8,82 +9,92 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
-
-        private static readonly string _greenColour = "palegreen3";
+        private static readonly string _greenColor = "greenyellow";
         private static readonly string _redWarning = "red3";
         private static readonly string _redExit = "indianred_1";
-        private static readonly string _purpleTitle = "mediumpurple1";
-        private static readonly string _purpleChoice = "mediumpurple2_1";
+        private static readonly string _title = "mediumpurple1";
+        private static readonly string _choice = "mediumpurple2_1";
+        private static readonly string _menuInput = "orange1";
+        private static readonly string _menuInfo = "orange1";
         private static readonly string _purpleHighlight = "mediumpurple2"; // inside our HHStyle
         private static readonly string _goldDividerText = "gold1";
         private static readonly string _goldDividerLine = "darkgoldenrod";
-        private static readonly string _purpleBack = "#AF5F8C]";
-        private static readonly string _greenAccountBalance = "springgreen3_1";
-        private static readonly string _blueAccountNumber = "skyblue3";
-        private static readonly string _greenAccountInfo = "darkolivegreen3_2";
+        private static readonly string _back = "#AF5F8C";
+        private static readonly string _accountBalance = "springgreen3_1";
+        private static readonly string _accountNumber = "skyblue3";
+        private static readonly string _accountInfo = "darkolivegreen3_2";
         public static readonly Color BorderColor = Color.MediumPurple2_1;
-        private static readonly Style HHStyle = new Style(Color.MediumPurple2, null, Decoration.Underline);
-        private static string pattern { get; set; } = @$"\[{_blueAccountNumber} bold\]\s*([\d,]+)\[/\]";
+        private static readonly Style HHStyle = new Style(Color.MediumPurple2, null, Decoration.Bold);
+        private static string pattern { get; set; } = @$"\[{_accountNumber} bold\]\s*([\d,]+)\[/\]";
         private static readonly Dictionary<string, string> UserColors = new()
         {
-            {"Title",           $"[{_purpleTitle}]"},
-            {"Choice",          $"[{_purpleChoice}]"},
+            {"Title",           $"[{_title}]"},
+            {"Choice",          $"[{_choice}]"},
+            {"Input",           $"[{_menuInput}]"},
+            {"Info",            $"[{_menuInfo}]"},
             {"Exit",            $"[{_redExit}]"},
-            {"Back",            $"[{_purpleBack}]"},
-            {"DividerText",     $"[{_goldDividerText}]"},
-            {"DividerLine",     $"[{_goldDividerLine}]"},
+            {"Back",            $"[{_back}]"},
+            {"DividerText",     $"{_goldDividerText}"},
+            {"DividerLine",     $"{_goldDividerLine}"},
             {"Warning",         $"[{_redWarning}]"},
             {"Highlight",       $"[{_purpleHighlight}]"}
         };
         private static readonly Dictionary<string, string> AdminColors = new()
         {
-            {"Title",           $"[{_purpleTitle}]"},
-            {"Choice",          $"[{_purpleChoice}]"},
+            {"Title",           $"[{_title}]"},
+            {"Choice",          $"[{_choice}]"},
+            {"Input",           $"[{_menuInput}]"},
+            {"Info",            $"[{_menuInfo}]"},
             {"Exit",            $"[{_redExit}]"},
-            {"Back",            $"[{_purpleBack}]"},
-            {"DividerText",     $"[{_goldDividerText}]"},
-            {"DividerLine",     $"[{_purpleHighlight}]"},
-            {"Warning",         $"[{_redWarning}]"}
+            {"Back",            $"[{_back}]"},
+            {"DividerText",     $"{_goldDividerText}"},
+            {"DividerLine",     $"{_purpleHighlight}"},
+            {"Warning",         $"[{_redWarning}]"},
+            {"Highlight",       $"[{_purpleHighlight}]"}
         };
+
         private static readonly Dictionary<string, string> MenuColors = new()
         {
-            {"Title",           $"[{_purpleTitle}]"},
-            {"Choice",          $"[{_purpleChoice}]"},
+            {"Title",           $"[{_title}]"},
+            {"Choice",          $"[{_choice}]"},
+            {"Input",           $"[{_menuInput}]"},
+            {"Info",            $"[{_menuInfo}]"},
             {"Exit",            $"[{_redExit}]"},
-            {"Back",            $"[{_purpleBack}]"},
-            {"DividerText",     $"[{_goldDividerText}]"},
-            {"DividerLine",     $"[{_goldDividerLine}]"},
+            {"Back",            $"[{_back}]"},
+            {"DividerText",     $"{_goldDividerText}"},
+            {"DividerLine",     $"{_goldDividerLine}"},
             {"Warning",         $"[{_redWarning}]" }
         };
         private static readonly Dictionary<string, string> BankAccountColors = new()
         {
-            {"Title",           $"{_purpleTitle}"},
-            {"Choice",          $"{_purpleChoice}"},
+            {"Title",           $"{_title}"},
+            {"Choice",          $"{_choice}"},
+            {"Info",            $"{_menuInfo}"},
             {"Exit",            $"{_redExit}"},
-            {"Back",            $"{_purpleBack}"},
+            {"Back",            $"{_back}"},
             {"DividerText",     $"{_goldDividerText}"},
             {"DividerLine",     $"{_goldDividerLine}" },
-            {"AccountName",     $"{_greenAccountInfo}"},
-            {"Number",          $"{_blueAccountNumber}"},
-            {"Balance",         $"{_greenAccountBalance}"},
-            {"BalanceGreen",    $"{_greenColour}"},
-            {"CurrencyType",    $"{_greenAccountInfo}"},
-            {"AccountType",     $"{_greenAccountInfo}"},
-            {"Interest",        $"{_greenAccountInfo}"},
+            {"AccountName",     $"{_accountInfo}"},
+            {"Number",          $"{_accountNumber}"},
+            {"Balance",         $"{_accountBalance}"},
+            {"Success",         $"{_greenColor}"},
+            {"CurrencyType",    $"{_accountInfo}"},
+            {"AccountType",     $"{_accountInfo}"},
+            {"Interest",        $"{_accountInfo}"},
             {"Warning",         $"{_redWarning}"},
             {"Highlight",       $"{_purpleHighlight}" }
         };
         private static readonly Dictionary<string, string> LogsColors = new()
         {
-            {"Title",           $"[{_purpleTitle}]"},
-            {"Choice",          $"[{_purpleChoice}]"},
+            {"Title",           $"[{_title}]"},
+            {"Choice",          $"[{_choice}]"},
             {"Exit",            $"[{_redExit}]"},
-            {"Back",            $"[{_purpleBack}]"},
-            {"DividerText",     $"[{_goldDividerText}]"},
-            {"DividerLine",     $"[{_goldDividerLine}]"},
-            {"Border",          $"[{_purpleChoice}]"},
-            {"Message",         $"[{_purpleTitle}]"},
-            {"DateAndTime",     $"[{_purpleTitle}]"},
+            {"Back",            $"[{_back}]"},
+            {"DividerText",     $"{_goldDividerText}"},
+            {"DividerLine",     $"{_goldDividerLine}"},
+            {"Border",          $"[{_choice}]"},
+            {"Message",         $"[{_title}]"},
+            {"DateAndTime",     $"[{_title}]"},
             {"LogId",           $"[{_purpleHighlight}]"},
             {"Warning",         $"[{_redWarning}]" }
         };
@@ -134,8 +145,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {
                 totalSumOnAccounts += account.GetBalance();
                 var info = account.GetAccountInformation();
-                maxName = info.Name.Length > maxName ? info.Name.Length : maxName;
-                maxNumber = info.Number.Length > maxNumber ? info.Number.Length : maxNumber;
+                maxName = info.BankAccountName.Length > maxName ? info.BankAccountName.Length : maxName;
+                maxNumber = info.BankAccountNumber.Length > maxNumber ? info.BankAccountNumber.Length : maxNumber;
                 maxBalance = info.Balance.Length > maxBalance ? info.Balance.Length : maxBalance;
             }
 
@@ -146,10 +157,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             foreach (var account in bankAccounts)
             {
                 var info = account.GetAccountInformation();
-                string text = string.Format("[" + BankAccountColors["AccountName"] + " bold]{0, " + -maxName + "}[/] - [" + BankAccountColors["Number"] + " bold]{1, " + maxNumber + "}[/] - [" + BankAccountColors["Balance"] + " bold]{2, " + maxBalance + "}[/] - [" + BankAccountColors["CurrencyType"] + " bold]{3, " + maxCurrency + "}[/] - [" + BankAccountColors["AccountType"] + " bold]{4, " + -maxType + "}[/] - [" + BankAccountColors["Interest"] + " bold]{5, " + maxInterest + "}[/]", info.Name, info.Number, info.Balance, info.Currency, info.Type, info.Interest);
+                string text = string.Format("[" + BankAccountColors["AccountName"] + " bold]{0, " + -maxName + "}[/] - [" + BankAccountColors["Number"] + " bold]{1, " + maxNumber + "}[/] - [" + BankAccountColors["Balance"] + " bold]{2, " + maxBalance + "}[/] - [" + BankAccountColors["CurrencyType"] + " bold]{3, " + maxCurrency + "}[/] - [" + BankAccountColors["AccountType"] + " bold]{4, " + -maxType + "}[/] - [" + BankAccountColors["Interest"] + " bold]{5, " + maxInterest + "}[/]", info.BankAccountName, info.BankAccountNumber, info.Balance, info.CurrencyType, info.BankAccountType, info.Interest);
                 accountInfoList.Add(text);
             }
-            accountInfoList.Add("Back");
+            accountInfoList.Add($"[{BankAccountColors["Back"]}]Back[/]");
             return (questionTitle, accountInfoList, totalSumOnAccounts);
         }
 
@@ -159,17 +170,17 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             table.AddColumns(new TableColumn($"[{BankAccountColors["AccountName"]}]Account Name[/]").Centered(), new TableColumn($"[{BankAccountColors["Number"]}]Number[/]").Centered(), new TableColumn($"[{BankAccountColors["Balance"]}]Balance[/]").Centered(), new TableColumn($"[{BankAccountColors["CurrencyType"]}]Cur[/]").Centered(), new TableColumn($"[{BankAccountColors["AccountType"]}]Type[/]").Centered(), new TableColumn($"[{BankAccountColors["Interest"]}]Interest[/]").Centered());
 
-            int maxNameLength = bankAccounts.Select(account => account.GetAccountInformation().Name.Length).Max();
+            int maxNameLength = bankAccounts.Select(account => account.GetAccountInformation().BankAccountName.Length).Max();
 
             foreach (var account in bankAccounts)
             {
                 var info = account.GetAccountInformation();
                 table.AddRow(
-                    $"[{BankAccountColors["AccountName"]}]{info.Name}[/]",
-                    $"[{BankAccountColors["Number"]}]{info.Number}[/]",
+                    $"[{BankAccountColors["AccountName"]}]{info.BankAccountName}[/]",
+                    $"[{BankAccountColors["Number"]}]{info.BankAccountNumber}[/]",
                     $"[{BankAccountColors["Balance"]}]{info.Balance}[/]",
-                    $"[{BankAccountColors["CurrencyType"]}]{info.Currency}[/]",
-                    $"[{BankAccountColors["AccountType"]}]{info.Type}[/]",
+                    $"[{BankAccountColors["CurrencyType"]}]{info.CurrencyType}[/]",
+                    $"[{BankAccountColors["AccountType"]}]{info.BankAccountType}[/]",
                     $"[{BankAccountColors["Interest"]}]{info.Interest}[/]");
             }
 
@@ -206,7 +217,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
             if (isMakingLoan)
             {
-                highestValue = totalAmountOfMoneyOnBankAccounts <= 0 ? 100 : totalAmountOfMoneyOnBankAccounts <= 10000 ? 80 : totalAmountOfMoneyOnBankAccounts <= 25000 ? 60 : totalAmountOfMoneyOnBankAccounts <= 50000 ? 40 : totalAmountOfMoneyOnBankAccounts <= 100000 ? 30 : totalAmountOfMoneyOnBankAccounts <= 500000 ? 20 : 10;
+                highestValue = totalAmountOfMoneyOnBankAccounts <= 0 ? 100 : totalAmountOfMoneyOnBankAccounts <= 10000 ? 45 : totalAmountOfMoneyOnBankAccounts <= 25000 ? 35 : totalAmountOfMoneyOnBankAccounts <= 50000 ? 25 : totalAmountOfMoneyOnBankAccounts <= 100000 ? 15 : totalAmountOfMoneyOnBankAccounts <= 500000 ? 10 : 5;
                 interest = rng.Next(0, highestValue + 1);
                 interest *= 0.01;
             }
@@ -217,13 +228,49 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return interest;
         }
-        private static void WriteTransactionInformation((string Type, string Name, string Number, string Balance, string Currency, string Interest) info)
+        private static void WriteTransactionInformation((string Type, string Name, string Number, string Balance, string Currency, string Interest) info, TransactionType transactionType, decimal transactionAmount, decimal balance)
         {
-            AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Account Name:[/] [{BankAccountColors["AccountName"]}]{info.Name}[/]");
-            AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Balance:[/] [blue]{info.Balance}[/] [{BankAccountColors["Balance"]}]{info.Currency}[/]");
-            AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Withdraw from[/]  [{BankAccountColors["Highlight"]}]{info.Name}[/]");
-        }
+            string transactionText = transactionType switch
+            {
+                TransactionType.Loan => "Loan to:",
+                TransactionType.Transfer => "Transfer to:",
+                TransactionType.Deposit => "Deposit to:",
+                TransactionType.Withdrawal => "Withdraw from:",
+                _ => ""
+            };
+            string descriptionText = transactionType switch
+            {
+                TransactionType.Loan => "Loaned amount:",
+                TransactionType.Transfer => "Transferred amount:",
+                TransactionType.Deposit => "Deposited amount:",
+                TransactionType.Withdrawal => "Withdrawal amount:",
+                _ => ""
+            };
+            transactionAmount = transactionType == TransactionType.Transfer ? -1 * transactionAmount :
+                transactionType == TransactionType.Withdrawal ? -1 * transactionAmount :
+                transactionAmount;
 
+            var content = new Markup(
+                $"[{BankAccountColors["Highlight"]}]Account Name: [/][{BankAccountColors["Choice"]}]{info.Name}[/]\n" +
+                $"[{BankAccountColors["Highlight"]}]{descriptionText}[/] [{BankAccountColors["Balance"]}]{transactionAmount:0.##} {info.Currency}[/]\n" +
+                $"[{BankAccountColors["Highlight"]}]New Balance:[/] [{(balance + transactionAmount > 0 ? BankAccountColors["Balance"] : BankAccountColors["Warning"])}]{balance + transactionAmount:0.##} {info.Currency}[/]"
+                ).LeftJustified();
+            var panel = new Panel(content)
+                .RoundedBorder()
+                .Header($"[{BankAccountColors["Info"]}]{transactionText} {info.Name}[/]")
+                .HeaderAlignment(Justify.Left);
+            AnsiConsole.Write(panel);
+            //AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Account Name:[/] [{BankAccountColors["AccountName"]}]{info.Name}[/]");
+            //AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}Balance:[/] [blue]{info.Balance}[/] [{BankAccountColors["Balance"]}]{info.Currency}[/]");
+            //AnsiConsole.MarkupLine($"{MenuColors["Highlight"]}{transactionText}[/]  [{BankAccountColors["Highlight"]}]{info.Name}[/]");
+        }
+        private static void AddThisAmountOfNewLines(int amountOfNewLines)
+        {
+            for (int i = 1; i <= amountOfNewLines; i++)
+            {
+                AnsiConsole.WriteLine();
+            }
+        }
         private static void WriteDivider(string text = "")
         {
             if (text == "")
@@ -237,10 +284,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             AnsiConsole.WriteLine();
         }
-        private static void WriteDivider(string dividerTextColor, string dividerColor, string text)
+        private static void WriteDivider(string dividerTextColor, string dividerLineColor, string text)
         {
             var rule = new Rule($"[{dividerTextColor}]{text}[/]").LeftJustified();
-            rule.Style = Style.Parse(dividerColor);
+            rule.Style = Style.Parse(dividerLineColor);
             AnsiConsole.Write(rule);
             AnsiConsole.WriteLine();
         }

@@ -30,9 +30,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             if (selectedAccount != null)
             {
                 var sourceAccountInfo = selectedAccount.GetAccountInformation();
-                string sourceAccountName = sourceAccountInfo.Name;
+                string sourceAccountName = sourceAccountInfo.BankAccountName;
                 string sourceBalance = sourceAccountInfo.Balance;
-                string sourceCurrencyType = sourceAccountInfo.Currency;
+                string sourceCurrencyType = sourceAccountInfo.CurrencyType;
                 decimal maxTransferAmount = decimal.Parse(sourceBalance);
 
                 AnsiConsole.MarkupLine($"[purple]Account Name:[/] [green]{sourceAccountName}[/]");
@@ -86,7 +86,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 sourceCurrentBalance -= transferAmount;
                                 sourceBalance = sourceCurrentBalance.ToString();
 
-                                AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
+                                AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().BankAccountName}[/]");
 
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
                                 return (selectedAccount, selectedAccount, sourceCurrencyTypeParsed, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);
@@ -143,7 +143,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                 sourceCurrentBalance -= transferAmount;
                                 sourceBalance = sourceCurrentBalance.ToString();
 
-                                AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().Name}[/]");
+                                AnsiConsole.MarkupLine($"[green]{transferAmount:c} {sourceCurrencyType}[/] [purple]has been transferred from {sourceAccountName} to {destinationAccount.GetAccountInformation().BankAccountName}[/]");
 
                                 CurrencyType sourceCurrencyTypeParsed = (CurrencyType)Enum.Parse(typeof(CurrencyType), sourceCurrencyType ?? CurrencyType.SEK.ToString());
                                 return (selectedAccount, selectedAccount, sourceCurrencyTypeParsed, sourceCurrencyTypeParsed, DateTime.UtcNow, transferAmount);

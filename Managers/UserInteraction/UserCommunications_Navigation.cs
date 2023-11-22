@@ -29,7 +29,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[purple3]What would you like to do today?[/]")
+                    .Title($"{AdminColors["Title"]}What would you like to do today?[/]")
                     .HighlightStyle(HHStyle)
                     .PageSize(10)
                     .AddChoices(new[]
@@ -76,13 +76,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[purple]What would you like to do today?[/]")
+                    .Title($"{UserColors["Title"]}What kind of account would you like to create?[/]")
+                    .HighlightStyle(HHStyle)
                     .AddChoices(new[]
                     {
-                        "Create Checkings Account",
-                        "Create Savings Account",
-                        "Back",
-                        "Exit"
+                        $"{UserColors["Choice"]}Create Checkings Account[/]",
+                        $"{UserColors["Choice"]}Create Savings Account[/]",
+                        $"{UserColors["Back"]}Logout[/]",
+                        $"{UserColors["Exit"]}Exit[/]"
                     }
                 ));
 
@@ -102,24 +103,24 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Login");
             var Username = AnsiConsole.Prompt(
-         new TextPrompt<string>("[orange1]Username: [/]")
-                    .PromptStyle("green")
+                new TextPrompt<string>($"{MenuColors["Input"]}Username: [/]")
+                    .PromptStyle(_greenColor)
                     .Validate(Username =>
                         string.IsNullOrWhiteSpace(Username)
-                        ? ValidationResult.Error("[red]Invalid Username[/]")
+                        ? ValidationResult.Error($"{MenuColors["Warning"]}Invalid Username[/]")
                         : Username.Length < 5
-                        ? ValidationResult.Error("[red]Username must be atleast 5 characters long[/]")
+                        ? ValidationResult.Error($"{MenuColors["Warning"]}Username must be atleast 5 characters long[/]")
                         : ValidationResult.Success()
                      ));
 
             var password = AnsiConsole.Prompt(
-                new TextPrompt<string>("[orange1]Password: [/]")
-                    .PromptStyle("green")
+                new TextPrompt<string>($"{MenuColors["Input"]}Password: [/]")
+                    .PromptStyle(_greenColor)
                     .Secret()
                     .Validate(password =>
                         string.IsNullOrEmpty(password)
-                        ? ValidationResult.Error("[red]Invalid password[/")
-                        : password.Length < 2 ? ValidationResult.Error("[red]Password must be atleast 2 characters long[/]")
+                        ? ValidationResult.Error($"{MenuColors["Warning"]}Invalid password[/")
+                        : password.Length < 2 ? ValidationResult.Error($"{MenuColors["Warning"]}Password must be atleast 2 characters long[/]")
                         : ValidationResult.Success()
                     ));
 
@@ -127,38 +128,39 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         }
         public static UserChoice AdminUpdateCurrencyOption()
         {
-            Console.Clear();
+            AnsiConsole.Clear();
+            WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Currency Exchange Update");
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .PageSize(3)
-                    .Title("Select a conversion")
-                    .MoreChoicesText("Scroll down for more options")
+                    .PageSize(5)
+                    .HighlightStyle(HHStyle)
+                    .Title($"{AdminColors["Title"]}Select a conversion[/]")
                     .AddChoices(
-                        "From File",
-                        "From The Intrawebbs",
-                        "Back"
-                        )
-            );
+                        $"{AdminColors["Choice"]}From File[/]",
+                        $"{AdminColors["Choice"]}From The Intrawebbs[/]",
+                        $"{AdminColors["Back"]}Back[/]"
+                ));
+
 
             return ConvertStringToUserChoice(choice);
         }
         public static EventStatus DisplayLockoutScreenASCII(DateTime lockoutTimeStart, int lockoutDuration)
         {
-
+            AnsiConsole.Cursor.Hide();
             while (DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds < lockoutDuration)
             {
                 int remainingTime = lockoutDuration - (int)DateTime.UtcNow.Subtract(lockoutTimeStart).TotalSeconds;
-                Console.CursorVisible = false;
 
-                Console.Clear();
+
+                AnsiConsole.Clear();
                 Color timeRemainingColor = UpdateColorBasedOnTimeRemaining(remainingTime);
 
-                AnsiConsole.Write(new FigletText("Locked for: ").Centered().Color(timeRemainingColor));
+                AnsiConsole.Write(new FigletText("Locked for:").Centered().Color(timeRemainingColor));
                 AnsiConsole.Write(new FigletText(remainingTime.ToString()).Centered().Color(timeRemainingColor));
-
 
                 Thread.Sleep(1000);
             }
+            AnsiConsole.Cursor.Show();
             return EventStatus.LoginUnlocked;
         }
     }
