@@ -1,5 +1,4 @@
 ﻿using NET23_GrupprojektBank.Managers.Logs;
-using Spectre.Console;
 
 
 namespace NET23_GrupprojektBank.Managers.Transactions
@@ -108,9 +107,6 @@ namespace NET23_GrupprojektBank.Managers.Transactions
                                     transaction.DestinationBankAccount.AddBalance(convertedSumToTransfer);
                                     transaction.SourceUser.AddLog(EventStatus.TransferSuccess);
                                     transaction.DestinationUser.AddLog(EventStatus.TransferReceivedSuccess);
-
-                                    AnsiConsole.MarkupLine($"[bold green]ORIGINAL SUM: {transaction.Sum}[/] [bold orange1]CONVERTED SUM: {convertedSumToTransfer}[/]");
-
                                 }
 
                             }
