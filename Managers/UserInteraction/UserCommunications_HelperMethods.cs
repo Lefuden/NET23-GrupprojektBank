@@ -44,8 +44,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             {"Title",           $"[{_title}]"},
             {"Choice",          $"[{_choice}]"},
-            {"Input",           $"[{_goldDividerLine}]"},
-            {"Info",            $"[{_menuInfo}]"},
+            {"Input",           $"[{_menuInfo}]"},
+            {"Info",            $"[{_goldDividerLine}]"},
             {"Exit",            $"[{_redExit}]"},
             {"Back",            $"[{_back}]"},
             {"DividerText",     $"{_goldDividerText}"},
