@@ -1,14 +1,15 @@
-﻿using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+﻿using NET23_GrupprojektBank.Users;
+using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
-        public static (Email, string switchArgument) GetEmailFromUser()
+        public static (Email, string switchArgument) GetEmailFromUser(UserType userType)
         {
             string switchArgument = "-1";
-            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Email Information");
+            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Email Information");
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter email information.[/]");
@@ -43,14 +44,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 }
 
                 AnsiConsole.Clear();
-                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Email Information");
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Email Information");
                 var content = new Markup($"{AdminColors["Choice"]}Email: [/]{AdminColors["Highlight"]}{email}[/]\n" +
                                          $"{AdminColors["Choice"]}Work email:[/] {AdminColors["Highlight"]}{workEmail}[/]").LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(TableBorderColor)
-                    .Header($"{AdminColors["Info"]}Email[/]")
-                    .HeaderAlignment(Justify.Left);
+                    .BorderColor(TableBorderColor);
                 AnsiConsole.Write(panel);
 
                 AddThisAmountOfNewLines(1);
@@ -68,10 +67,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static (Phone, string switchArgument) GetPhoneFromUser()
+        public static (Phone, string switchArgument) GetPhoneFromUser(UserType userType)
         {
             string switchArgument = "-1";
-            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Phone Information");
+            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Phone Information");
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter phone information.[/]");
@@ -95,14 +94,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                 }
                 AnsiConsole.Clear();
-                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Phone Information");
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Phone Information");
                 var content = new Markup($"{AdminColors["Choice"]}Phone number: [/]{AdminColors["Highlight"]}{phone}[/]\n")
                     .LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(TableBorderColor)
-                    .Header($"{AdminColors["Info"]}Phone[/]")
-                    .HeaderAlignment(Justify.Left);
+                    .BorderColor(TableBorderColor);
                 AnsiConsole.Write(panel);
 
                 AddThisAmountOfNewLines(1);
@@ -120,10 +117,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static (Address, string switchArgument) GetAdressFromUser()
+        public static (Address, string switchArgument) GetAdressFromUser(UserType userType)
         {
             string switchArgument = "-1";
-            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Adress Information");
+            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Adress Information");
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter adress information.[/]");
@@ -140,7 +137,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 if (postalNumber == "-1") return (new Address("-1", "", "", ""), switchArgument);
 
                 AnsiConsole.Clear();
-                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Adress Information");
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Adress Information");
                 var content = new Markup(
                 $"{AdminColors["Choice"]}Country: [/]{AdminColors["Highlight"]}{country}[/]\n" +
                 $"{AdminColors["Choice"]}City: [/]{AdminColors["Highlight"]}{city}[/]\n" +
@@ -149,9 +146,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ).LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(TableBorderColor)
-                    .Header($"{AdminColors["Info"]}Address[/]")
-                    .HeaderAlignment(Justify.Left);
+                    .BorderColor(TableBorderColor);
                 AnsiConsole.Write(panel);
 
                 AddThisAmountOfNewLines(2);
@@ -169,9 +164,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static DateTime GetBirthDateFromUser()
+        public static DateTime GetBirthDateFromUser(UserType userType)
         {
-            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Birth Date Information");
+            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | Birth Date Information");
             while (true)
             {
                 var userInput = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Date of Birth (YYYYMMDD)[/]:");
@@ -195,9 +190,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static (string Username, string Password, string FirstName, string LastName, DateTime DateOfBirth) GetBasicsFromUser(List<string> existingUsernames)
+        public static (string Username, string Password, string FirstName, string LastName, DateTime DateOfBirth) GetBasicsFromUser(List<string> existingUsernames, UserType userType)
         {
-            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "User Information");
+            WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | User Information");
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter user information.[/]");
@@ -231,11 +226,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 var lastName = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Last name[/]:");
                 if (lastName == "-1") return ("-1", "", "", "", DateTime.Now);
 
-                var dateOfBirth = GetBirthDateFromUser();
+                var dateOfBirth = GetBirthDateFromUser(userType);
                 if (dateOfBirth == DateTime.MinValue) return ("-1", "", "", "", DateTime.Now);
 
                 AnsiConsole.Clear();
-                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "User Information");
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", $"{userType} Creation | User Information");
                 var content = new Markup(
                 $"{AdminColors["Choice"]}User name: [/]{AdminColors["Highlight"]}{username}[/]\n" +
                 $"{AdminColors["Choice"]}Password: [/]{AdminColors["Highlight"]}**********[/]\n" +
@@ -245,9 +240,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ).LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(TableBorderColor)
-                    .Header($"{AdminColors["Info"]}User Information[/]")
-                    .HeaderAlignment(Justify.Left);
+                    .BorderColor(TableBorderColor);
                 AnsiConsole.Write(panel);
 
                 AddThisAmountOfNewLines(1);

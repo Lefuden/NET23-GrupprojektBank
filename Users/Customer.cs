@@ -29,18 +29,45 @@ namespace NET23_GrupprojektBank.Users
         }
         public void CreateBankAccount(List<int> existingBankAccountNumbers, BankAccountType bankAccountTypeToBeCreated)
         {
+            AnsiConsole.Clear();
+
+
             while (true)
             {
-                Console.Clear();
-                var bankAccountName = AnsiConsole.Ask<string>("[green]Account name[/]:");
-                var currencyType = UserCommunications.ChooseCurrencyType();
+                AnsiConsole.Clear();
+                UserCommunications.WriteDivider($"{UserCommunications.MenuColors["DividerText"]}", $"{UserCommunications.MenuColors["DividerLine"]}", $"{bankAccountTypeToBeCreated} Creation | Bank Account Creation");
+                var bankAccountName = AnsiConsole.Ask<string>($"{UserCommunications.MenuColors["Choice"]}Account name[/]:");
+                var currencyType = UserCommunications.ChooseCurrencyType(bankAccountTypeToBeCreated);
                 var bankAccountNr = BankAccount.BankAccountNumberGenerator(existingBankAccountNumbers);
-                Console.Clear();
 
+
+                UserCommunications.WriteDivider($"{UserCommunications.MenuColors["DividerText"]}", $"{UserCommunications.MenuColors["DividerLine"]}", $"{bankAccountTypeToBeCreated} Creation | Bank Account Information");
+                Markup content;
                 double interest = bankAccountTypeToBeCreated == BankAccountType.Savings ? UserCommunications.DecideInterestRate(GetBankAccounts()) : 0;
-
-                AnsiConsole.Write(new Markup($"[green]Account type[/]: {bankAccountTypeToBeCreated}\n[green]Account number[/]: {bankAccountNr}\n[green]Account name[/]: {bankAccountName}\n[green]Account currency type[/]: {currencyType}{(bankAccountTypeToBeCreated == BankAccountType.Savings ? $"\n[green]Interest[/]: {interest:p}" : "")}\n\n").LeftJustified());
-
+                if (bankAccountTypeToBeCreated == BankAccountType.Savings)
+                {
+                    content = new Markup(
+                            $"{UserCommunications.MenuColors["Choice"]}Account name: [/]{UserCommunications.MenuColors["Info"]}{bankAccountName}[/]\n" +
+                            $"{UserCommunications.MenuColors["Choice"]}Account number: [/]{UserCommunications.MenuColors["Info"]}{bankAccountNr}[/]\n" +
+                            $"{UserCommunications.MenuColors["Choice"]}Account currency type: [/]{UserCommunications.MenuColors["Info"]}{currencyType}[/]\n" +
+                            $"{UserCommunications.MenuColors["Choice"]}Account type: [/]{UserCommunications.MenuColors["Info"]}{bankAccountTypeToBeCreated}[/]\n" +
+                            $"{UserCommunications.MenuColors["Choice"]}Interest Rate: [/]{UserCommunications.MenuColors["Info"]}{interest:p}[/]"
+                            ).LeftJustified();
+                }
+                else
+                {
+                    content = new Markup(
+                        $"{UserCommunications.MenuColors["Choice"]}Account name: [/]{UserCommunications.MenuColors["Info"]}{bankAccountName}[/]\n" +
+                        $"{UserCommunications.MenuColors["Choice"]}Account number: [/]{UserCommunications.MenuColors["Info"]}{bankAccountNr}[/]\n" +
+                        $"{UserCommunications.MenuColors["Choice"]}Account currency type: [/]{UserCommunications.MenuColors["Info"]}{currencyType}[/]\n" +
+                        $"{UserCommunications.MenuColors["Choice"]}Account type: [/]{UserCommunications.MenuColors["Info"]}{bankAccountTypeToBeCreated}[/]"
+                        ).LeftJustified();
+                }
+                var panel = new Panel(content)
+                                .RoundedBorder()
+                                .BorderColor(UserCommunications.TableBorderColor);
+                AnsiConsole.Write(panel);
+                AnsiConsole.WriteLine();
                 if (UserCommunications.AskUserYesOrNo("is this information correct?"))
                 {
                     switch (bankAccountTypeToBeCreated)

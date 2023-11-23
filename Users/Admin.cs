@@ -17,9 +17,9 @@ namespace NET23_GrupprojektBank.Users
 
         public Admin CreateAdminAccount(List<string> existingUsernames)
         {
-            Email email = new("","");
+            Email email = new("", "");
             Phone phone = new("");
-            Address adress = new("","","","");
+            Address adress = new("", "", "", "");
             List<string> choices = new()
             {
                 "Email",
@@ -29,7 +29,7 @@ namespace NET23_GrupprojektBank.Users
                 "Back"
             };
 
-            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
+            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames, UserType.Admin);
             if (username == "-1")
             {
                 StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
@@ -47,19 +47,19 @@ namespace NET23_GrupprojektBank.Users
                 {
                     case "Email":
                         choices.Remove("Email");
-                        (email, switchArgument) = UserCommunications.GetEmailFromUser();
+                        (email, switchArgument) = UserCommunications.GetEmailFromUser(UserType.Admin);
                         if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
                         break;
 
                     case "Phone":
                         choices.Remove("Phone");
-                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser();
+                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser(UserType.Admin);
                         if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
                         break;
 
                     case "Adress":
                         choices.Remove("Adress");
-                        (adress, switchArgument) = UserCommunications.GetAdressFromUser();
+                        (adress, switchArgument) = UserCommunications.GetAdressFromUser(UserType.Admin);
                         if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
                         break;
 
@@ -68,7 +68,7 @@ namespace NET23_GrupprojektBank.Users
                         return new Admin(username, password,
                                new PersonInformation(firstName, lastName, dateOfBirth,
                                new ContactInformation(email, phone, adress)));
-                    
+
                     case "Back":
                         StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
                         return null;
@@ -86,9 +86,9 @@ namespace NET23_GrupprojektBank.Users
 
         public Customer CreateCustomerAccount(List<string> existingUsernames)
         {
-            Email email = new("","");
+            Email email = new("", "");
             Phone phone = new("");
-            Address adress = new("","","","");
+            Address adress = new("", "", "", "");
             List<string> choices = new()
             {
                 "Email",
@@ -98,7 +98,7 @@ namespace NET23_GrupprojektBank.Users
                 "Back"
             };
 
-            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
+            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames, UserType.Customer);
             if (username == "-1")
             {
                 StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
@@ -117,19 +117,19 @@ namespace NET23_GrupprojektBank.Users
                 {
                     case "Email":
                         choices.Remove("Email");
-                        (email, switchArgument) = UserCommunications.GetEmailFromUser();
+                        (email, switchArgument) = UserCommunications.GetEmailFromUser(UserType.Customer);
                         if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
                         break;
 
                     case "Phone":
                         choices.Remove("Phone");
-                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser();
+                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser(UserType.Customer);
                         if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
                         break;
 
                     case "Adress":
                         choices.Remove("Adress");
-                        (adress, switchArgument) = UserCommunications.GetAdressFromUser();
+                        (adress, switchArgument) = UserCommunications.GetAdressFromUser(UserType.Customer);
                         if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
                         break;
 
@@ -138,7 +138,7 @@ namespace NET23_GrupprojektBank.Users
                         return new Customer(username, password,
                                new PersonInformation(firstName, lastName, dateOfBirth,
                                new ContactInformation(email, phone, adress)));
-                    
+
                     case "Back":
                         StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
                         return null;
@@ -168,7 +168,7 @@ namespace NET23_GrupprojektBank.Users
                     {
                         AddLog(EventStatus.InvalidInput);
                     }
-                    
+
 
                     if (!UserCommunications.AskUserYesOrNo($"Continue account creation without {selectedChoice}?"))
                     {

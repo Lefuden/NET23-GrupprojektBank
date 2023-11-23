@@ -15,11 +15,12 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 FakeBackChoice("Back");
                 return;
             }
+            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Account Information");
             var table = GetBankAccountsAsTable(bankAccounts);
-            table.Title($"[{BankAccountColors["Title"]}]Bank Accounts[/]");
-            table.BorderColor(BorderColor);
+            table.BorderColor(TableBorderColor);
 
             AnsiConsole.Write(table);
+            AddThisAmountOfNewLines(1);
             FakeBackChoice("Back");
         }
 
@@ -104,9 +105,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
 
 
-        public static CurrencyType ChooseCurrencyType()
+        public static CurrencyType ChooseCurrencyType(BankAccountType bankAccountTypeToBeCreated)
         {
-            WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Choose Currency Type");
+            AnsiConsole.Clear();
+            WriteDivider($"{UserCommunications.MenuColors["DividerText"]}", $"{UserCommunications.MenuColors["DividerLine"]}", $"{bankAccountTypeToBeCreated} Creation | Select Currency Type");
             var currencyChoices = new SelectionPrompt<string>()
                 .Title($"[{BankAccountColors["Title"]}]Choose currency type[/]")
                 .PageSize(3);
@@ -121,7 +123,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             var choice = AnsiConsole.Prompt(currencyChoices);
             var cleanedChoice = Markup.Remove(choice);
-            Console.Clear();
+            AnsiConsole.Clear();
             return Enum.TryParse(cleanedChoice, out CurrencyType selectedType) ? selectedType : CurrencyType.SEK;
         }
 
