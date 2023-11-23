@@ -24,7 +24,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         private static readonly string _accountNumber = "skyblue3";
         private static readonly string _accountInfo = "darkolivegreen3_2";
         public static readonly Color BorderColor = Color.MediumPurple2_1;
-        public static readonly Color TableBorderColor = Color.Plum4;
+        public static readonly Color TableBorderColor = Color.LightGoldenrod2_1;
         private static readonly Style HHStyle = new Style(Color.MediumPurple2, null, Decoration.Bold);
         private static string pattern { get; set; } = @$"\[{_accountNumber} bold\]\s*([\d,]+)\[/\]";
         private static readonly Dictionary<string, string> UserColors = new()
@@ -44,8 +44,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             {"Title",           $"[{_title}]"},
             {"Choice",          $"[{_choice}]"},
-            {"Input",           $"[{_menuInput}]"},
-            {"Info",            $"[{_menuInfo}]"},
+            {"Input",           $"[{_menuInfo}]"},
+            {"Info",            $"[{_goldDividerLine}]"},
             {"Exit",            $"[{_redExit}]"},
             {"Back",            $"[{_back}]"},
             {"DividerText",     $"{_goldDividerText}"},
