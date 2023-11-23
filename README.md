@@ -1,7 +1,7 @@
 # NET23-GrupprojektBank
 
 # Class Diagram (UML) of the project
-
+[[https://github.com/Lefuden/NET23-GrupprojektBank/blob/master/GruppProjekt_UML.pdf]]
 
 # Class Descriptions
 ## App
