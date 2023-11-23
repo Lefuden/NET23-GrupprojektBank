@@ -7,6 +7,7 @@ namespace NET23_GrupprojektBank.Managers.Login
     {
         private List<User> CurrentExistingUsers { get; set; }
         private int RemainingLoginAttempts { get; set; } = 3;
+        private int MaxLoginAttempts { get; set; } = 3;
         private bool IsLocked { get; set; } = false;
         private const int LockoutDuration = 6;
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
@@ -19,49 +20,32 @@ namespace NET23_GrupprojektBank.Managers.Login
 
         public (DateTime LockOutTimeStarted, int LockOutDuration) GetLockOutInformation() => IsLocked ? (LockoutTimeStart, LockoutDuration) : (DateTime.MaxValue, 60000000);
 
-        public (User? User, EventStatus EventStatus) Login(string Username, string password)
+        public (User? User, EventStatus EventStatus) Login(string username, string password, int attempts)
         {
-            if (IsLocked)
+            if (attempts == 1 && IsLocked)
             {
-                LockoutTimeStart = DateTime.UtcNow;
-                return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
+                IsLocked = false;
             }
-
-            RemainingLoginAttempts--;
-
-            if (RemainingLoginAttempts <= 0 && !IsLocked)
+            if (MaxLoginAttempts == attempts && !IsLocked)
             {
                 IsLocked = true;
-                LockoutTimeStart = DateTime.UtcNow;
-                return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
             }
 
-            User? userLogin = CurrentExistingUsers.Find(user =>
-            {
-                if (user.CompareUsername(Username))
-                {
-                    if (user.CompareUserPassword(password))
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            User? userLogin = CurrentExistingUsers.Find(user => user.CompareUsername(username) && user.CompareUserPassword(password));
+
 
             if (userLogin is not null)
             {
-                RemainingLoginAttempts = 3;
+                IsLocked = false;
                 return (userLogin, EventStatus.LoginSuccess);
             }
-
+            else if (IsLocked)
+            {
+                LockoutTimeStart = DateTime.UtcNow;
+                return (default, UserCommunications.DisplayLockoutScreenASCII(LockoutTimeStart, LockoutDuration));
+            }
 
             return (default, EventStatus.LoginFailed);
-        }
-
-        public void ResetLoginLockout()
-        {
-            RemainingLoginAttempts = 3;
-            IsLocked = false;
         }
     }
 }

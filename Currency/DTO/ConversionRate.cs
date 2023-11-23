@@ -2,6 +2,12 @@
 {
     internal class ConversionRate
     {
+        public double EUR { get; set; }
+        public double SEK { get; set; }
+        public double USD { get; set; }
+    }
+    internal class ConversionRateBACKUP
+    {
         public double AED { get; set; }
         public double ARS { get; set; }
         public double AUD { get; set; }

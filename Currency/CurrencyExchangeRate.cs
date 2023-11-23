@@ -138,9 +138,8 @@ namespace NET23_GrupprojektBank.Currency
                         if (property.PropertyType == typeof(double))
                         {
                             string propertyName = property.Name;
-                            double propertyValue = (double)property.GetValue(SEKCurrencyRate.conversion_rates);
+                            double propertyValue = 0;
                             CurrencyTypeFull currencyTypeFull = Enum.Parse<CurrencyTypeFull>(propertyName, false);
-
                             CurrencyType currencyType = currencyTypeFull switch
                             {
                                 CurrencyTypeFull.SEK => CurrencyType.SEK,
@@ -152,14 +151,17 @@ namespace NET23_GrupprojektBank.Currency
                             switch (i)
                             {
                                 case 0:
+                                    propertyValue = (double)property.GetValue(SEKCurrencyRate.conversion_rates);
                                     CurrentExchangeRatesSEK[currencyType] = propertyValue;
                                     break;
 
                                 case 1:
+                                    propertyValue = (double)property.GetValue(USDCurrencyRate.conversion_rates);
                                     CurrentExchangeRatesUSD[currencyType] = propertyValue;
                                     break;
 
                                 case 2:
+                                    propertyValue = (double)property.GetValue(EURCurrencyRate.conversion_rates);
                                     CurrentExchangeRatesEUR[currencyType] = propertyValue;
                                     break;
 
@@ -219,13 +221,15 @@ namespace NET23_GrupprojektBank.Currency
                 }
             }
 
-            return dictionaryCurrencyType switch
+            Dictionary<CurrencyType, double> exchangeRateDictionary = dictionaryCurrencyType switch
             {
                 CurrencyType.SEK => new(CurrentExchangeRatesSEK),
                 CurrencyType.USD => new(CurrentExchangeRatesUSD),
                 CurrencyType.EUR => new(CurrentExchangeRatesEUR),
                 _ => new(CurrentExchangeRatesSEK)
             };
+
+            return exchangeRateDictionary;
         }
     }
 }

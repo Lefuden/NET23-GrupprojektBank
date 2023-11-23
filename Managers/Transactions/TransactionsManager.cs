@@ -66,6 +66,7 @@ namespace NET23_GrupprojektBank.Managers.Transactions
 
                 bool sameCurrencyType = transaction.SourceCurrencyType == transaction.DestinationCurrencyType;
 
+
                 switch (transaction.TransactionType)
                 {
                     case (TransactionType.Withdrawal):

@@ -6,6 +6,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
+
         public static UserChoice MainMenu()
         {
 
@@ -22,6 +23,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ));
 
             return ConvertStringToUserChoice(stringChoice);
+        }
+        public static void IncorrectLoginNotification()
+        {
+            WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Login");
+
         }
         public static UserChoice AdminMenu()
         {
@@ -142,6 +148,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return ConvertStringToUserChoice(choice);
         }
+
         public static EventStatus DisplayLockoutScreenASCII(DateTime lockoutTimeStart, int lockoutDuration)
         {
             AnsiConsole.Cursor.Hide();

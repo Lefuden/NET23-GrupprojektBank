@@ -22,6 +22,8 @@ namespace NET23_GrupprojektBank.Managers.Logic
         private UserChoice Choice { get; set; }
         private UserChoice PreviousChoice { get; set; }
         private bool KeepRunning { get; set; }
+        private int LoginAttempts { get; set; } = 1;
+
 
         public LogicManager()
         {
@@ -56,7 +58,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                     case UserChoice.Login:
 
                         var loginInfo = UserCommunications.GetLoginInfo();
-                        var info = LoginManager.Login(loginInfo.Username, loginInfo.Password);
+                        var info = LoginManager.Login(loginInfo.Username, loginInfo.Password, LoginAttempts++);
 
                         switch (info.EventStatus)
                         {
@@ -67,6 +69,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     {
                                         CurrentCustomer = customer;
                                         CurrentCustomer.AddLog(info.EventStatus);
+                                        ResetLoginLockout();
                                         BankLoggo.LoginLoadingScreen();
                                         Choice = UserChoice.ViewCustomerMenu;
                                     }
@@ -74,6 +77,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                     {
                                         CurrentAdmin = admin;
                                         CurrentAdmin.AddLog(info.EventStatus);
+                                        ResetLoginLockout();
                                         BankLoggo.LoginLoadingScreen();
                                         Choice = UserChoice.ViewAdminMenu;
                                     }
@@ -85,12 +89,14 @@ namespace NET23_GrupprojektBank.Managers.Logic
                                 break;
 
                             case EventStatus.LoginFailed:
+
                                 Choice = UserChoice.Login;
                                 break;
 
                             case EventStatus.LoginUnlocked:
                                 Choice = UserChoice.ViewWelcomeMenu;
-                                LoginManager.ResetLoginLockout();
+                                ResetLoginLockout();
+                                //LoginManager.ResetLoginLockout();
                                 break;
 
                             default:
@@ -161,7 +167,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Transaction newTransaction = CurrentCustomer.MakeDeposit();
-                            if (newTransaction is not null)
+                            if (newTransaction.SourceBankAccount is not null)
                             {
                                 TransactionsManager.AddTransaction(newTransaction);
                             }
@@ -179,7 +185,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Transaction newTransaction = CurrentCustomer.MakeWithdrawal();
-                            if (newTransaction is not null)
+                            if (newTransaction.SourceBankAccount is not null)
                             {
                                 TransactionsManager.AddTransaction(newTransaction);
                             }
@@ -197,7 +203,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         {
                             PreviousChoice = UserChoice.ViewCustomerMenu;
                             Transaction newTransaction = CurrentCustomer.MakeLoan();
-                            if (newTransaction is not null)
+                            if (newTransaction is not null && newTransaction.SourceBankAccount is not null)
                             {
                                 TransactionsManager.AddTransaction(newTransaction);
                             }
@@ -473,12 +479,17 @@ namespace NET23_GrupprojektBank.Managers.Logic
                         customer.AddLog(EventStatus.CheckingCreationSuccess);
 
                         sum = rng.Next(0, 1001);
-                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
+                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.EUR, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
                         customer.AddLog(EventStatus.SavingsCreationSuccess);
                     }
 
                 }
             }
+        }
+
+        private void ResetLoginLockout()
+        {
+            LoginAttempts = 1;
         }
         private string CreateAmazingAccountName(int i, string name)
         {

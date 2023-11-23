@@ -71,7 +71,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
                 transferAmount = AnsiConsole.Ask<decimal>($"[{BankAccountColors["Title"]}]Enter the amount to transfer (Maximum:[/][{BankAccountColors["Balance"]}] {sourceAccount.GetBalance()}[/][{BankAccountColors["Title"]}])[/]:");
 
-                if (transferAmount > 0 || transferAmount < sourceAccount.GetBalance())
+                if (transferAmount > 0 && transferAmount <= sourceAccount.GetBalance())
                 {
                     break;
                 }
@@ -155,13 +155,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {
                 AnsiConsole.MarkupLine($"[{BankAccountColors["Choice"]}]You will get an interest rate of:[/] [{BankAccountColors["Warning"]}]{interest:p}[/]");
             }
-            switch (AskUserYesOrNo("Do you want to continue?"))
+            if (AskUserYesOrNo("Do you want to continue?") is not true)
             {
-                case false:
-                    return default;
-
-                case true:
-                    break;
+                return default;
             }
 
             AnsiConsole.Clear();
@@ -172,7 +168,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             AnsiConsole.Clear();
             WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Loan Menu");
 
-            if (selectedAccount == null)
+            if (selectedAccount is null)
             {
                 return default;
             }
@@ -199,7 +195,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 {
                     AnsiConsole.Clear();
                     WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Loan Menu");
-                    WriteTransactionInformation(info, TransactionType.Loan, loanAmount, loanAmount);
+                    WriteTransactionInformation(info, TransactionType.Loan, loanAmount, selectedAccount.GetBalance());
                     // Vi skriver ut ett table just innan med denna sourceAccountInfo fint!
                     //AnsiConsole.MarkupLine($"[{BankAccountColors["Success"]}]You have successfully applied for a loan for:[/] [{BankAccountColors["Balance"]}]{loanAmount:.##} {sourceAccountInfo.Currency}[/]");
 

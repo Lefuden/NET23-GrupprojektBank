@@ -24,9 +24,10 @@ namespace NET23_GrupprojektBank.BankAccounts
         public int GetAccountNumber() => BankAccountNumber;
         public decimal ConvertToCurrencyRate(CurrencyType currencyType, decimal sum)
         {
-            var convertRate = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(CurrencyType);
-
-            return (decimal)convertRate[currencyType] * sum;
+            var convertRateDictionary = CurrencyExchangeRate.GetCurrentCurrencyExchangeRate(CurrencyType);
+            var convertRateValue = (decimal)convertRateDictionary[currencyType];
+            var convertSum = convertRateValue * sum;
+            return convertSum;
         }
         public void AddLoanAndInterest(decimal loanAmount, double loanInterestRate)
         {

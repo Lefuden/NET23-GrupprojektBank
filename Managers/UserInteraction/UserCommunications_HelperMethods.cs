@@ -24,6 +24,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         private static readonly string _accountNumber = "skyblue3";
         private static readonly string _accountInfo = "darkolivegreen3_2";
         public static readonly Color BorderColor = Color.MediumPurple2_1;
+        public static readonly Color TableBorderColor = Color.Plum4;
         private static readonly Style HHStyle = new Style(Color.MediumPurple2, null, Decoration.Bold);
         private static string pattern { get; set; } = @$"\[{_accountNumber} bold\]\s*([\d,]+)\[/\]";
         private static readonly Dictionary<string, string> UserColors = new()
@@ -48,7 +49,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {"Exit",            $"[{_redExit}]"},
             {"Back",            $"[{_back}]"},
             {"DividerText",     $"{_goldDividerText}"},
-            {"DividerLine",     $"{_purpleHighlight}"},
+            {"DividerLine",     $"{_goldDividerLine}"},
             {"Warning",         $"[{_redWarning}]"},
             {"Highlight",       $"[{_purpleHighlight}]"}
         };
@@ -136,6 +137,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             Console.ReadKey();
             AnsiConsole.Cursor.Show(true);
         }
+
         private static (string SelectionPromptTitle, List<string> AccountInformationList, decimal TotalSumOnAccounts) GetBankAccountInfo(List<BankAccount> bankAccounts)
         {
             var accountInfoList = new List<string>();
@@ -183,7 +185,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     ).LeftAligned();
             }
             table.Border(TableBorder.Rounded);
-            table.BorderColor(BorderColor);
+            table.BorderColor(TableBorderColor);
             return table;
         }
 
@@ -199,7 +201,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     $"{LogsColors["LogId"]}{log.LogId}[/]");
             }
             table.Border(TableBorder.Rounded);
-            table.BorderColor(BorderColor);
+            table.BorderColor(TableBorderColor);
             AnsiConsole.Write(table);
 
         }
@@ -249,10 +251,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             var content = new Markup(
                 $"[{BankAccountColors["Highlight"]}]Account Name: [/][{BankAccountColors["Choice"]}]{info.Name}[/]\n" +
                 $"[{BankAccountColors["Highlight"]}]{descriptionText}[/] [{BankAccountColors["Balance"]}]{transactionAmount:0.##} {info.Currency}[/]\n" +
-                $"[{BankAccountColors["Highlight"]}]New Balance:[/] [{(inversionMultiplier + balance >= 0 ? BankAccountColors["Balance"] : BankAccountColors["Warning"])}]{balance + transactionAmount:0.##} {info.Currency}[/]"
+                $"[{BankAccountColors["Highlight"]}]New Balance:[/] [{(balance - inversionMultiplier >= 0 ? BankAccountColors["Balance"] : BankAccountColors["Warning"])}]{balance + (inversionMultiplier < 0 ? inversionMultiplier : transactionAmount):0.##} {info.Currency}[/]"
                 ).LeftJustified();
             var panel = new Panel(content)
                 .RoundedBorder()
+                .BorderColor(TableBorderColor)
                 .Header($"[{BankAccountColors["Info"]}]{transactionText} {info.Name}[/]")
                 .HeaderAlignment(Justify.Left);
             AnsiConsole.Write(panel);
