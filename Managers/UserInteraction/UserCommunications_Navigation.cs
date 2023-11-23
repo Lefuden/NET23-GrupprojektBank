@@ -27,7 +27,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         public static void IncorrectLoginNotification()
         {
             WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Login");
-
+            // FOIRSTÄTT HÄRRHAIWRH
         }
         public static UserChoice AdminMenu()
         {
@@ -44,7 +44,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                       $"{AdminColors["Choice"]}Create Admin Account[/]",
                       $"{AdminColors["Choice"]}Update Currency ExchangeRate[/]",
                       $"{AdminColors["Choice"]}View Logs[/]",
-                      $"{AdminColors["Back"]}Logout[/]",
+                      $"{AdminColors["Back"]}Back[/]",
                       $"{AdminColors["Exit"]}Exit[/]"
                     }
                 )); ;
@@ -88,10 +88,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     {
                         $"{UserColors["Choice"]}Create Checkings Account[/]",
                         $"{UserColors["Choice"]}Create Savings Account[/]",
-                        $"{UserColors["Back"]}Logout[/]",
-                        $"{UserColors["Exit"]}Exit[/]"
-                    }
-                ));
+                        $"{UserColors["Back"]}Back[/]"
+                    }));
+
 
             return ConvertStringToUserChoice(stringChoice);
         }
