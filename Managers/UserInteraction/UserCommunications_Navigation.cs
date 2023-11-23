@@ -9,7 +9,6 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
         public static UserChoice MainMenu()
         {
-
             WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Hyper Hedgehogs Fundings");
             string stringChoice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -47,8 +46,38 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                       $"{AdminColors["Back"]}Back[/]",
                       $"{AdminColors["Exit"]}Exit[/]"
                     }
-                )); ;
+                ));
 
+            return ConvertStringToUserChoice(stringChoice);
+        }
+        public static List<string> UpdateAdminUserChoiceList(List<string> choiceList, UserChoice userChoice)
+        {
+            string choiceToBeRemoved = userChoice switch
+            {
+                UserChoice.Email => $"{AdminColors["Choice"]}Email[/]",
+                UserChoice.Phone => $"{AdminColors["Choice"]}Phone[/]",
+                UserChoice.Address => $"{AdminColors["Choice"]}Address[/]",
+            };
+            choiceList.Remove(choiceToBeRemoved);
+            return choiceList;
+        }
+        public static List<string> GetAdminCreateUserChoiceList() => new()
+        {
+            $"{AdminColors["Choice"]}Email[/]",
+            $"{AdminColors["Choice"]}Phone[/]",
+            $"{AdminColors["Choice"]}Address[/]",
+            $"{AdminColors["Accept"]}Complete[/]",
+            $"{AdminColors["Back"]}Back[/]",
+        };
+        public static UserChoice AdminCreateUserMenu(List<string> menuChoices)
+        {
+            WriteDivider(AdminColors["DividerText"], AdminColors["DividerLine"], "Admin Menu");
+            string stringChoice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title($"{AdminColors["Title"]}What would you like to do today?[/]")
+                    .HighlightStyle(HHStyle)
+                    .PageSize(10)
+                    .AddChoices(menuChoices));
             return ConvertStringToUserChoice(stringChoice);
         }
         public static UserChoice CustomerMenu()

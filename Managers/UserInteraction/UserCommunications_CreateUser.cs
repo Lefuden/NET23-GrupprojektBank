@@ -5,18 +5,17 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 {
     internal partial class UserCommunications
     {
-        public static (Email, string switchArgument) GetEmailFromUser()
+        public static (Email Email, bool DoesUserWantToContinue) GetEmailFromUser()
         {
-            string switchArgument = "-1";
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Email Information");
+            string? email, workEmail;
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter email information.[/]");
-                string? email;
                 while (true)
                 {
                     email = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Email (x@x.x)[/]:");
-                    if (email == "-1") return (new Email("-1", ""), switchArgument);
+                    if (email == "-1") return (new Email("", ""), false);
                     if (!Email.IsEmailValid(email))
                     {
                         AnsiConsole.MarkupLine($"{AdminColors["Warning"]}invalid email format, try again[/]");
@@ -26,12 +25,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                         break;
                     }
                 }
-
-                string? workEmail;
                 while (true)
                 {
                     workEmail = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Work email (x@x.x)[/]:");
-                    if (workEmail == "-1") return (new Email("-1", ""), switchArgument);
+                    if (workEmail == "-1") return (new Email("", ""), false);
                     if (!Email.IsEmailValid(workEmail))
                     {
                         AnsiConsole.MarkupLine($"{AdminColors["Warning"]}invalid email format, try again[/]");
@@ -59,8 +56,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 {
                     case true:
                         Console.Clear();
-                        switchArgument = "+1";
-                        return (new Email(email, workEmail), switchArgument);
+                        return (new Email(email, workEmail), true);
                     case false:
                         Console.Clear();
                         break;
@@ -68,7 +64,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static (Phone, string switchArgument) GetPhoneFromUser()
+        public static (Phone Phone, bool DoesUserWantToContinue) GetPhoneFromUser()
         {
             string switchArgument = "-1";
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Phone Information");
@@ -79,7 +75,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 while (true)
                 {
                     phone = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Phone number (10 digits)[/]:");
-                    if (phone == "-1") return (new Phone("-1"), switchArgument);
+                    if (phone == "-1") return (new Phone(""), false);
                     if (phone.Length != 10)
                     {
                         AnsiConsole.MarkupLine($"{AdminColors["Warning"]}Invalid number length! You wrote:[/] {AdminColors["Highlight"]}{phone.Length}[/], {AdminColors["Warning"]}try again[/]");
@@ -120,7 +116,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             }
         }
 
-        public static (Address, string switchArgument) GetAdressFromUser()
+        public static (Address Address, bool DoesUserWantToContinue) GetAdressFromUser()
         {
             string switchArgument = "-1";
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Adress Information");

@@ -2,6 +2,7 @@
 using NET23_GrupprojektBank.Managers.Logic;
 using NET23_GrupprojektBank.Managers.Logs;
 using NET23_GrupprojektBank.Managers.Transactions;
+using NET23_GrupprojektBank.Users;
 using Spectre.Console;
 using Color = Spectre.Console.Color;
 
@@ -44,6 +45,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
         {
             {"Title",           $"[{_title}]"},
             {"Choice",          $"[{_choice}]"},
+            {"Accept",          $"[{_greenColor}]"},
             {"Input",           $"[{_menuInfo}]"},
             {"Info",            $"[{_goldDividerLine}]"},
             {"Exit",            $"[{_redExit}]"},
@@ -125,11 +127,51 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 "Logout" => UserChoice.Logout,
                 "From File" => UserChoice.FromFile,
                 "From The Intrawebbs" => UserChoice.FromInternet,
+                "Email" => UserChoice.Email,
+                "Phone" => UserChoice.Phone,
+                "Adress" => UserChoice.Address,
+                "Complete" => UserChoice.Complete,
                 _ => UserChoice.Invalid
 
             };
         }
+        public static (UserChoice UserChoice, EventStatus EventStatus) CancelOrProceedUserCreation(UserChoice selectedChoice, UserType userType, bool doesUserWantToContinue)
+        {
+            AnsiConsole.Clear();
+            UserChoice userChoice;
+            EventStatus eventStatus;
 
+            switch (selectedChoice)
+            {
+                case UserChoice.Address:
+                    eventStatus = doesUserWantToContinue ? EventStatus.AddressSuccess : EventStatus.AddressFailed;
+                    break;
+                case UserChoice.Email:
+                    eventStatus = doesUserWantToContinue ? EventStatus.EmailSuccess : EventStatus.EmailFailed;
+                    break;
+                case UserChoice.Phone:
+                    eventStatus = doesUserWantToContinue ? EventStatus.PhoneSuccess : EventStatus.PhoneFailed;
+                    break;
+                default:
+                    eventStatus = EventStatus.InvalidInput;
+                    break;
+            }
+            if (AskUserYesOrNo($"Continue account creation without {selectedChoice}?") is not true)
+            {
+                userChoice = UserChoice.Back;
+                eventStatus = userType == UserType.Admin ? EventStatus.AdminAccountCreationFailed : EventStatus.CustomerAccountCreationFailed;
+                return (userChoice, eventStatus);
+            }
+
+            userChoice = UserChoice.Proceed;
+            return (userChoice, eventStatus);
+        }
+
+        public static void StopUserCreation(string message)
+        {
+            AnsiConsole.MarkupLine($"{AdminColors["Title"]}{message}[/]");
+            FakeBackChoice("Ok");
+        }
         public static void FakeBackChoice(string text)
         {
             AnsiConsole.Cursor.Show(false);

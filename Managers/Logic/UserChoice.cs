@@ -26,5 +26,10 @@
         FromFile,
         FromInternet,
         Invalid,
+        Email,
+        Phone,
+        Address,
+        Proceed,
+        Complete
     }
 }

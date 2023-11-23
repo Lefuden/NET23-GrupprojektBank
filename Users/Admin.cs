@@ -1,10 +1,10 @@
 ﻿using NET23_GrupprojektBank.Currency;
 using NET23_GrupprojektBank.Managers;
+using NET23_GrupprojektBank.Managers.Logic;
 using NET23_GrupprojektBank.Managers.UserInteraction;
 using NET23_GrupprojektBank.Users.UserContactInformation;
 using NET23_GrupprojektBank.Users.UserInformation;
 using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
-using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Users
 {
@@ -17,130 +17,120 @@ namespace NET23_GrupprojektBank.Users
 
         public Admin CreateAdminAccount(List<string> existingUsernames)
         {
-            Email email = new("","");
+            Email email = new("", "");
             Phone phone = new("");
-            Address adress = new("","","","");
-            List<string> choices = new()
-            {
-                "Email",
-                "Phone",
-                "Adress",
-                "Complete",
-                "Back"
-            };
+            Address address = new("", "", "", "");
 
-            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
-            if (username == "-1")
+            var userInfo = UserCommunications.GetBasicsFromUser(existingUsernames);
+            if (userInfo.Username == "-1")
             {
-                StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
+                UserCommunications.StopUserCreation("Admin creation cancelled");
+                AddLog(EventStatus.AdminAccountCreationFailed);
                 return null;
             }
+            var remainingChoices = UserCommunications.GetAdminCreateUserChoiceList();
 
             while (true)
             {
-                string stringChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .Title($"[purple]Select field[/]")
-                    .PageSize(5)
-                    .AddChoices(choices));
-                string switchArgument;
-                switch (stringChoice)
+                var choice = UserCommunications.AdminCreateUserMenu(remainingChoices);
+                switch (choice)
                 {
-                    case "Email":
-                        choices.Remove("Email");
-                        (email, switchArgument) = UserCommunications.GetEmailFromUser();
-                        if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
+                    case UserChoice.Email:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var emailInfo = UserCommunications.GetEmailFromUser();
+                        if (emailInfo.DoesUserWantToContinue is not true) return null;
+                        email = emailInfo.Email;
                         break;
 
-                    case "Phone":
-                        choices.Remove("Phone");
-                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser();
-                        if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
+                    case UserChoice.Phone:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var phoneInfo = UserCommunications.GetPhoneFromUser();
+                        if (phoneInfo.DoesUserWantToContinue is not true) return null;
+                        phone = phoneInfo.Phone;
                         break;
 
-                    case "Adress":
-                        choices.Remove("Adress");
-                        (adress, switchArgument) = UserCommunications.GetAdressFromUser();
-                        if (CancelOrProceedUserCreation(stringChoice, "Admin", switchArgument)) return null;
+                    case UserChoice.Address:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var adressInfo = UserCommunications.GetAdressFromUser();
+                        if (adressInfo.DoesUserWantToContinue is not true) return null;
+                        address = adressInfo.Address;
                         break;
 
-                    case "Complete":
-                        StopUserCreation("New admin has been created", EventStatus.AdminAccountCreationSuccess);
-                        return new Admin(username, password,
-                               new PersonInformation(firstName, lastName, dateOfBirth,
-                               new ContactInformation(email, phone, adress)));
-                    
-                    case "Back":
-                        StopUserCreation("Admin creation cancelled", EventStatus.AdminAccountCreationFailed);
+                    case UserChoice.Complete:
+                        UserCommunications.StopUserCreation("New admin has been created");
+                        AddLog(EventStatus.AdminAccountCreationSuccess);
+                        return new Admin(userInfo.Username, userInfo.Password,
+                               new PersonInformation(userInfo.FirstName, userInfo.LastName, userInfo.DateOfBirth,
+                               new ContactInformation(email, phone, address)));
+
+                    case UserChoice.Back:
+                        UserCommunications.StopUserCreation("Admin creation cancelled");
+                        AddLog(EventStatus.AdminAccountCreationFailed);
                         return null;
                 }
 
-                if (choices.Count == 2)
+                if (remainingChoices.Count == 2)
                 {
-                    StopUserCreation("New admin has been created", EventStatus.AdminAccountCreationSuccess);
-                    return new Admin(username, password,
-                           new PersonInformation(firstName, lastName, dateOfBirth,
-                           new ContactInformation(email, phone, adress)));
+                    UserCommunications.StopUserCreation("New admin has been created");
+                    AddLog(EventStatus.AdminAccountCreationSuccess);
+                    return new Admin(userInfo.Username, userInfo.Password,
+                               new PersonInformation(userInfo.FirstName, userInfo.LastName, userInfo.DateOfBirth,
+                               new ContactInformation(email, phone, address)));
                 }
             }
         }
 
         public Customer CreateCustomerAccount(List<string> existingUsernames)
         {
-            Email email = new("","");
+            Email email = new("", "");
             Phone phone = new("");
-            Address adress = new("","","","");
-            List<string> choices = new()
-            {
-                "Email",
-                "Phone",
-                "Adress",
-                "Complete",
-                "Back"
-            };
+            Address address = new("", "", "", "");
 
-            var (username, password, firstName, lastName, dateOfBirth) = UserCommunications.GetBasicsFromUser(existingUsernames);
-            if (username == "-1")
+            var userInfo = UserCommunications.GetBasicsFromUser(existingUsernames);
+            if (userInfo.Username == "-1")
             {
-                StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
+                UserCommunications.StopUserCreation("Customer creation cancelled");
+                AddLog(EventStatus.AdminAccountCreationFailed);
                 return null;
             }
+            var remainingChoices = UserCommunications.GetAdminCreateUserChoiceList();
 
             while (true)
             {
-                string stringChoice = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .Title($"[purple]Select field[/]")
-                    .PageSize(5)
-                    .AddChoices(choices));
-
-                string switchArgument;
-                switch (stringChoice)
+                var choice = UserCommunications.AdminCreateUserMenu(remainingChoices);
+                switch (choice)
                 {
-                    case "Email":
-                        choices.Remove("Email");
-                        (email, switchArgument) = UserCommunications.GetEmailFromUser();
-                        if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
+                    case UserChoice.Email:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var emailInfo = UserCommunications.GetEmailFromUser();
+                        if (emailInfo.DoesUserWantToContinue is not true) return null;
+                        email = emailInfo.Email;
                         break;
 
-                    case "Phone":
-                        choices.Remove("Phone");
-                        (phone, switchArgument) = UserCommunications.GetPhoneFromUser();
-                        if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
+                    case UserChoice.Phone:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var phoneInfo = UserCommunications.GetPhoneFromUser();
+                        if (phoneInfo.DoesUserWantToContinue is not true) return null;
+                        phone = phoneInfo.Phone;
                         break;
 
-                    case "Adress":
-                        choices.Remove("Adress");
-                        (adress, switchArgument) = UserCommunications.GetAdressFromUser();
-                        if (CancelOrProceedUserCreation(stringChoice, "Customer", switchArgument)) return null;
+                    case UserChoice.Address:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var adressInfo = UserCommunications.GetAdressFromUser();
+                        if (adressInfo.DoesUserWantToContinue is not true) return null;
+                        address = adressInfo.Address;
                         break;
 
-                    case "Complete":
-                        StopUserCreation("New customer has been created", EventStatus.CustomerAccountCreationSuccess);
-                        return new Customer(username, password,
-                               new PersonInformation(firstName, lastName, dateOfBirth,
-                               new ContactInformation(email, phone, adress)));
-                    
-                    case "Back":
-                        StopUserCreation("Customer creation cancelled", EventStatus.CustomerAccountCreationFailed);
+                    case UserChoice.Complete:
+                        UserCommunications.StopUserCreation("New admin has been created");
+                        AddLog(EventStatus.AdminAccountCreationSuccess);
+                        return new Admin(userInfo.Username, userInfo.Password,
+                               new PersonInformation(userInfo.FirstName, userInfo.LastName, userInfo.DateOfBirth,
+                               new ContactInformation(email, phone, address)));
+
+                    case UserChoice.Back:
+                        UserCommunications.StopUserCreation("Admin creation cancelled");
+                        AddLog(EventStatus.AdminAccountCreationFailed);
                         return null;
                 }
 
@@ -153,49 +143,93 @@ namespace NET23_GrupprojektBank.Users
                 }
             }
         }
-
-        public bool CancelOrProceedUserCreation(string selectedChoice, string adminOrCustomer, string switchArgument)
+        private void AddLogCreateUserAccountEvents(UserType userType, EventStatus customerEventStatus, EventStatus adminEventStatus)
         {
-            Console.Clear();
-            switch (switchArgument)
+            switch (userType)
             {
-                case "-1":
-                    if (Enum.TryParse($"{selectedChoice}Failed", out EventStatus eventFailed))
-                    {
-                        AddLog(eventFailed);
-                    }
-                    else
-                    {
-                        AddLog(EventStatus.InvalidInput);
-                    }
-                    
-
-                    if (!UserCommunications.AskUserYesOrNo($"Continue account creation without {selectedChoice}?"))
-                    {
-                        if (Enum.TryParse($"{adminOrCustomer}AccountCreationFailed", out EventStatus userFailed))
-                        {
-                            StopUserCreation($"{adminOrCustomer} creation cancelled", userFailed);
-                            return true;
-                        }
-                        AddLog(EventStatus.InvalidInput);
-                    }
+                case UserType.Customer:
+                    AddLog(customerEventStatus);
                     break;
-                default:
-                    if (Enum.TryParse($"{selectedChoice}Success", out EventStatus eventSuccess))
-                    {
-                        AddLog(eventSuccess);
-                        break;
-                    }
-                    AddLog(EventStatus.InvalidInput);
+                case UserType.Admin:
+                    AddLog(adminEventStatus);
                     break;
             }
-            return false;
         }
-        public void StopUserCreation(string message, EventStatus status)
+        public User CreateUserAccount(List<string> existingUsernames, UserType userType)
         {
-            AnsiConsole.MarkupLine($"[green]{message}[/]");
-            AddLog(status);
-            UserCommunications.FakeBackChoice("Ok");
+            Email email = new("", "");
+            Phone phone = new("");
+            Address address = new("", "", "", "");
+            UserChoice choice;
+            EventStatus eventStatus;
+            (UserChoice UserChoice, EventStatus EventStatus) proceedInfo;
+            var userInfo = UserCommunications.GetBasicsFromUser(existingUsernames);
+            if (userInfo.Username == "-1")
+            {
+                UserCommunications.StopUserCreation($"{userType.ToString()} creation cancelled");
+                AddLog(EventStatus.AdminAccountCreationFailed);
+                return null;
+            }
+            var remainingChoices = UserCommunications.GetAdminCreateUserChoiceList();
+
+            while (true)
+            {
+                choice = UserCommunications.AdminCreateUserMenu(remainingChoices);
+                switch (choice)
+                {
+                    case UserChoice.Email:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var emailInfo = UserCommunications.GetEmailFromUser();
+                        proceedInfo = UserCommunications.CancelOrProceedUserCreation(choice, userType, emailInfo.DoesUserWantToContinue);
+                        choice = proceedInfo.UserChoice;
+                        eventStatus = proceedInfo.EventStatus;
+                        email = emailInfo.Email;
+                        break;
+
+                    case UserChoice.Phone:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var phoneInfo = UserCommunications.GetPhoneFromUser();
+                        proceedInfo = UserCommunications.CancelOrProceedUserCreation(choice, userType, phoneInfo.DoesUserWantToContinue);
+                        choice = proceedInfo.UserChoice;
+                        eventStatus = proceedInfo.EventStatus;
+                        phone = phoneInfo.Phone;
+                        break;
+
+                    case UserChoice.Address:
+                        remainingChoices = UserCommunications.UpdateAdminUserChoiceList(remainingChoices, choice);
+                        var adressInfo = UserCommunications.GetAdressFromUser();
+                        proceedInfo = UserCommunications.CancelOrProceedUserCreation(choice, userType, adressInfo.DoesUserWantToContinue);
+                        choice = proceedInfo.UserChoice;
+                        eventStatus = proceedInfo.EventStatus;
+                        address = adressInfo.Address;
+                        break;
+
+                    default:
+                        break;
+                }
+                if (remainingChoices.Count == 2)
+                {
+                    choice = UserChoice.Complete;
+                    break;
+                }
+
+                if (choice == UserChoice.Back)
+                {
+                    break;
+                }
+            }
+            if (choice is not UserChoice.Complete)
+            {
+                UserCommunications.StopUserCreation($"{userType.ToString()} creation cancelled");
+                AddLogCreateUserAccountEvents(userType, Event)
+                    AddLog(EventStatus.AdminAccountCreationFailed);
+            }
+
+            UserCommunications.StopUserCreation($"New {userType.ToString()} has been created");
+            AddLog(EventStatus.AdminAccountCreationSuccess);
+            return new Admin(userInfo.Username, userInfo.Password,
+                   new PersonInformation(userInfo.FirstName, userInfo.LastName, userInfo.DateOfBirth,
+                   new ContactInformation(email, phone, address)));
         }
         public void UpdateCurrencyExchangeRate()
         {
