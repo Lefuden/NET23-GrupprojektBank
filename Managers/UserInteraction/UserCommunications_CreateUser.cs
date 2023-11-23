@@ -44,13 +44,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 }
 
                 AnsiConsole.Clear();
-
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Email Information");
                 var content = new Markup($"{AdminColors["Choice"]}Email: [/]{AdminColors["Highlight"]}{email}[/]\n" +
                                          $"{AdminColors["Choice"]}Work email:[/] {AdminColors["Highlight"]}{workEmail}[/]").LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
-                    .Header($"{AdminColors["Input"]}Email[/]")
+                    .BorderColor(TableBorderColor)
+                    .Header($"{AdminColors["Info"]}Email[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
 
@@ -96,13 +96,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                 }
                 AnsiConsole.Clear();
-
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Phone Information");
                 var content = new Markup($"{AdminColors["Choice"]}Phone number: [/]{AdminColors["Highlight"]}{phone}[/]\n")
                     .LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
-                    .Header($"{AdminColors["Input"]}Phone[/]")
+                    .BorderColor(TableBorderColor)
+                    .Header($"{AdminColors["Info"]}Phone[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
 
@@ -141,6 +141,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 if (postalNumber == "-1") return (new Address("-1", "", "", ""), switchArgument);
 
                 AnsiConsole.Clear();
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Adress Information");
                 var content = new Markup(
                 $"{AdminColors["Choice"]}Country: [/]{AdminColors["Highlight"]}{country}[/]\n" +
                 $"{AdminColors["Choice"]}City: [/]{AdminColors["Highlight"]}{city}[/]\n" +
@@ -149,8 +150,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ).LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
-                    .Header($"{AdminColors["Input"]}Address[/]")
+                    .BorderColor(TableBorderColor)
+                    .Header($"{AdminColors["Info"]}Address[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
 
@@ -223,6 +224,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 var password = AnsiConsole.Prompt(new TextPrompt<string>($"{AdminColors["Choice"]}Password[/]:")
                     .PromptStyle("red")
                     .Secret());
+                if (password == "-1") return ("-1", "", "", "", DateTime.Now);
+
                 var firstName = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}First name[/]:");
                 if (firstName == "-1") return ("-1", "", "", "", DateTime.Now);
 
@@ -233,6 +236,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 if (dateOfBirth == DateTime.MinValue) return ("-1", "", "", "", DateTime.Now);
 
                 AnsiConsole.Clear();
+                WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "User Information");
                 var content = new Markup(
                 $"{AdminColors["Choice"]}User name: [/]{AdminColors["Highlight"]}{username}[/]\n" +
                 $"{AdminColors["Choice"]}Password: [/]{AdminColors["Highlight"]}**********[/]\n" +
@@ -242,8 +246,8 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ).LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
-                    .Header($"{AdminColors["Input"]}User Information[/]")
+                    .BorderColor(TableBorderColor)
+                    .Header($"{AdminColors["Info"]}User Information[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
 
