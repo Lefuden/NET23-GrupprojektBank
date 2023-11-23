@@ -91,7 +91,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             AnsiConsole.Clear();
             WriteDivider($"{BankAccountColors["DividerText"]}", $"{BankAccountColors["DividerLine"]}", "Transfer Menu");
 
-            if (AskUserYesOrNo($"Do you want to deposit this {transferAmount:0.##} {sourceAccountInfo.CurrencyType}to {destinationAccount.GetAccountInformation().BankAccountName}? (Yes/No): ") is not true)
+            if (AskUserYesOrNo($"Do you want to transfer[/] [{BankAccountColors["Balance"]}]{transferAmount:0.##} {sourceAccountInfo.CurrencyType}[/]{MenuColors["Title"]} to {destinationAccount.GetAccountInformation().BankAccountName}?") is not true)
             {
                 return default;
             }

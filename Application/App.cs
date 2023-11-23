@@ -12,7 +12,7 @@ namespace NET23_GrupprojektBank.Application
 
         public void Run()
         {
-            //BankLoggo.StartUpAppLoadingScreen();
+
             LogicManager.GetUserChoice();
         }
     }
