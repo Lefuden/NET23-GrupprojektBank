@@ -12,7 +12,7 @@ namespace NET23_GrupprojektBank.Managers.Login
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
 
 
-        public LoginManager(List<User> listOfUsers, int maxAttempts = 3)
+        public LoginManager(List<User> listOfUsers)
         {
             CurrentExistingUsers = listOfUsers;
         }
