@@ -1,5 +1,4 @@
-﻿using NET23_GrupprojektBank.Users;
-using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
+﻿using NET23_GrupprojektBank.Users.UserInformation.UserContactInformation.Specifics;
 using Spectre.Console;
 
 namespace NET23_GrupprojektBank.Managers.UserInteraction
@@ -17,7 +16,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 while (true)
                 {
                     email = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Email (x@x.x)[/]:");
-                    if (email == "-1") return (new Email("-1", ""),switchArgument);
+                    if (email == "-1") return (new Email("-1", ""), switchArgument);
                     if (!Email.IsEmailValid(email))
                     {
                         AnsiConsole.MarkupLine($"{AdminColors["Warning"]}invalid email format, try again[/]");
@@ -49,7 +48,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                                          $"{AdminColors["Choice"]}Work email:[/] {AdminColors["Highlight"]}{workEmail}[/]").LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
+                    .BorderColor(TableBorderColor)
                     .Header($"{AdminColors["Input"]}Email[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
@@ -101,7 +100,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     .LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
+                    .BorderColor(TableBorderColor)
                     .Header($"{AdminColors["Input"]}Phone[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
@@ -149,7 +148,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ).LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
+                    .BorderColor(TableBorderColor)
                     .Header($"{AdminColors["Input"]}Address[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
@@ -242,7 +241,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                 ).LeftJustified();
                 var panel = new Panel(content)
                     .RoundedBorder()
-                    .BorderColor(BorderColor)
+                    .BorderColor(TableBorderColor)
                     .Header($"{AdminColors["Input"]}User Information[/]")
                     .HeaderAlignment(Justify.Left);
                 AnsiConsole.Write(panel);
