@@ -8,7 +8,7 @@ namespace NET23_GrupprojektBank.Managers.Login
         private List<User> CurrentExistingUsers { get; set; }
         private int MaxLoginAttempts { get; set; } = 3;
         private bool IsLocked { get; set; } = false;
-        private const int LockoutDuration = 6;
+        private const int LockoutDuration = 10;
         private DateTime LockoutTimeStart { get; set; } = DateTime.MinValue;
 
 
