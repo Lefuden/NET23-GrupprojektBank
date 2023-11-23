@@ -13,14 +13,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             while (true)
             {
                 AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter email information.[/]");
-                var email = AnsiConsole.Ask<string>($"{AdminColors["Title"]}Email[/]:");
-                if (email == "-1") return (new Email("-1", ""),switchArgument);
+                string? email;
                 while (true)
                 {
+                    email = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Email (x@x.x)[/]:");
+                    if (email == "-1") return (new Email("-1", ""),switchArgument);
                     if (!Email.IsEmailValid(email))
                     {
-                        email = AnsiConsole.Ask<string>($"{AdminColors["Warning"]}invalid email format, try again:[/]");
-                        if (email == "-1") return (new Email("-1", ""),switchArgument);
+                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}invalid email format, try again[/]");
                     }
                     else
                     {
@@ -28,14 +28,14 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                 }
 
-                var workEmail = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Work email[/]:");
-                if (workEmail == "-1") return (new Email("-1", ""), switchArgument);
+                string? workEmail;
                 while (true)
                 {
+                    workEmail = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Work email (x@x.x)[/]:");
+                    if (workEmail == "-1") return (new Email("-1", ""), switchArgument);
                     if (!Email.IsEmailValid(workEmail))
                     {
-                        workEmail = AnsiConsole.Ask<string>($"{AdminColors["Warning"]}invalid email format, try again:[/]");
-                        if (workEmail == "-1") return (new Email("-1", ""), switchArgument);
+                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}invalid email format, try again[/]");
                     }
                     else
                     {
@@ -71,11 +71,11 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
         public static (Phone, string switchArgument) GetPhoneFromUser()
         {
-
+            string switchArgument = "-1";
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Phone Information");
             while (true)
             {
-                string switchArgument = "-1";
+                AnsiConsole.MarkupLine($"{AdminColors["Title"]}Enter phone information.[/]");
                 string? phone;
                 while (true)
                 {
@@ -83,7 +83,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     if (phone == "-1") return (new Phone("-1"), switchArgument);
                     if (phone.Length != 10)
                     {
-                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}Invalid number length! You wrote:[/] {AdminColors["Highlight"]}{phone.Length}[/].\n{AdminColors["Warning"]}Try again with 10 digits[/]");
+                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}Invalid number length! You wrote:[/] {AdminColors["Highlight"]}{phone.Length}[/], {AdminColors["Warning"]}try again[/]");
                     }
                     if (phone.Length == 10)
                     {
@@ -92,9 +92,10 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                             break;
                         }
 
-                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}Invalid number format (10 digits)[/]");
+                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}Invalid number format, try again[/]");
                     }
                 }
+                AnsiConsole.Clear();
 
                 var content = new Markup($"{AdminColors["Choice"]}Phone number: [/]{AdminColors["Highlight"]}{phone}[/]\n")
                     .LeftJustified();
@@ -173,7 +174,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             WriteDivider($"{AdminColors["DividerText"]}", $"{AdminColors["DividerLine"]}", "Birth Date Information");
             while (true)
             {
-                var userInput = AnsiConsole.Ask<string>($"{AdminColors["Title"]}Date of Birth (YYYYMMDD)[/]:");
+                var userInput = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Date of Birth (YYYYMMDD)[/]:");
                 if (userInput.Length == 8)
                 {
                     userInput = userInput.Insert(6, ",");
@@ -211,7 +212,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                     else if (username.Length < 5)
                     {
-                        AnsiConsole.MarkupLine($"{AdminColors["Choice"]}{username} is too short, enter a valid username:[/]");
+                        AnsiConsole.MarkupLine($"{AdminColors["Warning"]}{username} is too short, enter a valid username:[/]");
                     }
                     else
                     {
@@ -219,13 +220,13 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
                     }
                 }
 
-                var password = AnsiConsole.Prompt(new TextPrompt<string>($"{AdminColors["Title"]}Password[/]:")
+                var password = AnsiConsole.Prompt(new TextPrompt<string>($"{AdminColors["Choice"]}Password[/]:")
                     .PromptStyle("red")
                     .Secret());
-                var firstName = AnsiConsole.Ask<string>($"{AdminColors["Title"]}First name[/]:");
+                var firstName = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}First name[/]:");
                 if (firstName == "-1") return ("-1", "", "", "", DateTime.Now);
 
-                var lastName = AnsiConsole.Ask<string>($"{AdminColors["Title"]}Last name[/]:");
+                var lastName = AnsiConsole.Ask<string>($"{AdminColors["Choice"]}Last name[/]:");
                 if (lastName == "-1") return ("-1", "", "", "", DateTime.Now);
 
                 var dateOfBirth = GetBirthDateFromUser();

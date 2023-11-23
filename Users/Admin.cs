@@ -164,7 +164,12 @@ namespace NET23_GrupprojektBank.Users
                     {
                         AddLog(eventFailed);
                     }
+                    else
+                    {
+                        AddLog(EventStatus.InvalidInput);
+                    }
                     
+
                     if (!UserCommunications.AskUserYesOrNo($"Continue account creation without {selectedChoice}?"))
                     {
                         if (Enum.TryParse($"{adminOrCustomer}AccountCreationFailed", out EventStatus userFailed))
@@ -172,13 +177,16 @@ namespace NET23_GrupprojektBank.Users
                             StopUserCreation($"{adminOrCustomer} creation cancelled", userFailed);
                             return true;
                         }
+                        AddLog(EventStatus.InvalidInput);
                     }
                     break;
                 default:
                     if (Enum.TryParse($"{selectedChoice}Success", out EventStatus eventSuccess))
                     {
                         AddLog(eventSuccess);
+                        break;
                     }
+                    AddLog(EventStatus.InvalidInput);
                     break;
             }
             return false;
