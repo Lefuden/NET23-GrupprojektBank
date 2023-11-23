@@ -6,7 +6,6 @@ namespace NET23_GrupprojektBank.Managers.Login
     internal class LoginManager
     {
         private List<User> CurrentExistingUsers { get; set; }
-        private int RemainingLoginAttempts { get; set; } = 3;
         private int MaxLoginAttempts { get; set; } = 3;
         private bool IsLocked { get; set; } = false;
         private const int LockoutDuration = 6;
