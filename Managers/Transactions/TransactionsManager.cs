@@ -10,9 +10,9 @@ namespace NET23_GrupprojektBank.Managers.Transactions
         private Task? _timerTask;
         private readonly PeriodicTimer _timer;
         private readonly CancellationTokenSource _cts = new();
-        public TransactionsManager(int timeInSeconds = 10)
+        public TransactionsManager(int timeInMinutes = 15)
         {
-            _timer = new(TimeSpan.FromSeconds(timeInSeconds));
+            _timer = new(TimeSpan.FromMinutes(timeInMinutes));
             Transactions = new();
             TransactionLogs = new();
         }
