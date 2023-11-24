@@ -16,11 +16,6 @@ This is a static class in charge of all the communications with the user. This c
 We decided to use the SpectreConsole Nuget Package for this due to having a big flexibility in design choices and the capability of handling validation and conversion in its own methods without us having to implement extra classes and logic to handle it.
 This also gives us the luxury of having all the validation and conversion contained within the same class and in some cases methods that makes it easier to debug and expand or correct if needed during the development process.
 
-## UserCommunications
-This is a static class in charge of all the communications with the user. This class will be used to print all the menus, receiving a user input, validating that input and passing it along to the other classes that will be needing it.
-We decided to use the SpectreConsole Nuget Package for this due to having a big flexibility in design choices and the capability of handling validation and conversion in its own methods without us having to implement extra classes and logic to handle it.
-This also gives us the luxury of having all the validation and conversion contained within the same class and in some cases methods that makes it easier to debug and expand or correct if needed during the development process.
-
 ## LoginManager
 This class is handling the login process of the application and will be in charge of controlling if the user is successful in login in to their account and, if the user fail 3 times locking the user for n amount of time.
 
@@ -30,6 +25,7 @@ Each dictionary holds values with these currencies as the main currency type
 1. SEK
 2. USD
 3. EUR
+
 This class have a method to update it the dictionaries if the user trying to do so, is an admin. If they are an admin we give them a choice to either load currency exchange rates from a file and update the dictionaries with those or to use ExchangeRate-Api.com as a source for currency exchange rates.
 
 If the admin chooses to get them with the API they are asked for an api key, after getting a valid key the class makes a request and saves the three responses to file before serializing them to objects that is later used to update the values of our dictionaries.
