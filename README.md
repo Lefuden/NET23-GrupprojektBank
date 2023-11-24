@@ -1,4 +1,4 @@
-# NET23-GrupprojektBank
+# NET23-GrupprojektBank - Team Hyper Hedgehogs
 
 # Class Diagram (UML) of the project
 ![image](https://github.com/Lefuden/NET23-GrupprojektBank/blob/master/__AssignmentInformation/GruppProjekt_UML.png "Hyper Hedgehogs Fundgins UML")
