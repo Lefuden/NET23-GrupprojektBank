@@ -98,7 +98,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             FakeBackChoice("Back");
         }
 
-        public static (string Username, string Password) GetLoginInfo(int attempt, int maxAttempt)
+        public static (string Username, string Password) GetLoginInfo(int attempt)
         {
             // Anyone likes wicked long oneliners? :)
             WriteDivider(MenuColors[$"{(attempt == 1 ? "DividerText" : attempt == 2 ? "LoginLightWarning" : "LoginCriticalWarning")}"], MenuColors[$"{(attempt == 1 ? "DividerLine" : attempt == 2 ? "LoginLightWarning" : "LoginCriticalWarning")}"], $"Login | {(attempt == 1 ? $"3 Attempts Remaining" : attempt == 2 ? $"2 Attempts Remaining" : "Last Attempt!")}");

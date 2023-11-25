@@ -57,7 +57,7 @@ namespace NET23_GrupprojektBank.Managers.Logic
 
                     case UserChoice.Login:
 
-                        var loginInfo = UserCommunications.GetLoginInfo(LoginAttempts, 3);
+                        var loginInfo = UserCommunications.GetLoginInfo(LoginAttempts);
                         var info = LoginManager.Login(loginInfo.Username, loginInfo.Password, LoginAttempts++);
 
                         switch (info.EventStatus)
