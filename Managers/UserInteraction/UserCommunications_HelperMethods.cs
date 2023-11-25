@@ -64,6 +64,9 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             {"Back",            $"[{_back}]"},
             {"DividerText",     $"{_goldDividerText}"},
             {"DividerLine",     $"{_goldDividerLine}"},
+            {"LoginLightWarning", $"orange3" },
+            {"LoginMediumWarning", $"darkorange3_1" },
+            {"LoginCriticalWarning", $"orangered1" },
             {"Warning",         $"[{_redWarning}]" },
             {"Highlight",       $"[{_purpleHighlight}]"}
         };

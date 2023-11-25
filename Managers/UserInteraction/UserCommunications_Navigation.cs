@@ -24,11 +24,7 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
 
             return ConvertStringToUserChoice(stringChoice);
         }
-        public static void IncorrectLoginNotification()
-        {
-            WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Login");
-            // FOIRSTÄTT HÄRRHAIWRH
-        }
+
         public static UserChoice AdminMenu()
         {
             WriteDivider(AdminColors["DividerText"], AdminColors["DividerLine"], "Admin Menu");
@@ -102,9 +98,29 @@ namespace NET23_GrupprojektBank.Managers.UserInteraction
             FakeBackChoice("Back");
         }
 
-        public static (string Username, string Password) GetLoginInfo()
+        public static (string Username, string Password) GetLoginInfo(int attempt, int maxAttempt)
         {
-            WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Login");
+            // Anyone likes wicked long oneliners? :)
+            WriteDivider(MenuColors[$"{(attempt == 1 ? "DividerText" : attempt == 2 ? "LoginLightWarning" : "LoginCriticalWarning")}"], MenuColors[$"{(attempt == 1 ? "DividerLine" : attempt == 2 ? "LoginLightWarning" : "LoginCriticalWarning")}"], $"Login | {(attempt == 1 ? $"3 Attempts Remaining" : attempt == 2 ? $"2 Attempts Remaining" : "Last Attempt!")}");
+
+            //switch (attempt)
+            //{
+            //    case 1:
+            //        WriteDivider(MenuColors["LoginLightWarning"], MenuColors["LoginLightWarning"], $"Login | 3 Attempts Remaining");
+
+            //        break;
+
+            //    case 2:
+            //        WriteDivider(MenuColors["LoginMediumWarning"], MenuColors["LoginMediumWarning"], $"Login | 2 Attempts Remaining");
+
+            //        break;
+
+            //    case 3:
+            //        WriteDivider(MenuColors["LoginCriticalWarning"], MenuColors["LoginCriticalWarning"], $"Login | Last Attempt!");
+
+            //        break;
+            //}
+            //WriteDivider(MenuColors["DividerText"], MenuColors["DividerLine"], "Login");
             var Username = AnsiConsole.Prompt(
                 new TextPrompt<string>($"{MenuColors["Input"]}Username: [/]")
                     .PromptStyle(_greenColor)
