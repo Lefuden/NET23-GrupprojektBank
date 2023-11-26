@@ -1,5 +1,16 @@
 # NET23-GrupprojektBank - Team Hyper Hedgehogs
 
+# Pre-made Accounts
+| Username | Password | Account Type |
+| -------- | -------- | ------------ |
+| Customer | password | Customer     |
+| Admin    | password | Admin        |
+| Aldor    | password | Customer     |
+| Reider   | password | Customer     |
+| AAldor   | password | Admin        |
+| AReidar  | password | Admin        |
+
+
 # Information about updating currency exchange rate!
 We are using a free web api key to update the currency exchange rate wich you can get from [here](https://www.exchangerate-api.com/)
 If you do not update it with an API Key the default exchange rate will be 1:1 ratio.
