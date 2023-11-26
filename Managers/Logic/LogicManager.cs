@@ -439,14 +439,21 @@ namespace NET23_GrupprojektBank.Managers.Logic
         {
             List<User> users = new()
                 {
-                    new Admin("ATobias",   "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
-                    new Admin("ADaniel",   "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel.admin@edugrade.com")))),
-                    new Admin("AWille",    "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille.admin@edugrade.com")))),
-                    new Admin("AEfrem",    "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem.admin@edugrade.com")))),
-                    new Customer("Tobias", "password",new PersonInformation("Tobias", "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
-                    new Customer("Daniel", "password",new PersonInformation("Daniel", "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
-                    new Customer("Wille",  "password",new PersonInformation("Wille",  "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
-                    new Customer("Efrem",  "password",new PersonInformation("Efrem",  "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com"))))
+                    new Admin("ATobias",     "password", new PersonInformation("Tobias",     "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias.admin@edugrade.com")))),
+                    new Admin("ADaniel",     "password", new PersonInformation("Daniel",     "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel.admin@edugrade.com")))),
+                    new Admin("AWille",      "password", new PersonInformation("Wille",      "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille.admin@edugrade.com")))),
+                    new Admin("AEfrem",      "password", new PersonInformation("Efrem",      "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem.admin@edugrade.com")))),
+                    new Admin("AAldor",      "password", new PersonInformation("Aldor",      "Besher",  new DateTime(1994, 03, 22), new ContactInformation(new Email("aldor.admin@edugrade.com")))),
+                    new Admin("AReidar",     "password", new PersonInformation("Reidar",     "Nilsen",  new DateTime(1979, 03, 22), new ContactInformation(new Email("reidar.admin@edugrade.com")))),
+                    new Admin("Admin",       "password", new PersonInformation("Admin",      "Test",    new DateTime(1979, 03, 22), new ContactInformation(new Email("admin.admin@edugrade.com")))),
+                    new Customer("Tobias",   "password", new PersonInformation("Tobias",     "Skog",    new DateTime(1991, 10, 28), new ContactInformation(new Email("tobias@edugrade.com")))),
+                    new Customer("Daniel",   "password", new PersonInformation("Daniel",     "Frykman", new DateTime(1985, 05, 13), new ContactInformation(new Email("daniel@edugrade.com")))),
+                    new Customer("Wille",    "password", new PersonInformation("Wille",      "Persson", new DateTime(1994, 03, 22), new ContactInformation(new Email("wille@edugrade.com")))),
+                    new Customer("Efrem",    "password", new PersonInformation("Efrem",      "Ghebre",  new DateTime(1979, 03, 22), new ContactInformation(new Email("efrem@edugrade.com")))),
+                    new Customer("Aldor",    "password", new PersonInformation("Aldor",      "Besher",  new DateTime(1991, 10, 28), new ContactInformation(new Email("aldor@edugrade.com")))),
+                    new Customer("Reidar",   "password", new PersonInformation("Reidar",     "Nilsen",  new DateTime(1985, 05, 13), new ContactInformation(new Email("reidar@edugrade.com")))),
+                    new Customer("Customer", "password", new PersonInformation("Customer",   "Test",    new DateTime(1985, 05, 13), new ContactInformation(new Email("customer@test.com")))),
+
                 };
             foreach (var user in users)
             {
