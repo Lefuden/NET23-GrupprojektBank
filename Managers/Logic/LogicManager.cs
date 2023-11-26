@@ -478,16 +478,21 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 if (user is Customer customer)
                 {
                     decimal sum;
-                    int amountOfAccounts = rng.Next(2, 6);
+                    int amountOfAccounts = rng.Next(2, 11);
                     for (int i = 0; i < amountOfAccounts; i++)
                     {
-                        sum = rng.Next(0, 1001);
-                        customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum));
-                        customer.AddLog(EventStatus.CheckingCreationSuccess);
-
-                        sum = rng.Next(0, 1001);
-                        customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.EUR, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
-                        customer.AddLog(EventStatus.SavingsCreationSuccess);
+                        if (i % 2 == 0)
+                        {
+                            sum = rng.Next(0, 1001);
+                            customer.AddBankAccount(new Checking(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.SEK, sum));
+                            customer.AddLog(EventStatus.CheckingCreationSuccess);
+                        }
+                        else
+                        {
+                            sum = rng.Next(0, 1001);
+                            customer.AddBankAccount(new Savings(BankAccount.BankAccountNumberGenerator(GetBankAccountNumbers()), $"{CreateAmazingAccountName(i, user.GetUsername())}", CurrencyType.EUR, sum, UserCommunications.DecideInterestRate(customer.GetBankAccounts())));
+                            customer.AddLog(EventStatus.SavingsCreationSuccess);
+                        }
                     }
 
                 }
@@ -505,9 +510,14 @@ namespace NET23_GrupprojektBank.Managers.Logic
                 0 => $"{name}'s Hemliga Godis Konto",
                 1 => $"{name}'s Semester Konto",
                 2 => $"{name}'s Mat Konto",
-                3 => $"{name}'s Reservdels Konto för Ockelbon",
+                3 => $"{name}'s Reservdels Konto för Ockelbo",
                 4 => $"{name}'s Tomma Konto",
                 5 => $"{name}'s Hemliga Honungs Konto",
+                6 => $"{name}'s Dator Konto",
+                7 => $"{name}'s Framtida Domän Inköps Konto",
+                8 => $"{name}'s Familjekonto",
+                9 => $"{name}'s Server Konto",
+                10 => $"{name}'s Netflix Konto",
                 _ => $"{name}'s Något Blev Fel Konto"
             };
         }
