@@ -1,5 +1,10 @@
 # NET23-GrupprojektBank - Team Hyper Hedgehogs
 
+# Information about updating currency exchange rate!
+We are using a free web api key to update the currency exchange rate wich you can get from [here](https://www.exchangerate-api.com/)
+If you do not update it with an API Key the default exchange rate will be 1:1 ratio.
+If you are a teacher grading this, you will have the api key posted in the assignment hand in on learnpoint.
+
 # Class Diagram (UML) of the project
 ![image](https://github.com/Lefuden/NET23-GrupprojektBank/blob/master/__AssignmentInformation/GruppProjekt_UML.png "Hyper Hedgehogs Fundgins UML")
 
